@@ -18,9 +18,14 @@ export default async function DashboardLayout({
   if (session?.user?.id) {
     if (role !== "MEMBER") {
       unreadCount = await prisma.borrowRequest.count({
-        where: { status: "PENDING" }
+        where: { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
       })
     } else {
+      // Fetch unread notifications for member
+      unreadCount = await prisma.notification.count({
+        where: { userId: session.user.id, isRead: false }
+      })
+
       // Fetch overdue items for member
       const today = new Date()
       today.setHours(0, 0, 0, 0)
@@ -76,7 +81,7 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-3">
               <ClipboardList className="w-5 h-5" /> {role !== "MEMBER" ? "Yêu cầu mượn/trả" : "Lịch sử mượn trả"}
             </div>
-            {role !== "MEMBER" && unreadCount > 0 && (
+            {unreadCount > 0 && (
               <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
                 {unreadCount}
               </span>

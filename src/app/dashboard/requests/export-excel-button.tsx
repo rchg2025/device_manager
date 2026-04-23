@@ -23,6 +23,7 @@ export default function ExportExcelButton({ requests }: { requests: any[] }) {
       "Ngày trả thực tế": req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN') : "",
       "Trạng thái": req.status === 'PENDING' ? 'Chờ duyệt' :
                     req.status === 'APPROVED' ? 'Đang mượn' :
+                    req.status === 'RETURN_REQUESTED' ? 'Chờ xác nhận trả' :
                     req.status === 'RETURNED' ? 'Đã trả' : 'Từ chối',
       "Người xử lý": req.reviewerName || "",
       "Lý do từ chối": req.rejectionReason || "",

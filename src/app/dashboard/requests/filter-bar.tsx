@@ -68,6 +68,7 @@ export default function FilterBar() {
           <option value="">Tất cả</option>
           <option value="PENDING">Chờ duyệt</option>
           <option value="APPROVED">Đang mượn</option>
+          <option value="RETURN_REQUESTED">Chờ xác nhận trả</option>
           <option value="RETURNED">Đã trả</option>
           <option value="REJECTED">Từ chối</option>
         </select>
