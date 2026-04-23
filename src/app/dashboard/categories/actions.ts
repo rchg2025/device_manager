@@ -35,3 +35,69 @@ export async function deleteCategory(id: string) {
     return { error: "Không thể xóa danh mục đang có thiết bị" }
   }
 }
+
+export async function createUnit(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  const name = formData.get("name") as string
+  if (!name) return { error: "Tên đơn vị không được trống" }
+
+  try {
+    await prisma.unit.create({
+      data: { name }
+    })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi tạo đơn vị (có thể bị trùng tên)" }
+  }
+}
+
+export async function deleteUnit(id: string) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  try {
+    await prisma.unit.delete({
+      where: { id }
+    })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Không thể xóa đơn vị đang có thành viên" }
+  }
+}
+
+export async function createPosition(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  const name = formData.get("name") as string
+  if (!name) return { error: "Tên chức vụ không được trống" }
+
+  try {
+    await prisma.position.create({
+      data: { name }
+    })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi tạo chức vụ (có thể bị trùng tên)" }
+  }
+}
+
+export async function deletePosition(id: string) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  try {
+    await prisma.position.delete({
+      where: { id }
+    })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Không thể xóa chức vụ đang có thành viên" }
+  }
+}

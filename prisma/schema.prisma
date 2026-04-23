@@ -41,14 +41,35 @@ enum Role {
   MEMBER
 }
 
+model Unit {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[]
+}
+
+model Position {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[]
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
+  phone         String?
   image         String?
   password      String?
   role          Role      @default(MEMBER)
+  
+  unitId        String?
+  unit          Unit?     @relation(fields: [unitId], references: [id])
+  positionId    String?
+  position      Position? @relation(fields: [positionId], references: [id])
+  
+  createdAt     DateTime  @default(now())
+
   accounts      Account[]
   sessions      Session[]
   requests      BorrowRequest[]
