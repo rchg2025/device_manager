@@ -11,10 +11,6 @@ export default function ReturnModal({ req, children }: { req: any, children: Rea
   const [error, setError] = useState("")
 
   const handleReturn = async () => {
-    if (!returnCondition.trim()) {
-      setError("Vui lòng nhập tình trạng thiết bị khi trả")
-      return
-    }
     setIsLoading(true)
     setError("")
     // updateRequestStatus(id, status, rejectionReason, returnCondition)
@@ -61,7 +57,7 @@ export default function ReturnModal({ req, children }: { req: any, children: Rea
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tình trạng thiết bị khi nhận lại *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tình trạng thiết bị khi nhận lại (Không bắt buộc)</label>
                 <textarea 
                   rows={3} 
                   className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 text-sm border"
