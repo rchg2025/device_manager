@@ -1,11 +1,12 @@
 "use client"
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Trash2, Edit2, Check, X } from "lucide-react"
 import { updateEquipment, deleteEquipment } from "./actions"
 
 export default function EquipmentRow({ eq, categories }: { eq: any, categories: any[] }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   async function handleUpdate(formData: FormData) {
     setIsLoading(true)
@@ -15,12 +16,14 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
     setIsLoading(false)
   }
 
-  async function handleDelete() {
+  function handleDelete() {
     if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
-      const res = await deleteEquipment(eq.id)
-      if (res?.error) {
-        alert(res.error)
-      }
+      startTransition(async () => {
+        const res = await deleteEquipment(eq.id)
+        if (res?.error) {
+          alert(res.error)
+        }
+      })
     }
   }
 

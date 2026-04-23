@@ -121,7 +121,8 @@ export default async function DashboardLayout({
           </div>
           <form action={async () => {
             "use server";
-            await import("@/auth").then(m => m.signOut());
+            const { signOut } = await import("@/auth");
+            await signOut({ redirectTo: "/login" });
           }}>
             <button type="submit" className="flex items-center gap-3 px-3 py-2 text-red-600 rounded-md hover:bg-red-50 w-full text-left">
               <LogOut className="w-5 h-5" /> Đăng xuất
@@ -149,7 +150,8 @@ export default async function DashboardLayout({
             <div className="md:hidden">
               <form action={async () => {
                 "use server";
-                await import("@/auth").then(m => m.signOut());
+                const { signOut } = await import("@/auth");
+                await signOut({ redirectTo: "/login" });
               }}>
                 <button type="submit" title="Đăng xuất" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
                   <LogOut className="w-5 h-5" />
