@@ -92,7 +92,16 @@ export default async function RequestsPage({
       createdAt: true,
       updatedAt: true,
       equipment: { select: { id: true, name: true, image: true, availableQty: true } },
-      user: { select: { id: true, name: true, email: true } }
+      user: { 
+        select: { 
+          id: true, 
+          name: true, 
+          email: true,
+          phone: true,
+          unit: { select: { name: true } },
+          position: { select: { name: true } }
+        } 
+      }
     },
     orderBy: { createdAt: 'desc' },
     take: 200
