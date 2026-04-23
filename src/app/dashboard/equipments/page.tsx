@@ -3,9 +3,18 @@ import { createEquipment } from "./actions"
 import EquipmentRow from "./equipment-row"
 
 export default async function EquipmentsPage() {
-  const categories = await prisma.category.findMany()
+  const categories = await prisma.category.findMany({ select: { id: true, name: true } })
   const equipments = await prisma.equipment.findMany({
-    include: { category: true },
+    select: {
+      id: true,
+      name: true,
+      barcode: true,
+      image: true,
+      totalQty: true,
+      availableQty: true,
+      categoryId: true,
+      category: { select: { name: true } }
+    },
     orderBy: { category: { name: 'asc' } }
   })
 

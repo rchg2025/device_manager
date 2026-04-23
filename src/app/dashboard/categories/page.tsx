@@ -12,9 +12,9 @@ export default async function CategoriesPage({
   const activeTab = resolvedSearchParams.tab || 'equipment'
 
   const [categories, units, positions] = await Promise.all([
-    prisma.category.findMany({ include: { _count: { select: { equipments: true } } } }),
-    prisma.unit.findMany({ include: { _count: { select: { users: true } } } }),
-    prisma.position.findMany({ include: { _count: { select: { users: true } } } })
+    prisma.category.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } } }),
+    prisma.unit.findMany({ select: { id: true, name: true, _count: { select: { users: true } } } }),
+    prisma.position.findMany({ select: { id: true, name: true, _count: { select: { users: true } } } })
   ]);
 
   return (

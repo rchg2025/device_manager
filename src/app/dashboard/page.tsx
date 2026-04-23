@@ -10,7 +10,12 @@ export default async function DashboardPage() {
     // Member Dashboard
     const requests = await prisma.borrowRequest.findMany({
       where: { userId: session?.user?.id },
-      include: { equipment: true },
+      select: {
+        id: true,
+        quantity: true,
+        status: true,
+        equipment: { select: { name: true } }
+      },
       orderBy: { createdAt: 'desc' },
       take: 5
     })
