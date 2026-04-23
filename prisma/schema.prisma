@@ -73,6 +73,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   requests      BorrowRequest[]
+  notifications Notification[]
 }
 
 model VerificationToken {
@@ -112,5 +113,16 @@ model BorrowRequest {
   borrowDate  DateTime
   returnDate  DateTime
   actualReturnDate DateTime?
+  rejectionReason  String?
   createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
 }

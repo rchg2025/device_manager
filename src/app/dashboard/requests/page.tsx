@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { updateRequestStatus } from "./actions"
 import { auth } from "@/auth"
+import ReviewModal from "./review-modal"
 
 export default async function RequestsPage() {
   const session = await auth()
@@ -9,9 +10,17 @@ export default async function RequestsPage() {
   // If member, only show their requests
   const whereClause = role === "MEMBER" ? { userId: session?.user?.id } : {}
 
+  // Mark notifications as read if manager/admin
+  if (role !== "MEMBER" && session?.user?.id) {
+    await prisma.notification.updateMany({
+      where: { userId: session.user.id, isRead: false },
+      data: { isRead: true }
+    })
+  }
+
   const requests = await prisma.borrowRequest.findMany({
     where: whereClause,
-    include: { equipment: true, user: true },
+    include: { equipment: true, user: { include: { unit: true, position: true } } },
     orderBy: { createdAt: 'desc' }
   })
 
@@ -45,7 +54,7 @@ export default async function RequestsPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {req.borrowDate.toLocaleDateString('vi-VN')} - {req.returnDate.toLocaleDateString('vi-VN')}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                     req.status === 'APPROVED' ? 'bg-blue-100 text-blue-800' :
@@ -56,23 +65,19 @@ export default async function RequestsPage() {
                      req.status === 'APPROVED' ? 'Đang mượn' :
                      req.status === 'RETURNED' ? 'Đã trả' : 'Từ chối'}
                   </span>
+                  {req.status === 'REJECTED' && req.rejectionReason && (
+                    <div className="text-xs text-red-600 mt-1 max-w-xs break-words">
+                      Lý do: {req.rejectionReason}
+                    </div>
+                  )}
                 </td>
                 {role !== "MEMBER" && (
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {req.status === "PENDING" && (
                       <div className="flex justify-end gap-2">
-                        <form action={async () => {
-                          "use server"
-                          await updateRequestStatus(req.id, "APPROVED")
-                        }}>
-                          <button type="submit" className="text-blue-600 hover:text-blue-900">Duyệt</button>
-                        </form>
-                        <form action={async () => {
-                          "use server"
-                          await updateRequestStatus(req.id, "REJECTED")
-                        }}>
-                          <button type="submit" className="text-red-600 hover:text-red-900">Từ chối</button>
-                        </form>
+                        <ReviewModal req={req}>
+                          <button className="text-blue-600 hover:text-blue-900 font-medium px-3 py-1 bg-blue-50 hover:bg-blue-100 rounded">Xem & Xét Duyệt</button>
+                        </ReviewModal>
                       </div>
                     )}
                     {req.status === "APPROVED" && (
@@ -80,7 +85,7 @@ export default async function RequestsPage() {
                         "use server"
                         await updateRequestStatus(req.id, "RETURNED")
                       }}>
-                        <button type="submit" className="text-green-600 hover:text-green-900">Xác nhận trả</button>
+                        <button type="submit" className="text-green-600 hover:text-green-900 font-medium px-3 py-1 bg-green-50 hover:bg-green-100 rounded">Xác nhận trả</button>
                       </form>
                     )}
                   </td>

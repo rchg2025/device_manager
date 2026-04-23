@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
 import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Settings, Users } from "lucide-react"
 
 export default async function DashboardLayout({
@@ -9,6 +10,13 @@ export default async function DashboardLayout({
 }) {
   const session = await auth()
   const role = session?.user?.role || "MEMBER"
+
+  let unreadCount = 0
+  if (role !== "MEMBER" && session?.user?.id) {
+    unreadCount = await prisma.notification.count({
+      where: { userId: session.user.id, isRead: false }
+    })
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -46,8 +54,15 @@ export default async function DashboardLayout({
             </Link>
           )}
           
-          <Link href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
-            <ClipboardList className="w-5 h-5" /> {role !== "MEMBER" ? "Yêu cầu mượn/trả" : "Lịch sử mượn trả"}
+          <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
+            <div className="flex items-center gap-3">
+              <ClipboardList className="w-5 h-5" /> {role !== "MEMBER" ? "Yêu cầu mượn/trả" : "Lịch sử mượn trả"}
+            </div>
+            {role !== "MEMBER" && unreadCount > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                {unreadCount}
+              </span>
+            )}
           </Link>
         </nav>
 

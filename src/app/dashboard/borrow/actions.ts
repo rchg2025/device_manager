@@ -59,6 +59,7 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
 
   try {
     const userId = session.user.id
+    const userName = session.user.name || "Một thành viên"
 
     // Process all items in a transaction to ensure either all succeed or none do
     await prisma.$transaction(async (tx) => {
@@ -67,12 +68,15 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
         const returnDate = new Date(item.returnDate)
 
         if (borrowDate >= returnDate) {
-          throw new Error(`Ngày trả phải sau ngày mượn cho thiết bị đã chọn`)
+          throw new Error(JSON.stringify({ message: "Ngày trả phải sau ngày mượn", equipmentId: item.equipmentId }))
         }
 
         const equipment = await tx.equipment.findUnique({ where: { id: item.equipmentId } })
         if (!equipment || equipment.availableQty < item.quantity) {
-          throw new Error(`Số lượng không đủ cho thiết bị: ${equipment?.name || item.equipmentId}`)
+          throw new Error(JSON.stringify({ 
+            message: `Không còn thiết bị để cho mượn vui lòng liên hệ quản lý để được hỗ trợ hoặc mượn thiết bị khác`, 
+            equipmentId: item.equipmentId 
+          }))
         }
 
         await tx.borrowRequest.create({
@@ -86,6 +90,21 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
           }
         })
       }
+
+      // Notify all admins and managers
+      const managers = await tx.user.findMany({
+        where: { role: { in: ["ADMIN", "MANAGER"] } }
+      })
+
+      if (managers.length > 0) {
+        await tx.notification.createMany({
+          data: managers.map(m => ({
+            userId: m.id,
+            message: `${userName} vừa gửi yêu cầu mượn ${items.length} thiết bị.`,
+            link: "/dashboard/requests"
+          }))
+        })
+      }
     })
 
     revalidatePath("/dashboard")
@@ -93,6 +112,11 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     revalidatePath("/dashboard/requests")
     return { success: true }
   } catch (error: any) {
-    return { error: error.message || "Lỗi khi tạo yêu cầu mượn" }
+    try {
+      const parsedError = JSON.parse(error.message)
+      return { error: parsedError.message, failedEquipmentId: parsedError.equipmentId }
+    } catch {
+      return { error: error.message || "Lỗi khi tạo yêu cầu mượn" }
+    }
   }
 }

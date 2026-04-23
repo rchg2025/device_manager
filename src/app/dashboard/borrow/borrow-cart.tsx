@@ -94,7 +94,13 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
 
     const res = await createMultipleBorrowRequests(payload)
     if (res?.error) {
-      setError(res.error)
+      if (res.failedEquipmentId) {
+        // Show specific alert and remove item
+        alert(res.error)
+        setCartItems(cartItems.filter(item => item.equipmentId !== res.failedEquipmentId))
+      } else {
+        setError(res.error)
+      }
       setIsLoading(false)
     } else {
       setCartItems([])
