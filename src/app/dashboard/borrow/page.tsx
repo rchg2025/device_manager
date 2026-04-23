@@ -17,7 +17,7 @@ export default async function BorrowPage() {
             <label className="block text-sm font-medium text-gray-700">Chọn thiết bị</label>
             <select name="equipmentId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border">
               <option value="">-- Chọn thiết bị cần mượn --</option>
-              {equipments.map(eq => (
+              {equipments.map((eq: any) => (
                 <option key={eq.id} value={eq.id}>
                   {eq.name} (Sẵn sàng: {eq.availableQty}) - {eq.category.name}
                 </option>

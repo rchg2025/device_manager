@@ -34,7 +34,7 @@ export default async function RequestsPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {requests.map((req) => (
+            {requests.map((req: any) => (
               <tr key={req.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{req.user.name || req.user.email}</div>

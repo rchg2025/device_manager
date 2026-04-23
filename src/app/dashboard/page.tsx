@@ -24,7 +24,7 @@ export default async function DashboardPage() {
             <p className="text-gray-500">Chưa có lịch sử mượn thiết bị.</p>
           ) : (
             <ul className="divide-y">
-              {requests.map(req => (
+              {requests.map((req: any) => (
                 <li key={req.id} className="py-3 flex justify-between">
                   <div>
                     <p className="font-medium">{req.equipment.name}</p>

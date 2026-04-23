@@ -50,7 +50,7 @@ export default async function CategoriesPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {categories.map((cat) => (
+              {categories.map((cat: any) => (
                 <tr key={cat.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cat.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{cat._count.equipments} loại</td>

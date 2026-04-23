@@ -71,7 +71,7 @@ export default async function EquipmentsPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {equipments.map((eq) => (
+              {equipments.map((eq: any) => (
                 <tr key={eq.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{eq.name}</div>
