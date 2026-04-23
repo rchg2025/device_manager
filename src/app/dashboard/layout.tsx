@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History } from "lucide-react"
 import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
+import AutoRefreshBadge from "./auto-refresh-badge"
 
 export default async function DashboardLayout({
   children,
@@ -92,11 +93,7 @@ export default async function DashboardLayout({
                 <div className="flex items-center gap-3">
                   <ClipboardList className="w-5 h-5" /> Yêu cầu mượn/trả
                 </div>
-                {unreadCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
+                <AutoRefreshBadge initialCount={unreadCount} />
               </Link>
               <Link href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
                 <History className="w-5 h-5" /> Lịch sử mượn trả
@@ -107,11 +104,7 @@ export default async function DashboardLayout({
               <div className="flex items-center gap-3">
                 <ClipboardList className="w-5 h-5" /> Lịch sử mượn trả
               </div>
-              {unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-                  {unreadCount}
-                </span>
-              )}
+              <AutoRefreshBadge initialCount={unreadCount} />
             </Link>
           )}
         </nav>

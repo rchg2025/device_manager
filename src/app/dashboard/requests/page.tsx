@@ -19,6 +19,8 @@ export default async function RequestsPage({
   const nameFilter = sp?.name || ""
   const statusFilter = sp?.status || ""
   const equipmentFilter = sp?.equipment || ""
+  const fromDate = sp?.fromDate || ""
+  const toDate = sp?.toDate || ""
 
   // Build where clause dynamically
   const whereClause: any = {}
@@ -27,7 +29,7 @@ export default async function RequestsPage({
     whereClause.userId = session?.user?.id
   }
 
-  if (nameFilter) {
+  if (nameFilter && role !== "MEMBER") {
     whereClause.user = {
       OR: [
         { name: { contains: nameFilter, mode: 'insensitive' } },
@@ -43,6 +45,18 @@ export default async function RequestsPage({
   if (equipmentFilter) {
     whereClause.equipment = {
       name: { contains: equipmentFilter, mode: 'insensitive' }
+    }
+  }
+
+  if (fromDate || toDate) {
+    whereClause.createdAt = {}
+    if (fromDate) {
+      whereClause.createdAt.gte = new Date(fromDate)
+    }
+    if (toDate) {
+      const toDateObj = new Date(toDate)
+      toDateObj.setHours(23, 59, 59, 999)
+      whereClause.createdAt.lte = toDateObj
     }
   }
 
@@ -76,7 +90,7 @@ export default async function RequestsPage({
         {role !== "MEMBER" && <ExportExcelButton requests={requests} />}
       </div>
 
-      <FilterBar />
+      <FilterBar role={role || "MEMBER"} />
       
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -136,7 +150,12 @@ export default async function RequestsPage({
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {req.reviewerName || "-"}
+                  {req.reviewerName ? (
+                    <>
+                      <div className="font-medium text-gray-900">{req.reviewerName}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">{new Date(req.updatedAt).toLocaleString('vi-VN')}</div>
+                    </>
+                  ) : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {role !== "MEMBER" ? (
