@@ -5,6 +5,7 @@ import ReviewModal from "./review-modal"
 import ReturnModal from "./return-modal"
 import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
+import DeleteHistoryButton from "./delete-history-button"
 
 export default async function RequestsPage({
   searchParams
@@ -195,6 +196,11 @@ export default async function RequestsPage({
                               {req.status === "RETURN_REQUESTED" ? "Xác nhận trả (Yêu cầu)" : "Xác nhận trả"}
                             </button>
                           </ReturnModal>
+                        </div>
+                      )}
+                      {role === "ADMIN" && req.status !== "APPROVED" && req.status !== "RETURN_REQUESTED" && (
+                        <div className="flex justify-end gap-2 mt-2">
+                          <DeleteHistoryButton requestId={req.id} />
                         </div>
                       )}
                     </>

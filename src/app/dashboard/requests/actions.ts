@@ -114,3 +114,23 @@ export async function requestReturn(requestId: string) {
     return { error: "Lỗi khi đăng ký trả" }
   }
 }
+
+export async function deleteHistoryRecord(requestId: string) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
+
+  try {
+    const request = await prisma.borrowRequest.findUnique({ where: { id: requestId } })
+    if (!request) return { error: "Không tìm thấy yêu cầu" }
+
+    if (request.status === "APPROVED" || request.status === "RETURN_REQUESTED") {
+      return { error: "Không thể xóa lịch sử khi thiết bị chưa được trả" }
+    }
+
+    await prisma.borrowRequest.delete({ where: { id: requestId } })
+    revalidatePath("/dashboard/requests")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi xóa lịch sử" }
+  }
+}

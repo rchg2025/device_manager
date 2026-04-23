@@ -35,11 +35,11 @@ export default function LoginPage() {
             <Camera className="w-8 h-8 text-white" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 animate-gradient-x font-sans tracking-tight">
           Hệ thống Quản lý Thiết bị
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Khoa CNTT - KTĐ | Nam Sài Gòn
+        <p className="mt-2 text-center text-sm text-gray-600 font-medium">
+          Khoa Công nghệ thông tin - Kỹ thuật điện
         </p>
       </div>
 
