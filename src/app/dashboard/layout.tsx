@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Settings, Users } from "lucide-react"
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History } from "lucide-react"
 import OverdueAlert from "./overdue-alert"
+import NotificationDropdown from "./notification-dropdown"
 
 export default async function DashboardLayout({
   children,
@@ -14,6 +15,7 @@ export default async function DashboardLayout({
 
   let unreadCount = 0
   let overdueItems: any[] = []
+  let notifications: any[] = []
 
   if (session?.user?.id) {
     if (role !== "MEMBER") {
@@ -24,6 +26,13 @@ export default async function DashboardLayout({
       // Fetch unread notifications for member
       unreadCount = await prisma.notification.count({
         where: { userId: session.user.id, isRead: false }
+      })
+
+      // Fetch top 5 notifications
+      notifications = await prisma.notification.findMany({
+        where: { userId: session.user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 5
       })
 
       // Fetch overdue items for member
@@ -77,16 +86,34 @@ export default async function DashboardLayout({
             </Link>
           )}
           
-          <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
-            <div className="flex items-center gap-3">
-              <ClipboardList className="w-5 h-5" /> {role !== "MEMBER" ? "Yêu cầu mượn/trả" : "Lịch sử mượn trả"}
-            </div>
-            {unreadCount > 0 && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-          </Link>
+          {role !== "MEMBER" ? (
+            <>
+              <Link href="/dashboard/requests?filter=action_required" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
+                <div className="flex items-center gap-3">
+                  <ClipboardList className="w-5 h-5" /> Yêu cầu mượn/trả
+                </div>
+                {unreadCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+              <Link href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
+                <History className="w-5 h-5" /> Lịch sử mượn trả
+              </Link>
+            </>
+          ) : (
+            <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
+              <div className="flex items-center gap-3">
+                <ClipboardList className="w-5 h-5" /> Lịch sử mượn trả
+              </div>
+              {unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
         </nav>
 
         <div className="p-4 border-t">
@@ -111,21 +138,35 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto relative">
+      <main className="flex-1 flex flex-col h-screen relative">
         <OverdueAlert overdueItems={overdueItems} />
         
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center md:hidden">
-          <h1 className="text-lg font-bold text-blue-600">NSG Device</h1>
-          <form action={async () => {
-            "use server";
-            await import("@/auth").then(m => m.signOut());
-          }}>
-            <button type="submit" title="Đăng xuất">
-              <LogOut className="w-5 h-5 text-gray-600" />
-            </button>
-          </form>
+        {/* Top Header */}
+        <header className="bg-white shadow-sm border-b px-6 py-3 flex justify-between items-center shrink-0">
+          <div className="md:hidden">
+            <h1 className="text-lg font-bold text-blue-600">NSG Device</h1>
+          </div>
+          <div className="hidden md:block"></div> {/* Spacer */}
+          
+          <div className="flex items-center gap-4">
+            {role === "MEMBER" && (
+              <NotificationDropdown unreadCount={unreadCount} notifications={notifications} />
+            )}
+            
+            <div className="md:hidden">
+              <form action={async () => {
+                "use server";
+                await import("@/auth").then(m => m.signOut());
+              }}>
+                <button type="submit" title="Đăng xuất" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
+          </div>
         </header>
-        <div className="p-8">
+
+        <div className="flex-1 overflow-y-auto p-8">
           {children}
         </div>
       </main>

@@ -46,6 +46,12 @@ export default async function RequestsPage({
     }
   }
 
+  // Handle quick filters
+  const filterParams = sp?.filter || ""
+  if (filterParams === "action_required" && role !== "MEMBER") {
+    whereClause.status = { in: ["PENDING", "RETURN_REQUESTED"] }
+  }
+
   // Mark notifications as read for Member, and Admin/Manager
   if (session?.user?.id) {
     await prisma.notification.updateMany({
@@ -60,10 +66,13 @@ export default async function RequestsPage({
     orderBy: { createdAt: 'desc' }
   })
 
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold">{role !== "MEMBER" ? "Yêu cầu mượn/trả thiết bị" : "Lịch sử mượn trả"}</h2>
+        <h2 className="text-2xl font-bold">{role !== "MEMBER" ? (filterParams === "action_required" ? "Yêu cầu mượn/trả thiết bị" : "Lịch sử mượn trả") : "Lịch sử mượn trả"}</h2>
         {role !== "MEMBER" && <ExportExcelButton requests={requests} />}
       </div>
 
@@ -83,24 +92,30 @@ export default async function RequestsPage({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {requests.map((req: any) => (
-              <tr key={req.id}>
+            {requests.map((req: any) => {
+              const isOverdue = role !== "MEMBER" && (req.status === "APPROVED" || req.status === "RETURN_REQUESTED") && new Date(req.returnDate) < today;
+              
+              return (
+              <tr key={req.id} className={isOverdue ? "bg-red-50" : ""}>
                 {role !== "MEMBER" && (
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{req.user.name || req.user.email}</div>
-                    <div className="text-xs text-gray-500">{req.user.email}</div>
+                    <div className={`text-sm font-medium ${isOverdue ? "text-red-900" : "text-gray-900"}`}>{req.user.name || req.user.email}</div>
+                    <div className={`text-xs ${isOverdue ? "text-red-500" : "text-gray-500"}`}>{req.user.email}</div>
                   </td>
                 )}
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{req.equipment.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{req.quantity}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <span className={isOverdue ? "text-red-900 font-medium" : ""}>{req.equipment.name}</span>
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isOverdue ? "text-red-600 font-medium" : "text-gray-500"}`}>{req.quantity}</td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${isOverdue ? "text-red-600 font-medium" : "text-gray-500"}`}>
                   {req.borrowDate.toLocaleDateString('vi-VN')} - {req.returnDate.toLocaleDateString('vi-VN')}
+                  {isOverdue && <div className="text-xs text-red-500 mt-1 font-semibold">Đã quá hạn!</div>}
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    req.status === 'APPROVED' ? 'bg-blue-100 text-blue-800' :
-                    req.status === 'RETURN_REQUESTED' ? 'bg-orange-100 text-orange-800' :
+                    req.status === 'APPROVED' ? (isOverdue ? 'bg-red-200 text-red-900' : 'bg-blue-100 text-blue-800') :
+                    req.status === 'RETURN_REQUESTED' ? (isOverdue ? 'bg-red-200 text-red-900' : 'bg-orange-100 text-orange-800') :
                     req.status === 'RETURNED' ? 'bg-green-100 text-green-800' :
                     'bg-red-100 text-red-800'
                   }`}>
@@ -129,14 +144,14 @@ export default async function RequestsPage({
                       {req.status === "PENDING" && (
                         <div className="flex justify-end gap-2">
                           <ReviewModal req={req}>
-                            <button className="text-blue-600 hover:text-blue-900 font-medium px-3 py-1 bg-blue-50 hover:bg-blue-100 rounded">Xem & Xét Duyệt</button>
+                            <button className="text-blue-600 hover:text-blue-900 font-medium px-3 py-1 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200">Xem & Xét Duyệt</button>
                           </ReviewModal>
                         </div>
                       )}
                       {(req.status === "APPROVED" || req.status === "RETURN_REQUESTED") && (
                         <div className="flex justify-end gap-2">
                           <ReturnModal req={req}>
-                            <button className="text-green-600 hover:text-green-900 font-medium px-3 py-1 bg-green-50 hover:bg-green-100 rounded">
+                            <button className="text-green-600 hover:text-green-900 font-medium px-3 py-1 bg-green-50 hover:bg-green-100 rounded border border-green-200 shadow-sm">
                               {req.status === "RETURN_REQUESTED" ? "Xác nhận trả (Yêu cầu)" : "Xác nhận trả"}
                             </button>
                           </ReturnModal>
@@ -150,14 +165,14 @@ export default async function RequestsPage({
                           "use server"
                           await requestReturn(req.id)
                         }}>
-                          <button type="submit" className="text-orange-600 hover:text-orange-900 font-medium px-3 py-1 bg-orange-50 hover:bg-orange-100 rounded">Đăng ký trả</button>
+                          <button type="submit" className="text-orange-600 hover:text-orange-900 font-medium px-3 py-1 bg-orange-50 hover:bg-orange-100 rounded border border-orange-200 shadow-sm">Đăng ký trả</button>
                         </form>
                       )}
                     </>
                   )}
                 </td>
               </tr>
-            ))}
+            )})}
             {requests.length === 0 && (
               <tr>
                 <td colSpan={role !== "MEMBER" ? 7 : 6} className="px-6 py-8 text-center text-sm text-gray-500">
