@@ -2,6 +2,7 @@ import Link from "next/link"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Settings, Users } from "lucide-react"
+import OverdueAlert from "./overdue-alert"
 
 export default async function DashboardLayout({
   children,
@@ -12,10 +13,27 @@ export default async function DashboardLayout({
   const role = session?.user?.role || "MEMBER"
 
   let unreadCount = 0
-  if (role !== "MEMBER" && session?.user?.id) {
-    unreadCount = await prisma.notification.count({
-      where: { userId: session.user.id, isRead: false }
-    })
+  let overdueItems: any[] = []
+
+  if (session?.user?.id) {
+    if (role !== "MEMBER") {
+      unreadCount = await prisma.borrowRequest.count({
+        where: { status: "PENDING" }
+      })
+    } else {
+      // Fetch overdue items for member
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      overdueItems = await prisma.borrowRequest.findMany({
+        where: {
+          userId: session.user.id,
+          status: "APPROVED",
+          returnDate: { lt: today }
+        },
+        include: { equipment: { select: { name: true } } }
+      })
+    }
   }
 
   return (
@@ -88,7 +106,9 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative">
+        <OverdueAlert overdueItems={overdueItems} />
+        
         <header className="bg-white shadow-sm p-4 flex justify-between items-center md:hidden">
           <h1 className="text-lg font-bold text-blue-600">NSG Device</h1>
           <form action={async () => {

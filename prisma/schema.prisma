@@ -114,6 +114,8 @@ model BorrowRequest {
   returnDate  DateTime
   actualReturnDate DateTime?
   rejectionReason  String?
+  reviewerName     String?
+  returnCondition  String?
   createdAt   DateTime @default(now())
 }
 

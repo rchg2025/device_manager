@@ -3,7 +3,12 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 
-export async function updateRequestStatus(requestId: string, status: "APPROVED" | "REJECTED" | "RETURNED", rejectionReason?: string) {
+export async function updateRequestStatus(
+  requestId: string, 
+  status: "APPROVED" | "REJECTED" | "RETURNED", 
+  rejectionReason?: string,
+  returnCondition?: string
+) {
   const session = await auth()
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
 
@@ -14,6 +19,8 @@ export async function updateRequestStatus(requestId: string, status: "APPROVED" 
     })
     if (!request) return { error: "Không tìm thấy yêu cầu" }
 
+    const reviewerName = session?.user?.name || "Admin"
+
     // If approving, we need to check availableQty and reduce it
     if (status === "APPROVED" && request.status === "PENDING") {
       if (request.equipment.availableQty < request.quantity) {
@@ -21,7 +28,10 @@ export async function updateRequestStatus(requestId: string, status: "APPROVED" 
       }
 
       await prisma.$transaction([
-        prisma.borrowRequest.update({ where: { id: requestId }, data: { status } }),
+        prisma.borrowRequest.update({ 
+          where: { id: requestId }, 
+          data: { status, reviewerName } 
+        }),
         prisma.equipment.update({
           where: { id: request.equipmentId },
           data: { availableQty: { decrement: request.quantity } }
@@ -33,7 +43,7 @@ export async function updateRequestStatus(requestId: string, status: "APPROVED" 
       await prisma.$transaction([
         prisma.borrowRequest.update({ 
           where: { id: requestId }, 
-          data: { status, actualReturnDate: new Date() } 
+          data: { status, actualReturnDate: new Date(), returnCondition } 
         }),
         prisma.equipment.update({
           where: { id: request.equipmentId },
@@ -45,7 +55,7 @@ export async function updateRequestStatus(requestId: string, status: "APPROVED" 
     else if (status === "REJECTED") {
       await prisma.borrowRequest.update({ 
         where: { id: requestId }, 
-        data: { status, rejectionReason } 
+        data: { status, rejectionReason, reviewerName } 
       })
     }
 
