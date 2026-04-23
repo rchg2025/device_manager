@@ -44,13 +44,20 @@ export default function ReturnModal({ req, children }: { req: any, children: Rea
             <div className="p-6">
               {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-md border border-red-100">{error}</div>}
 
-              <div className="mb-5 p-4 bg-blue-50/50 rounded-lg border border-blue-100 flex items-start gap-3">
-                <ClipboardList className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-gray-900">{req.equipment.name}</p>
-                  <p className="text-sm text-gray-600 mt-1">Người mượn: <span className="font-medium">{req.user.name}</span></p>
-                  <p className="text-sm text-gray-600">Số lượng trả: <span className="font-medium">{req.quantity}</span></p>
+              <div className="mb-5 p-4 bg-blue-50/50 rounded-lg border border-blue-100 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <ClipboardList className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-gray-900">{req.equipment.name}</p>
+                    <p className="text-sm text-gray-600 mt-1">Người mượn: <span className="font-medium">{req.user.name}</span></p>
+                    <p className="text-sm text-gray-600">Số lượng trả: <span className="font-medium">{req.quantity}</span></p>
+                  </div>
                 </div>
+                {req.equipment.image ? (
+                  <img src={req.equipment.image} alt={req.equipment.name} className="w-16 h-16 object-cover rounded-md border border-blue-200 bg-white shrink-0 shadow-sm" />
+                ) : (
+                  <div className="w-16 h-16 rounded-md bg-gray-200 flex items-center justify-center text-xs text-gray-500 border border-gray-300 shrink-0">N/A</div>
+                )}
               </div>
 
               <div>
