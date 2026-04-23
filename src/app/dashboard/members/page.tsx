@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import MemberRow from "./member-row"
+import { createMember } from "./actions"
 
 export default async function MembersPage() {
   const session = await auth()
@@ -22,9 +23,61 @@ export default async function MembersPage() {
   ])
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Quản lý thành viên</h2>
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">Quản lý thành viên</h2>
+      </div>
       
+      {/* Thêm thành viên mới */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-lg font-semibold mb-4 border-b pb-2">Thêm thành viên mới</h3>
+        <form action={async (formData) => { "use server"; await createMember(formData) }} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Họ tên</label>
+            <input type="text" name="name" required className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border" placeholder="Nguyễn Văn A" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email (Đăng nhập)</label>
+            <input type="email" name="email" required className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border" placeholder="email@domain.com" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+            <input type="password" name="password" required className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border" placeholder="Mật khẩu" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+            <input type="text" name="phone" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border" placeholder="0123456789" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Đơn vị</label>
+            <select name="unitId" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
+              <option value="">-- Chọn đơn vị --</option>
+              {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Chức vụ</label>
+            <select name="positionId" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
+              <option value="">-- Chọn chức vụ --</option>
+              {positions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Quyền hạn</label>
+            <select name="role" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
+              <option value="MEMBER">Thành viên</option>
+              <option value="MANAGER">Quản lý</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </div>
+          <div>
+            <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium">
+              Tạo tài khoản
+            </button>
+          </div>
+        </form>
+      </div>
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
