@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
-import { createCategory, deleteCategory, createUnit, deleteUnit, createPosition, deletePosition } from "./actions"
-import { Trash2 } from "lucide-react"
+import { createCategory, createUnit, createPosition } from "./actions"
 import Link from "next/link"
+import CategoryRow from "./category-row"
 
 export default async function CategoriesPage({
   searchParams,
@@ -91,17 +91,13 @@ export default async function CategoriesPage({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {categories.map((cat: any) => (
-                  <tr key={cat.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cat.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{cat._count.equipments} loại</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <form action={async () => { "use server"; await deleteCategory(cat.id) }}>
-                        <button type="submit" className="text-red-600 hover:text-red-900" title="Xóa" disabled={cat._count.equipments > 0}>
-                          <Trash2 className={`w-5 h-5 ${cat._count.equipments > 0 ? 'opacity-50 cursor-not-allowed' : ''}`} />
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
+                  <CategoryRow 
+                    key={cat.id} 
+                    item={cat} 
+                    type="category" 
+                    countLabel="loại" 
+                    countValue={cat._count.equipments} 
+                  />
                 ))}
                 {categories.length === 0 && (
                   <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có danh mục nào.</td></tr>
@@ -144,17 +140,13 @@ export default async function CategoriesPage({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {units.map((unit: any) => (
-                  <tr key={unit.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{unit.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{unit._count.users} người</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <form action={async () => { "use server"; await deleteUnit(unit.id) }}>
-                        <button type="submit" className="text-red-600 hover:text-red-900" title="Xóa" disabled={unit._count.users > 0}>
-                          <Trash2 className={`w-5 h-5 ${unit._count.users > 0 ? 'opacity-50 cursor-not-allowed' : ''}`} />
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
+                  <CategoryRow 
+                    key={unit.id} 
+                    item={unit} 
+                    type="unit" 
+                    countLabel="người" 
+                    countValue={unit._count.users} 
+                  />
                 ))}
                 {units.length === 0 && (
                   <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có đơn vị nào.</td></tr>
@@ -197,17 +189,13 @@ export default async function CategoriesPage({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {positions.map((pos: any) => (
-                  <tr key={pos.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{pos.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{pos._count.users} người</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <form action={async () => { "use server"; await deletePosition(pos.id) }}>
-                        <button type="submit" className="text-red-600 hover:text-red-900" title="Xóa" disabled={pos._count.users > 0}>
-                          <Trash2 className={`w-5 h-5 ${pos._count.users > 0 ? 'opacity-50 cursor-not-allowed' : ''}`} />
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
+                  <CategoryRow 
+                    key={pos.id} 
+                    item={pos} 
+                    type="position" 
+                    countLabel="người" 
+                    countValue={pos._count.users} 
+                  />
                 ))}
                 {positions.length === 0 && (
                   <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có chức vụ nào.</td></tr>

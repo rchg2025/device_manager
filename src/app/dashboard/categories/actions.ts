@@ -101,3 +101,54 @@ export async function deletePosition(id: string) {
     return { error: "Không thể xóa chức vụ đang có thành viên" }
   }
 }
+
+export async function updateCategory(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  if (!id || !name) return { error: "Dữ liệu không hợp lệ" }
+
+  try {
+    await prisma.category.update({ where: { id }, data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi cập nhật danh mục" }
+  }
+}
+
+export async function updateUnit(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  if (!id || !name) return { error: "Dữ liệu không hợp lệ" }
+
+  try {
+    await prisma.unit.update({ where: { id }, data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi cập nhật đơn vị" }
+  }
+}
+
+export async function updatePosition(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  if (!id || !name) return { error: "Dữ liệu không hợp lệ" }
+
+  try {
+    await prisma.position.update({ where: { id }, data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi cập nhật chức vụ" }
+  }
+}
