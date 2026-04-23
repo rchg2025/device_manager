@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
-import { createEquipment, deleteEquipment } from "./actions"
-import { Trash2 } from "lucide-react"
+import { createEquipment } from "./actions"
+import EquipmentRow from "./equipment-row"
 
 export default async function EquipmentsPage() {
   const categories = await prisma.category.findMany()
@@ -82,36 +82,7 @@ export default async function EquipmentsPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {equipments.map((eq: any) => (
-                <tr key={eq.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {eq.image ? (
-                      <img src={eq.image} alt={eq.name} className="h-10 w-10 rounded-md object-cover border border-gray-200" />
-                    ) : (
-                      <div className="h-10 w-10 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs">N/A</div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{eq.name}</div>
-                    <div className="text-sm text-gray-500">{eq.barcode || 'N/A'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eq.category.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eq.totalQty}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${eq.availableQty > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {eq.availableQty}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <form action={async () => {
-                      "use server"
-                      await deleteEquipment(eq.id)
-                    }}>
-                      <button type="submit" className="text-red-600 hover:text-red-900" title="Xóa" disabled={eq.totalQty !== eq.availableQty}>
-                        <Trash2 className={`w-5 h-5 ${eq.totalQty !== eq.availableQty ? 'opacity-50 cursor-not-allowed' : ''}`} />
-                      </button>
-                    </form>
-                  </td>
-                </tr>
+                <EquipmentRow key={eq.id} eq={eq} categories={categories} />
               ))}
               {equipments.length === 0 && (
                 <tr>
