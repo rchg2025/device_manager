@@ -26,6 +26,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
         if (res?.error) {
           alert(res.error)
         } else {
+          alert("Xóa thành công!")
           window.location.reload()
         }
       })

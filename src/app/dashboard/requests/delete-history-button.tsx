@@ -14,6 +14,7 @@ export default function DeleteHistoryButton({ requestId }: { requestId: string }
         if (res?.error) {
           alert(res.error)
         } else {
+          alert("Xóa thành công!")
           window.location.reload()
         }
       })

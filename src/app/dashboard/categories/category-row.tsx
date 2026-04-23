@@ -33,9 +33,17 @@ export default function CategoryRow({
 
   async function handleDelete() {
     if (confirm("Bạn có chắc chắn muốn xóa?")) {
-      if (type === "category") await deleteCategory(item.id)
-      if (type === "unit") await deleteUnit(item.id)
-      if (type === "position") await deletePosition(item.id)
+      let res;
+      if (type === "category") res = await deleteCategory(item.id)
+      if (type === "unit") res = await deleteUnit(item.id)
+      if (type === "position") res = await deletePosition(item.id)
+
+      if (res?.error) {
+        alert(res.error)
+      } else {
+        alert("Xóa thành công!")
+        window.location.reload()
+      }
     }
   }
 

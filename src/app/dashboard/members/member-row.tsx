@@ -19,7 +19,13 @@ export default function MemberRow({ member, units, positions }: { member: any, u
     if (confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
       const formData = new FormData()
       formData.append("userId", member.id)
-      await deleteMember(formData)
+      const res = await deleteMember(formData)
+      if (res?.error) {
+        alert(res.error)
+      } else {
+        alert("Xóa thành công!")
+        window.location.reload()
+      }
     }
   }
 

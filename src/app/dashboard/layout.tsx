@@ -5,6 +5,7 @@ import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History }
 import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
 import AutoRefreshBadge from "./auto-refresh-badge"
+import MobileMenu from "./mobile-menu"
 
 export default async function DashboardLayout({
   children,
@@ -137,7 +138,8 @@ export default async function DashboardLayout({
         
         {/* Top Header */}
         <header className="bg-white shadow-sm border-b px-6 py-3 flex justify-between items-center shrink-0">
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <MobileMenu role={role} unreadCount={unreadCount} />
             <h1 className="text-lg font-bold text-blue-600">NSG Device</h1>
           </div>
           <div className="hidden md:block"></div> {/* Spacer */}
@@ -161,7 +163,7 @@ export default async function DashboardLayout({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {children}
         </div>
       </main>
