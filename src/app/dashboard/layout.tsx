@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { auth } from "@/auth"
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Settings } from "lucide-react"
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Settings, Users } from "lucide-react"
 
 export default async function DashboardLayout({
   children,
@@ -32,6 +32,12 @@ export default async function DashboardLayout({
                 <Package className="w-5 h-5" /> Quản lý thiết bị
               </Link>
             </>
+          )}
+
+          {role === "ADMIN" && (
+            <Link href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
+              <Users className="w-5 h-5" /> Quản lý thành viên
+            </Link>
           )}
 
           {role === "MEMBER" && (
