@@ -1,41 +1,65 @@
 import { prisma } from "@/lib/prisma"
 import { createCategory, deleteCategory, createUnit, deleteUnit, createPosition, deletePosition } from "./actions"
 import { Trash2 } from "lucide-react"
+import Link from "next/link"
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string }
+}) {
+  const activeTab = searchParams.tab || 'equipment'
+
   const [categories, units, positions] = await Promise.all([
-    prisma.category.findMany({
-      include: {
-        _count: {
-          select: { equipments: true }
-        }
-      }
-    }),
-    prisma.unit.findMany({
-      include: {
-        _count: {
-          select: { users: true }
-        }
-      }
-    }),
-    prisma.position.findMany({
-      include: {
-        _count: {
-          select: { users: true }
-        }
-      }
-    })
+    prisma.category.findMany({ include: { _count: { select: { equipments: true } } } }),
+    prisma.unit.findMany({ include: { _count: { select: { users: true } } } }),
+    prisma.position.findMany({ include: { _count: { select: { users: true } } } })
   ]);
 
   return (
-    <div className="space-y-12">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Quản lý Danh mục chung</h2>
       </div>
 
-      {/* Danh mục Thiết bị */}
-      <section>
-        <h3 className="text-xl font-bold mb-4 text-blue-700 border-b pb-2">Danh mục Thiết bị</h3>
+      {/* Tabs Navigation */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <Link
+            href="?tab=equipment"
+            className={`${
+              activeTab === 'equipment'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            Danh mục Thiết bị
+          </Link>
+          <Link
+            href="?tab=unit"
+            className={`${
+              activeTab === 'unit'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            Danh mục Đơn vị
+          </Link>
+          <Link
+            href="?tab=position"
+            className={`${
+              activeTab === 'position'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            Danh mục Chức vụ
+          </Link>
+        </nav>
+      </div>
+
+      {/* Tab Content: Equipment */}
+      {activeTab === 'equipment' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
             <h4 className="text-lg font-semibold mb-4">Thêm danh mục thiết bị</h4>
@@ -85,11 +109,10 @@ export default async function CategoriesPage() {
             </table>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Danh mục Đơn vị */}
-      <section>
-        <h3 className="text-xl font-bold mb-4 text-blue-700 border-b pb-2">Danh mục Đơn vị</h3>
+      {/* Tab Content: Unit */}
+      {activeTab === 'unit' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
             <h4 className="text-lg font-semibold mb-4">Thêm Đơn vị mới</h4>
@@ -139,11 +162,10 @@ export default async function CategoriesPage() {
             </table>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Danh mục Chức vụ */}
-      <section>
-        <h3 className="text-xl font-bold mb-4 text-blue-700 border-b pb-2">Danh mục Chức vụ</h3>
+      {/* Tab Content: Position */}
+      {activeTab === 'position' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
             <h4 className="text-lg font-semibold mb-4">Thêm Chức vụ mới</h4>
@@ -193,7 +215,7 @@ export default async function CategoriesPage() {
             </table>
           </div>
         </div>
-      </section>
+      )}
 
     </div>
   )

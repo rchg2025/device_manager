@@ -38,6 +38,15 @@ export default async function EquipmentsPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700">Link ảnh đại diện (Tùy chọn)</label>
+              <input 
+                type="url" name="image"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700">Danh mục</label>
               <select name="categoryId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
                 <option value="">-- Chọn danh mục --</option>
@@ -63,6 +72,7 @@ export default async function EquipmentsPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hình ảnh</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên thiết bị / Mã</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh mục</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng SL</th>
@@ -73,6 +83,13 @@ export default async function EquipmentsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {equipments.map((eq: any) => (
                 <tr key={eq.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {eq.image ? (
+                      <img src={eq.image} alt={eq.name} className="h-10 w-10 rounded-md object-cover border border-gray-200" />
+                    ) : (
+                      <div className="h-10 w-10 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs">N/A</div>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{eq.name}</div>
                     <div className="text-sm text-gray-500">{eq.barcode || 'N/A'}</div>
@@ -98,7 +115,7 @@ export default async function EquipmentsPage() {
               ))}
               {equipments.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
                     Chưa có thiết bị nào.
                   </td>
                 </tr>
