@@ -34,10 +34,12 @@ export async function createEquipment(formData: FormData) {
 }
 
 export async function deleteEquipment(id: string) {
-  const session = await auth()
-  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
-
   try {
+    const session = await auth()
+    if (session?.user?.role === "MEMBER" || !session?.user?.role) {
+      return { error: "Bạn không có quyền thực hiện thao tác này" }
+    }
+
     await prisma.$transaction([
       prisma.borrowRequest.deleteMany({ where: { equipmentId: id } }),
       prisma.equipment.delete({ where: { id } })

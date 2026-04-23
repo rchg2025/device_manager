@@ -19,9 +19,10 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
     router.refresh()
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
-      startTransition(async () => {
+      setIsLoading(true)
+      try {
         const res = await deleteEquipment(eq.id)
         if (res?.error) {
           alert(res.error)
@@ -29,7 +30,11 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
           alert("Xóa thành công!")
           window.location.reload()
         }
-      })
+      } catch (err: any) {
+        alert("Lỗi kết nối hoặc máy chủ: " + err.message)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
