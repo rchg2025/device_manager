@@ -26,7 +26,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
         if (res?.error) {
           alert(res.error)
         } else {
-          router.refresh()
+          window.location.reload()
         }
       })
     }

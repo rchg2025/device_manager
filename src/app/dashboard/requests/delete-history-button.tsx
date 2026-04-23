@@ -14,7 +14,7 @@ export default function DeleteHistoryButton({ requestId }: { requestId: string }
         if (res?.error) {
           alert(res.error)
         } else {
-          router.refresh()
+          window.location.reload()
         }
       })
     }
