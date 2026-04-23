@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 
 export async function createBorrowRequest(formData: FormData) {
+  // Existing function body
   const session = await auth()
   if (!session?.user?.id) throw new Error("Unauthorized")
 
@@ -24,7 +25,6 @@ export async function createBorrowRequest(formData: FormData) {
   }
 
   try {
-    // Check available quantity
     const equipment = await prisma.equipment.findUnique({ where: { id: equipmentId } })
     if (!equipment || equipment.availableQty < quantity) {
       return { error: "Số lượng thiết bị không đủ" }
@@ -46,5 +46,53 @@ export async function createBorrowRequest(formData: FormData) {
     return { success: true }
   } catch (error) {
     return { error: "Lỗi khi tạo yêu cầu mượn" }
+  }
+}
+
+export async function createMultipleBorrowRequests(items: Array<{ equipmentId: string, quantity: number, borrowDate: string, returnDate: string }>) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  if (!items || items.length === 0) {
+    return { error: "Danh sách trống" }
+  }
+
+  try {
+    const userId = session.user.id
+
+    // Process all items in a transaction to ensure either all succeed or none do
+    await prisma.$transaction(async (tx) => {
+      for (const item of items) {
+        const borrowDate = new Date(item.borrowDate)
+        const returnDate = new Date(item.returnDate)
+
+        if (borrowDate >= returnDate) {
+          throw new Error(`Ngày trả phải sau ngày mượn cho thiết bị đã chọn`)
+        }
+
+        const equipment = await tx.equipment.findUnique({ where: { id: item.equipmentId } })
+        if (!equipment || equipment.availableQty < item.quantity) {
+          throw new Error(`Số lượng không đủ cho thiết bị: ${equipment?.name || item.equipmentId}`)
+        }
+
+        await tx.borrowRequest.create({
+          data: {
+            userId,
+            equipmentId: item.equipmentId,
+            quantity: item.quantity,
+            borrowDate,
+            returnDate,
+            status: "PENDING"
+          }
+        })
+      }
+    })
+
+    revalidatePath("/dashboard")
+    revalidatePath("/dashboard/borrow")
+    revalidatePath("/dashboard/requests")
+    return { success: true }
+  } catch (error: any) {
+    return { error: error.message || "Lỗi khi tạo yêu cầu mượn" }
   }
 }
