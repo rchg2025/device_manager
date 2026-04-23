@@ -1,9 +1,11 @@
 "use client"
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Trash2, Edit2, Check, X } from "lucide-react"
 import { updateEquipment, deleteEquipment } from "./actions"
 
 export default function EquipmentRow({ eq, categories }: { eq: any, categories: any[] }) {
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -14,6 +16,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
     await updateEquipment(formData)
     setIsEditing(false)
     setIsLoading(false)
+    router.refresh()
   }
 
   function handleDelete() {
@@ -22,6 +25,8 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
         const res = await deleteEquipment(eq.id)
         if (res?.error) {
           alert(res.error)
+        } else {
+          router.refresh()
         }
       })
     }

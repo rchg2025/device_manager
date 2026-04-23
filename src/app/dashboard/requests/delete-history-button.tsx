@@ -1,8 +1,10 @@
 "use client"
 import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { deleteHistoryRecord } from "./actions"
 
 export default function DeleteHistoryButton({ requestId }: { requestId: string }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   function handleDelete() {
@@ -11,6 +13,8 @@ export default function DeleteHistoryButton({ requestId }: { requestId: string }
         const res = await deleteHistoryRecord(requestId)
         if (res?.error) {
           alert(res.error)
+        } else {
+          router.refresh()
         }
       })
     }

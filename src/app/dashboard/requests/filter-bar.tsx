@@ -38,7 +38,7 @@ export default function FilterBar({ role }: { role: string }) {
       if (toDate) params.set("toDate", toDate)
       
       router.replace(`/dashboard/requests?${params.toString()}`, { scroll: false })
-    }, 150) // 150ms debounce for near real-time feel
+    }, 500) // 500ms debounce to prevent server overload
 
     return () => clearTimeout(delayDebounceFn)
   }, [name, status, equipment, fromDate, toDate, router, searchParams])

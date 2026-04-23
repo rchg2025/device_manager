@@ -77,8 +77,25 @@ export default async function RequestsPage({
 
   const requests = await prisma.borrowRequest.findMany({
     where: whereClause,
-    include: { equipment: true, user: { include: { unit: true, position: true } } },
-    orderBy: { createdAt: 'desc' }
+    select: {
+      id: true,
+      quantity: true,
+      borrowDate: true,
+      returnDate: true,
+      actualReturnDate: true,
+      status: true,
+      reviewerName: true,
+      returnReviewerName: true,
+      approvedAt: true,
+      rejectionReason: true,
+      returnCondition: true,
+      createdAt: true,
+      updatedAt: true,
+      equipment: { select: { id: true, name: true, image: true, availableQty: true } },
+      user: { select: { id: true, name: true, email: true } }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 200
   })
 
   const today = new Date()
