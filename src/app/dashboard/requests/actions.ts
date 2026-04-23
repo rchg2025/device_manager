@@ -30,7 +30,7 @@ export async function updateRequestStatus(
       await prisma.$transaction([
         prisma.borrowRequest.update({ 
           where: { id: requestId }, 
-          data: { status, reviewerName } 
+          data: { status, reviewerName, approvedAt: new Date() } 
         }),
         prisma.equipment.update({
           where: { id: request.equipmentId },
@@ -50,7 +50,7 @@ export async function updateRequestStatus(
       await prisma.$transaction([
         prisma.borrowRequest.update({ 
           where: { id: requestId }, 
-          data: { status, actualReturnDate: new Date(), returnCondition, reviewerName } 
+          data: { status, actualReturnDate: new Date(), returnCondition, returnReviewerName: reviewerName } 
         }),
         prisma.equipment.update({
           where: { id: request.equipmentId },
@@ -70,7 +70,7 @@ export async function updateRequestStatus(
       await prisma.$transaction([
         prisma.borrowRequest.update({ 
           where: { id: requestId }, 
-          data: { status, rejectionReason, reviewerName } 
+          data: { status, rejectionReason, reviewerName, approvedAt: new Date() } 
         }),
         prisma.notification.create({
           data: {

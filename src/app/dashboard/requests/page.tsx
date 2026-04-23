@@ -122,7 +122,7 @@ export default async function RequestsPage({
                 </td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${isOverdue ? "text-red-600 font-medium" : "text-gray-500"}`}>{req.quantity}</td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${isOverdue ? "text-red-600 font-medium" : "text-gray-500"}`}>
-                  {req.borrowDate.toLocaleDateString('vi-VN')} - {req.returnDate.toLocaleDateString('vi-VN')}
+                  {req.borrowDate.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} - {req.returnDate.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                   {isOverdue && <div className="text-xs text-red-500 mt-1 font-semibold">Đã quá hạn!</div>}
                 </td>
                 <td className="px-6 py-4">
@@ -150,12 +150,33 @@ export default async function RequestsPage({
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {req.reviewerName ? (
-                    <>
-                      <div className="font-medium text-gray-900">{req.reviewerName}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{new Date(req.updatedAt).toLocaleString('vi-VN')}</div>
-                    </>
-                  ) : "-"}
+                  <div className="flex flex-col gap-2">
+                    {/* Người xử lý mượn (duyệt/từ chối) */}
+                    {req.reviewerName ? (
+                      <div>
+                        <span className="text-[10px] uppercase text-gray-400 font-semibold leading-none block mb-0.5">Xử lý mượn</span>
+                        <div className="font-medium text-gray-900 leading-tight">{req.reviewerName}</div>
+                        {req.approvedAt && (
+                          <div className="text-xs text-blue-600 mt-0.5">
+                            {new Date(req.approvedAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
+                          </div>
+                        )}
+                      </div>
+                    ) : "-"}
+
+                    {/* Người xử lý trả */}
+                    {req.returnReviewerName && (
+                      <div className="mt-1 pt-1 border-t border-gray-100">
+                        <span className="text-[10px] uppercase text-gray-400 font-semibold leading-none block mb-0.5">Xác nhận trả</span>
+                        <div className="font-medium text-gray-900 leading-tight">{req.returnReviewerName}</div>
+                        {req.actualReturnDate && (
+                          <div className="text-xs text-green-600 mt-0.5">
+                            {new Date(req.actualReturnDate).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {role !== "MEMBER" ? (
