@@ -17,7 +17,10 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
 
   async function handleDelete() {
     if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
-      await deleteEquipment(eq.id)
+      const res = await deleteEquipment(eq.id)
+      if (res?.error) {
+        alert(res.error)
+      }
     }
   }
 

@@ -38,13 +38,15 @@ export async function deleteEquipment(id: string) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
 
   try {
-    await prisma.equipment.delete({
-      where: { id }
-    })
+    await prisma.$transaction([
+      prisma.borrowRequest.deleteMany({ where: { equipmentId: id } }),
+      prisma.equipment.delete({ where: { id } })
+    ])
+    
     revalidatePath("/dashboard/equipments")
     return { success: true }
-  } catch (error) {
-    return { error: "Không thể xóa thiết bị đang được mượn" }
+  } catch (error: any) {
+    return { error: error.message || "Lỗi khi xóa thiết bị" }
   }
 }
 
