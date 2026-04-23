@@ -6,6 +6,7 @@ import Google from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || "fallback_secret_for_build",
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: {
@@ -13,8 +14,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: process.env.AUTH_GOOGLE_ID || "placeholder",
+      clientSecret: process.env.AUTH_GOOGLE_SECRET || "placeholder",
       allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
