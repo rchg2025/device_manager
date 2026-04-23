@@ -18,7 +18,7 @@ export default async function EquipmentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-1 h-fit">
           <h3 className="text-lg font-semibold mb-4">Thêm thiết bị mới</h3>
-          <form action={createEquipment} className="space-y-4">
+          <form action={async (formData) => { "use server"; await createEquipment(formData) }} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Tên thiết bị</label>
               <input 

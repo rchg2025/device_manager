@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
           <h3 className="text-lg font-semibold mb-4">Thêm danh mục mới</h3>
-          <form action={createCategory} className="space-y-4">
+          <form action={async (formData) => { "use server"; await createCategory(formData) }} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Tên danh mục</label>
               <input 

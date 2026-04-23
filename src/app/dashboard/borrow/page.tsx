@@ -12,7 +12,7 @@ export default async function BorrowPage() {
       <h2 className="text-2xl font-bold mb-6">Đăng ký mượn thiết bị</h2>
       
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-2xl">
-        <form action={createBorrowRequest} className="space-y-6">
+        <form action={async (formData) => { "use server"; await createBorrowRequest(formData) }} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">Chọn thiết bị</label>
             <select name="equipmentId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border">
