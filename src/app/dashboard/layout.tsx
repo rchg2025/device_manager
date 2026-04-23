@@ -61,9 +61,14 @@ export default async function DashboardLayout({
               <p className="text-xs text-gray-500">{role}</p>
             </div>
           </div>
-          <Link href="/api/auth/signout" className="flex items-center gap-3 px-3 py-2 text-red-600 rounded-md hover:bg-red-50">
-            <LogOut className="w-5 h-5" /> Đăng xuất
-          </Link>
+          <form action={async () => {
+            "use server";
+            await import("@/auth").then(m => m.signOut());
+          }}>
+            <button type="submit" className="flex items-center gap-3 px-3 py-2 text-red-600 rounded-md hover:bg-red-50 w-full text-left">
+              <LogOut className="w-5 h-5" /> Đăng xuất
+            </button>
+          </form>
         </div>
       </aside>
 
@@ -71,9 +76,14 @@ export default async function DashboardLayout({
       <main className="flex-1 overflow-y-auto">
         <header className="bg-white shadow-sm p-4 flex justify-between items-center md:hidden">
           <h1 className="text-lg font-bold text-blue-600">NSG Device</h1>
-          <Link href="/api/auth/signout">
-            <LogOut className="w-5 h-5 text-gray-600" />
-          </Link>
+          <form action={async () => {
+            "use server";
+            await import("@/auth").then(m => m.signOut());
+          }}>
+            <button type="submit" title="Đăng xuất">
+              <LogOut className="w-5 h-5 text-gray-600" />
+            </button>
+          </form>
         </header>
         <div className="p-8">
           {children}
