@@ -5,8 +5,12 @@ import Credentials from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 
+if (!process.env.AUTH_SECRET) {
+  process.env.AUTH_SECRET = "fallback_secret_for_build_only_do_not_use_in_prod"
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: process.env.AUTH_SECRET || "fallback_secret_for_build",
+  secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: {
