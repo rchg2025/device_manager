@@ -9,9 +9,7 @@ export default async function MembersPage() {
     redirect("/dashboard")
   }
 
-  const members = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' }
-  })
+  const members = await prisma.user.findMany()
 
   async function updateRole(formData: FormData) {
     "use server"
