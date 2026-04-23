@@ -6,9 +6,10 @@ import Link from "next/link"
 export default async function CategoriesPage({
   searchParams,
 }: {
-  searchParams: { tab?: string }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const activeTab = searchParams.tab || 'equipment'
+  const resolvedSearchParams = await searchParams
+  const activeTab = resolvedSearchParams.tab || 'equipment'
 
   const [categories, units, positions] = await Promise.all([
     prisma.category.findMany({ include: { _count: { select: { equipments: true } } } }),
@@ -26,7 +27,7 @@ export default async function CategoriesPage({
       <div className="border-b border-gray-200 mb-6">
         <nav className="-mb-px flex space-x-8">
           <Link
-            href="?tab=equipment"
+            href="/dashboard/categories?tab=equipment"
             className={`${
               activeTab === 'equipment'
                 ? 'border-blue-500 text-blue-600'
@@ -36,7 +37,7 @@ export default async function CategoriesPage({
             Danh mục Thiết bị
           </Link>
           <Link
-            href="?tab=unit"
+            href="/dashboard/categories?tab=unit"
             className={`${
               activeTab === 'unit'
                 ? 'border-blue-500 text-blue-600'
@@ -46,7 +47,7 @@ export default async function CategoriesPage({
             Danh mục Đơn vị
           </Link>
           <Link
-            href="?tab=position"
+            href="/dashboard/categories?tab=position"
             className={`${
               activeTab === 'position'
                 ? 'border-blue-500 text-blue-600'

@@ -26,7 +26,7 @@ export default async function DashboardLayout({
                 <LayoutDashboard className="w-5 h-5" /> Dashboard
               </Link>
               <Link href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
-                <Tags className="w-5 h-5" /> Danh mục thiết bị
+                <Tags className="w-5 h-5" /> Quản lý danh mục
               </Link>
               <Link href="/dashboard/equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600">
                 <Package className="w-5 h-5" /> Quản lý thiết bị
