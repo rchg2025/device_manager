@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { createCategory, createUnit, createPosition } from "./actions"
 import Link from "next/link"
 import CategoryRow from "./category-row"
+import Pagination from "../pagination"
 
 export default async function CategoriesPage({
   searchParams,
@@ -10,12 +11,28 @@ export default async function CategoriesPage({
 }) {
   const resolvedSearchParams = await searchParams
   const activeTab = resolvedSearchParams.tab || 'equipment'
+  
+  const page = parseInt((resolvedSearchParams.page as string) || "1")
+  const limit = 15
+  const skip = (page - 1) * limit
 
-  const [categories, units, positions] = await Promise.all([
-    prisma.category.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } } }),
-    prisma.unit.findMany({ select: { id: true, name: true, _count: { select: { users: true } } } }),
-    prisma.position.findMany({ select: { id: true, name: true, _count: { select: { users: true } } } })
+  const [
+    totalCategories, categories,
+    totalUnits, units,
+    totalPositions, positions
+  ] = await Promise.all([
+    prisma.category.count(),
+    prisma.category.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+    prisma.unit.count(),
+    prisma.unit.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+    prisma.position.count(),
+    prisma.position.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
   ]);
+
+  let totalPages = 1
+  if (activeTab === 'equipment') totalPages = Math.ceil(totalCategories / limit)
+  if (activeTab === 'unit') totalPages = Math.ceil(totalUnits / limit)
+  if (activeTab === 'position') totalPages = Math.ceil(totalPositions / limit)
 
   return (
     <div>
@@ -63,10 +80,10 @@ export default async function CategoriesPage({
       {activeTab === 'equipment' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
-            <h4 className="text-lg font-semibold mb-4">Thêm danh mục thiết bị</h4>
+            <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm danh mục thiết bị</h4>
             <form action={async (formData) => { "use server"; await createCategory(formData) }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tên danh mục</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tên danh mục</label>
                 <input 
                   type="text" 
                   name="name" 
@@ -80,30 +97,33 @@ export default async function CategoriesPage({
               </button>
             </form>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-2 overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên danh mục</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng thiết bị</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {categories.map((cat: any) => (
-                  <CategoryRow 
-                    key={cat.id} 
-                    item={cat} 
-                    type="category" 
-                    countLabel="loại" 
-                    countValue={cat._count.equipments} 
-                  />
-                ))}
-                {categories.length === 0 && (
-                  <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có danh mục nào.</td></tr>
-                )}
-              </tbody>
-            </table>
+          <div className="col-span-1 md:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên danh mục</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng thiết bị</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {categories.map((cat: any) => (
+                    <CategoryRow 
+                      key={cat.id} 
+                      item={cat} 
+                      type="category" 
+                      countLabel="loại" 
+                      countValue={cat._count.equipments} 
+                    />
+                  ))}
+                  {categories.length === 0 && (
+                    <tr><td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">Chưa có danh mục nào.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination totalPages={totalPages} currentPage={page} />
           </div>
         </div>
       )}
@@ -112,10 +132,10 @@ export default async function CategoriesPage({
       {activeTab === 'unit' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
-            <h4 className="text-lg font-semibold mb-4">Thêm Đơn vị mới</h4>
+            <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm Đơn vị mới</h4>
             <form action={async (formData) => { "use server"; await createUnit(formData) }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tên đơn vị</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tên đơn vị</label>
                 <input 
                   type="text" 
                   name="name" 
@@ -129,30 +149,33 @@ export default async function CategoriesPage({
               </button>
             </form>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-2 overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên Đơn vị</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số thành viên</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {units.map((unit: any) => (
-                  <CategoryRow 
-                    key={unit.id} 
-                    item={unit} 
-                    type="unit" 
-                    countLabel="người" 
-                    countValue={unit._count.users} 
-                  />
-                ))}
-                {units.length === 0 && (
-                  <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có đơn vị nào.</td></tr>
-                )}
-              </tbody>
-            </table>
+          <div className="col-span-1 md:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên Đơn vị</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số thành viên</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {units.map((unit: any) => (
+                    <CategoryRow 
+                      key={unit.id} 
+                      item={unit} 
+                      type="unit" 
+                      countLabel="người" 
+                      countValue={unit._count.users} 
+                    />
+                  ))}
+                  {units.length === 0 && (
+                    <tr><td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">Chưa có đơn vị nào.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination totalPages={totalPages} currentPage={page} />
           </div>
         </div>
       )}
@@ -161,10 +184,10 @@ export default async function CategoriesPage({
       {activeTab === 'position' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
-            <h4 className="text-lg font-semibold mb-4">Thêm Chức vụ mới</h4>
+            <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm Chức vụ mới</h4>
             <form action={async (formData) => { "use server"; await createPosition(formData) }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tên chức vụ</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tên chức vụ</label>
                 <input 
                   type="text" 
                   name="name" 
@@ -178,30 +201,33 @@ export default async function CategoriesPage({
               </button>
             </form>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-2 overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên Chức vụ</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số thành viên</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {positions.map((pos: any) => (
-                  <CategoryRow 
-                    key={pos.id} 
-                    item={pos} 
-                    type="position" 
-                    countLabel="người" 
-                    countValue={pos._count.users} 
-                  />
-                ))}
-                {positions.length === 0 && (
-                  <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có chức vụ nào.</td></tr>
-                )}
-              </tbody>
-            </table>
+          <div className="col-span-1 md:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên Chức vụ</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số thành viên</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {positions.map((pos: any) => (
+                    <CategoryRow 
+                      key={pos.id} 
+                      item={pos} 
+                      type="position" 
+                      countLabel="người" 
+                      countValue={pos._count.users} 
+                    />
+                  ))}
+                  {positions.length === 0 && (
+                    <tr><td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">Chưa có chức vụ nào.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination totalPages={totalPages} currentPage={page} />
           </div>
         </div>
       )}

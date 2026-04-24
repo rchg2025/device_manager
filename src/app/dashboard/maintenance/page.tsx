@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { Wrench, CheckCircle, Clock, AlertTriangle } from "lucide-react"
 import MaintenanceActions from "./maintenance-actions"
 import Link from "next/link"
+import Pagination from "../pagination"
 
 export default async function MaintenancePage({
   searchParams
@@ -22,13 +23,24 @@ export default async function MaintenancePage({
     ? { status: 'BROKEN' }
     : { status: { not: 'BROKEN' } }
 
-  const maintenances = await prisma.maintenance.findMany({
-    where: whereClause,
-    include: {
-      equipment: { select: { name: true, image: true, barcode: true } }
-    },
-    orderBy: { date: 'desc' }
-  })
+  const page = parseInt(sp?.page || "1")
+  const limit = 15
+  const skip = (page - 1) * limit
+
+  const [totalMaintenances, maintenances] = await Promise.all([
+    prisma.maintenance.count({ where: whereClause }),
+    prisma.maintenance.findMany({
+      where: whereClause,
+      include: {
+        equipment: { select: { name: true, image: true, barcode: true } }
+      },
+      orderBy: { date: 'desc' },
+      skip,
+      take: limit
+    })
+  ])
+
+  const totalPages = Math.ceil(totalMaintenances / limit)
 
   return (
     <div className="space-y-6">
@@ -130,6 +142,7 @@ export default async function MaintenancePage({
           </tbody>
         </table>
       </div>
+      <Pagination totalPages={totalPages} currentPage={page} />
     </div>
   )
 }

@@ -4,15 +4,40 @@ import { prisma } from "@/lib/prisma"
 import MemberRow from "./member-row"
 import { createMember } from "./actions"
 import ExcelButtons from "./excel-buttons"
+import MemberFilterBar from "./filter-bar"
+import Pagination from "../pagination"
 
-export default async function MembersPage() {
+export default async function MembersPage({
+  searchParams
+}: {
+  searchParams: { [key: string]: string | undefined }
+}) {
   const session = await auth()
   if (session?.user?.role !== "ADMIN") {
     redirect("/dashboard")
   }
 
-  const [members, units, positions] = await Promise.all([
+  const sp = await searchParams;
+  const page = parseInt(sp?.page || "1")
+  const query = sp?.query || ""
+  const limit = 15
+  const skip = (page - 1) * limit
+
+  const whereClause: any = {
+    email: { not: "nguyenluyen@nsg.edu.vn" }
+  }
+
+  if (query) {
+    whereClause.OR = [
+      { name: { contains: query, mode: 'insensitive' } },
+      { email: { contains: query, mode: 'insensitive' } }
+    ]
+  }
+
+  const [totalMembers, members, units, positions] = await Promise.all([
+    prisma.user.count({ where: whereClause }),
     prisma.user.findMany({
+      where: whereClause,
       select: {
         id: true,
         name: true,
@@ -24,11 +49,15 @@ export default async function MembersPage() {
         unit: { select: { id: true, name: true } },
         position: { select: { id: true, name: true } }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
     }),
     prisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     prisma.position.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
   ])
+
+  const totalPages = Math.ceil(totalMembers / limit)
 
   return (
     <div className="space-y-8">
@@ -87,8 +116,10 @@ export default async function MembersPage() {
         </form>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <MemberFilterBar />
+        
+        <div className="overflow-x-auto rounded-t-lg border border-gray-200 border-b-0">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -98,7 +129,7 @@ export default async function MembersPage() {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số điện thoại</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quyền hạn</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-gray-900">
@@ -112,12 +143,15 @@ export default async function MembersPage() {
               ))}
               {members.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có thành viên nào.</td>
+                  <td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-500">
+                    Không tìm thấy thành viên nào.
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+        <Pagination totalPages={totalPages} currentPage={page} />
       </div>
     </div>
   )

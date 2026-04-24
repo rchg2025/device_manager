@@ -3,6 +3,7 @@ import { createEquipment } from "./actions"
 import EquipmentRow from "./equipment-row"
 import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
+import Pagination from "../pagination"
 
 export default async function EquipmentsPage({
   searchParams
@@ -24,23 +25,34 @@ export default async function EquipmentsPage({
     whereClause.categoryId = categoryFilter
   }
 
+  const page = parseInt(sp?.page || "1")
+  const limit = 15
+  const skip = (page - 1) * limit
+
   const categories = await prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
-  const equipments = await prisma.equipment.findMany({
-    where: whereClause,
-    select: {
-      id: true,
-      name: true,
-      barcode: true,
-      image: true,
-      totalQty: true,
-      availableQty: true,
-      categoryId: true,
-      category: { select: { name: true } },
-      createdAt: true,
-      creatorName: true
-    },
-    orderBy: { createdAt: 'desc' }
-  })
+  const [totalEquipments, equipments] = await Promise.all([
+    prisma.equipment.count({ where: whereClause }),
+    prisma.equipment.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        name: true,
+        barcode: true,
+        image: true,
+        totalQty: true,
+        availableQty: true,
+        categoryId: true,
+        category: { select: { name: true } },
+        createdAt: true,
+        creatorName: true
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    })
+  ])
+
+  const totalPages = Math.ceil(totalEquipments / limit)
 
   return (
     <div>
@@ -132,6 +144,7 @@ export default async function EquipmentsPage({
               </tbody>
             </table>
           </div>
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import ReturnModal from "./return-modal"
 import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
 import DeleteHistoryButton from "./delete-history-button"
+import Pagination from "../pagination"
 
 export default async function RequestsPage({
   searchParams
@@ -75,37 +76,47 @@ export default async function RequestsPage({
     })
   }
 
-  const requests = await prisma.borrowRequest.findMany({
-    where: whereClause,
-    select: {
-      id: true,
-      quantity: true,
-      borrowDate: true,
-      returnDate: true,
-      actualReturnDate: true,
-      status: true,
-      reviewerName: true,
-      returnReviewerName: true,
-      approvedAt: true,
-      rejectionReason: true,
-      returnCondition: true,
-      createdAt: true,
-      updatedAt: true,
-      equipment: { select: { id: true, name: true, image: true, availableQty: true } },
-      user: { 
-        select: { 
-          id: true, 
-          name: true, 
-          email: true,
-          phone: true,
-          unit: { select: { name: true } },
-          position: { select: { name: true } }
-        } 
-      }
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 200
-  })
+  const page = parseInt(sp?.page || "1")
+  const limit = 15
+  const skip = (page - 1) * limit
+
+  const [totalRequests, requests] = await Promise.all([
+    prisma.borrowRequest.count({ where: whereClause }),
+    prisma.borrowRequest.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        quantity: true,
+        borrowDate: true,
+        returnDate: true,
+        actualReturnDate: true,
+        status: true,
+        reviewerName: true,
+        returnReviewerName: true,
+        approvedAt: true,
+        rejectionReason: true,
+        returnCondition: true,
+        createdAt: true,
+        updatedAt: true,
+        equipment: { select: { id: true, name: true, image: true, availableQty: true } },
+        user: { 
+          select: { 
+            id: true, 
+            name: true, 
+            email: true,
+            phone: true,
+            unit: { select: { name: true } },
+            position: { select: { name: true } }
+          } 
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    })
+  ])
+
+  const totalPages = Math.ceil(totalRequests / limit)
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -255,6 +266,7 @@ export default async function RequestsPage({
           </tbody>
         </table>
       </div>
+      <Pagination totalPages={totalPages} currentPage={page} />
     </div>
   )
 }
