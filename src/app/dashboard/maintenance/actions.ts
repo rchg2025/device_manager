@@ -34,7 +34,8 @@ export async function createMaintenance(formData: FormData) {
         cost,
         status,
         quantity,
-        date
+        date,
+        handlerName: session?.user?.name || session?.user?.email || "Unknown"
       }
     })
 
@@ -64,7 +65,10 @@ export async function updateMaintenanceStatus(id: string, status: string) {
   await prisma.$transaction(async (tx) => {
     await tx.maintenance.update({
       where: { id },
-      data: { status }
+      data: { 
+        status,
+        handlerName: session?.user?.name || session?.user?.email || "Unknown" 
+      }
     })
 
     // Nếu từ trạng thái khác chuyển sang COMPLETED, hoàn trả lại số lượng

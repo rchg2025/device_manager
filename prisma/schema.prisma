@@ -150,6 +150,7 @@ model Maintenance {
   cost        Float?
   status      String   @default("COMPLETED") // PENDING, IN_PROGRESS, COMPLETED, BROKEN
   date        DateTime @default(now())
+  handlerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 }

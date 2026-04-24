@@ -77,6 +77,7 @@ export default async function MaintenancePage({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi phí (VNĐ)</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người xử lý</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
             </tr>
           </thead>
@@ -127,6 +128,12 @@ export default async function MaintenancePage({
                      mt.status === 'COMPLETED' ? 'Đã hoàn thành' : 'Hư hỏng'}
                   </span>
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">{mt.handlerName || "N/A"}</div>
+                  <div className="text-xs text-gray-500">
+                    {mt.updatedAt ? new Date(mt.updatedAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : "-"}
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <MaintenanceActions maintenance={mt} role={session.user.role} />
                 </td>
@@ -134,7 +141,7 @@ export default async function MaintenancePage({
             ))}
             {maintenances.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500">
                   Chưa có dữ liệu.
                 </td>
               </tr>
