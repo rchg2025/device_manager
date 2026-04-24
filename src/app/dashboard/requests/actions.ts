@@ -82,6 +82,15 @@ export async function updateRequestStatus(
       ])
     }
 
+    if (request.user?.email && (status === "APPROVED" || status === "REJECTED" || status === "RETURNED")) {
+      import("@/lib/email").then(m => m.sendStatusUpdateEmailToMember(
+        request.user.email as string, 
+        request.equipment.name, 
+        status, 
+        status === "REJECTED" ? rejectionReason : returnCondition
+      )).catch(console.error)
+    }
+
     revalidatePath("/dashboard/requests")
     return { success: true }
   } catch (error) {
@@ -107,6 +116,21 @@ export async function requestReturn(requestId: string) {
       where: { id: requestId },
       data: { status: "RETURN_REQUESTED" }
     })
+
+    // Gửi email cho admin báo có người trả thiết bị
+    const adminEmails = await prisma.user.findMany({
+      where: { role: { in: ["ADMIN", "MANAGER"] }, email: { not: null } },
+      select: { email: true }
+    })
+    const emails = adminEmails.map(a => a.email as string).filter(e => e)
+    if (emails.length > 0) {
+      const equipment = await prisma.equipment.findUnique({ where: { id: request.equipmentId } })
+      import("@/lib/email").then(m => m.sendReturnRequestEmailToAdmins(
+        emails, 
+        session.user.name || "Một thành viên", 
+        equipment?.name || "Thiết bị"
+      )).catch(console.error)
+    }
 
     revalidatePath("/dashboard/requests")
     return { success: true }

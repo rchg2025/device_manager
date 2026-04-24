@@ -111,7 +111,7 @@ export default async function DashboardLayout({
         </nav>
 
         <div className="p-4 border-t">
-          <div className="flex items-center gap-3 mb-4">
+          <Link href="/dashboard/profile" className="flex items-center gap-3 mb-4 p-2 -mx-2 rounded-md hover:bg-gray-50 transition-colors">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
               {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
@@ -119,7 +119,7 @@ export default async function DashboardLayout({
               <p className="text-sm font-medium">{session?.user?.name || "User"}</p>
               <p className="text-xs text-gray-500">{role}</p>
             </div>
-          </div>
+          </Link>
           <form action={async () => {
             "use server";
             const { signOut } = await import("@/auth");
@@ -149,7 +149,12 @@ export default async function DashboardLayout({
               <NotificationDropdown unreadCount={unreadCount} notifications={notifications} />
             )}
             
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center gap-2">
+              <Link href="/dashboard/profile" title="Quản lý tài khoản" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                  {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+              </Link>
               <form action={async () => {
                 "use server";
                 const { signOut } = await import("@/auth");

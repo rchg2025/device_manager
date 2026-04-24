@@ -107,6 +107,16 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
       }
     })
 
+    // Gửi email bất đồng bộ (không await để không block UI)
+    const adminEmails = await prisma.user.findMany({
+      where: { role: { in: ["ADMIN", "MANAGER"] }, email: { not: null } },
+      select: { email: true }
+    })
+    const emails = adminEmails.map(a => a.email as string).filter(e => e)
+    if (emails.length > 0) {
+      import("@/lib/email").then(m => m.sendBorrowRequestEmailToAdmins(emails, userName, items.length)).catch(console.error)
+    }
+
     revalidatePath("/dashboard")
     revalidatePath("/dashboard/borrow")
     revalidatePath("/dashboard/requests")
