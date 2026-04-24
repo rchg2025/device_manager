@@ -83,11 +83,19 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
     )
   }
 
+  let imgUrl = eq.image;
+  if (imgUrl?.includes('drive.google.com/uc?')) {
+    try {
+      const fileId = new URL(imgUrl).searchParams.get('id');
+      if (fileId) imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    } catch (e) {}
+  }
+
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap">
-        {eq.image ? (
-          <img src={eq.image} alt={eq.name} className="h-10 w-10 rounded-md object-cover border border-gray-200" />
+        {imgUrl ? (
+          <img src={imgUrl} alt={eq.name} className="h-10 w-10 rounded-md object-cover border border-gray-200 bg-gray-50" loading="lazy" />
         ) : (
           <div className="h-10 w-10 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs">N/A</div>
         )}

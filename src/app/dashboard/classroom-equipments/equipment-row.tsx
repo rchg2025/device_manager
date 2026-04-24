@@ -89,15 +89,23 @@ export default function ClassroomEqRow({
     )
   }
 
-  return (
-    <>
-      <tr className="hover:bg-gray-50 transition-colors">
-        <td className="px-6 py-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 h-10 w-10 relative">
-              {item.image ? (
-                <img className="h-10 w-10 rounded-md object-cover border border-gray-200" src={item.image} alt="" />
-              ) : (
+    let imgUrl = item.image;
+    if (imgUrl?.includes('drive.google.com/uc?')) {
+      try {
+        const fileId = new URL(imgUrl).searchParams.get('id');
+        if (fileId) imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+      } catch (e) {}
+    }
+
+    return (
+      <>
+        <tr className="hover:bg-gray-50 transition-colors">
+          <td className="px-6 py-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 h-10 w-10 relative">
+                {imgUrl ? (
+                  <img className="h-10 w-10 rounded-md object-cover border border-gray-200 bg-gray-50" src={imgUrl} alt="" loading="lazy" />
+                ) : (
                 <div className="h-10 w-10 rounded-md bg-blue-50 flex items-center justify-center border border-blue-100">
                   <MonitorPlay className="h-5 w-5 text-blue-500" />
                 </div>

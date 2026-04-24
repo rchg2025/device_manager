@@ -84,9 +84,10 @@ export async function uploadImageToDrive(file: File): Promise<string> {
         },
         supportsAllDrives: true // Hỗ trợ Team Drive
       })
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
     }
 
-    return response.data.webContentLink || response.data.webViewLink || ""
+    return ""
   } catch (error) {
     console.error("Lỗi khi tải ảnh lên Google Drive:", error)
     throw new Error("Không thể tải ảnh lên Google Drive. Vui lòng kiểm tra lại cấu hình.")
