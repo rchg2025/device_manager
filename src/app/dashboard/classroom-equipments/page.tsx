@@ -1,8 +1,8 @@
-﻿import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import ClassroomEqRow from "./equipment-row"
-import { createClassroomEquipment } from "./actions"
+import CreateClassroomEqForm from "./create-form"
 import { Upload, Plus, MonitorPlay } from "lucide-react"
 import ExportExcelButton from "./export-excel-button"
 import Pagination from "../pagination"
@@ -86,71 +86,12 @@ export default async function ClassroomEquipmentsPage({
             <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
               <Plus className="w-5 h-5 text-blue-600" /> Thêm Thiết bị mới
             </h3>
-            
-            <form action={async (formData) => { "use server"; await createClassroomEquipment(formData) }} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tên thiết bị</label>
-                <input type="text" name="name" required placeholder="VD: Máy chiếu Panasonic" className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500" />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện (Tùy chọn)</label>
-                <div className="mt-1 flex justify-center px-6 pt-4 pb-4 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors bg-gray-50">
-                  <div className="space-y-1 text-center">
-                    <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
-                      <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none px-2 py-1 border border-blue-100 shadow-sm">
-                        <span>Upload a file</span>
-                        <input name="image" type="file" className="sr-only" accept="image/*" />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Khu vực</label>
-                <select name="areaId" required className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500 bg-white">
-                  <option value="">-- Chọn khu vực --</option>
-                  {areas.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phòng học</label>
-                <select name="roomId" required className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500 bg-white">
-                  <option value="">-- Chọn phòng học --</option>
-                  {rooms.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Danh mục thiết bị</label>
-                <select name="categoryId" required className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500 bg-white">
-                  <option value="">-- Chọn danh mục --</option>
-                  {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cấu hình (Chọn nhiều)</label>
-                <select name="configIds" multiple className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500 bg-white h-24">
-                  {configs.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-                <p className="text-xs text-gray-500 mt-1">Giữ Ctrl (hoặc Cmd) để chọn nhiều</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Số lượng</label>
-                <input type="number" name="quantity" required min="1" defaultValue="1" className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500" />
-              </div>
-
-              <div className="pt-2">
-                <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                  Thêm mới
-                </button>
-              </div>
-            </form>
+            <CreateClassroomEqForm 
+              areas={areas}
+              rooms={rooms}
+              categories={categories}
+              configs={configs}
+            />
           </div>
         </div>
 
