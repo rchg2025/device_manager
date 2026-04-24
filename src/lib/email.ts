@@ -62,19 +62,64 @@ const emailWrapper = (title: string, content: string) => `
 </html>
 `
 
-export async function sendBorrowRequestEmailToAdmins(adminEmails: string[], memberName: string, equipmentCount: number) {
+export async function sendBorrowRequestEmailToAdmins(
+  adminEmails: string[], 
+  memberName: string, 
+  items: Array<{ name: string, image?: string, quantity: number, borrowDate: string | Date, returnDate: string | Date }>
+) {
   const transporter = await getTransporter()
   if (!transporter || adminEmails.length === 0) return
 
   const from = await getFromAddress()
-  const domain = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const domain = process.env.NEXT_PUBLIC_APP_URL || "https://qltb.ite.id.vn"
   
+  const itemsHtml = items.map(item => {
+    let imgUrl = item.image;
+    if (imgUrl?.includes('drive.google.com/uc?')) {
+      try {
+        const fileId = new URL(imgUrl).searchParams.get('id');
+        if (fileId) imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+      } catch (e) {}
+    }
+
+    const imgTag = imgUrl 
+      ? `<img src="${imgUrl}" alt="${item.name}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #e5e7eb; display: block; margin: 0 auto;" />`
+      : `<div style="width: 48px; height: 48px; background: #f3f4f6; border-radius: 4px; display: inline-block; border: 1px solid #e5e7eb; line-height: 48px; text-align: center; color: #9ca3af; font-size: 10px; margin: 0 auto;">N/A</div>`;
+
+    return `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle;">${imgTag}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; vertical-align: middle;"><strong>${item.name}</strong></td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle; font-weight: bold;">${item.quantity}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle; font-size: 13px; color: #4b5563;">
+          <div style="margin-bottom: 4px;">${new Date(item.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</div>
+          <div style="color: #9ca3af; font-size: 11px;">đến</div>
+          <div style="margin-top: 4px;">${new Date(item.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</div>
+        </td>
+      </tr>
+    `
+  }).join('')
+
   const content = `
     <p>Xin chào Ban Quản Lý,</p>
     <p>Hệ thống vừa nhận được một yêu cầu mượn thiết bị mới từ thành viên <span class="highlight">${memberName}</span>.</p>
-    <p>Số lượng thiết bị được yêu cầu: <strong>${equipmentCount}</strong> thiết bị.</p>
+    
+    <table style="width: 100%; border-collapse: collapse; margin: 24px 0; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; font-family: sans-serif;">
+      <thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+        <tr>
+          <th style="padding: 12px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase;">Ảnh</th>
+          <th style="padding: 12px; text-align: left; font-size: 12px; color: #6b7280; text-transform: uppercase;">Thiết bị</th>
+          <th style="padding: 12px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase;">SL</th>
+          <th style="padding: 12px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase;">Thời gian</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHtml}
+      </tbody>
+    </table>
+
     <p>Vui lòng truy cập hệ thống để xem chi tiết và phê duyệt yêu cầu này.</p>
-    <div style="text-align: center;">
+    <div style="text-align: center; margin-top: 24px;">
       <a href="${domain}/dashboard/requests?filter=action_required" class="button">Xem Yêu Cầu</a>
     </div>
   `
@@ -92,7 +137,7 @@ export async function sendReturnRequestEmailToAdmins(adminEmails: string[], memb
   if (!transporter || adminEmails.length === 0) return
 
   const from = await getFromAddress()
-  const domain = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const domain = process.env.NEXT_PUBLIC_APP_URL || "https://qltb.ite.id.vn"
   
   const content = `
     <p>Xin chào Ban Quản Lý,</p>
@@ -116,7 +161,7 @@ export async function sendStatusUpdateEmailToMember(memberEmail: string, equipme
   if (!transporter || !memberEmail) return
 
   const from = await getFromAddress()
-  const domain = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const domain = process.env.NEXT_PUBLIC_APP_URL || "https://qltb.ite.id.vn"
   
   let title = ""
   let statusText = ""
