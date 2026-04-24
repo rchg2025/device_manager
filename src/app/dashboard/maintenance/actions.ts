@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
@@ -18,6 +18,20 @@ export async function createMaintenance(formData: FormData) {
   const quantity = parseInt(formData.get("quantity") as string || "1", 10)
 
   if ((!equipmentId && !classroomEqId) || !description || quantity < 1) return { error: "Thiếu thông tin bắt buộc" }
+
+  if (session.user.role === "MANAGER") {
+    if (equipmentId) {
+      const eq = await prisma.equipment.findUnique({ where: { id: equipmentId }, include: { category: true } })
+      if (eq?.category?.managerId && eq.category.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền bảo trì thiết bị này" }
+      }
+    } else if (classroomEqId) {
+      const eq = await prisma.classroomEquipment.findUnique({ where: { id: classroomEqId }, include: { category: true } })
+      if (eq?.category?.managerId && eq.category.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền bảo trì thiết bị này" }
+      }
+    }
+  }
 
   const date = dateStr ? new Date(dateStr) : new Date()
 
@@ -71,8 +85,20 @@ export async function updateMaintenanceStatus(id: string, status: string) {
     throw new Error("Unauthorized")
   }
 
-  const existing = await prisma.maintenance.findUnique({ where: { id } })
+  const existing = await prisma.maintenance.findUnique({ 
+    where: { id },
+    include: { equipment: { include: { category: true } }, classroomEq: { include: { category: true } } }
+  })
   if (!existing) return
+
+  if (session.user.role === "MANAGER") {
+    if (existing.equipment?.category?.managerId && existing.equipment.category.managerId !== session.user.id) {
+      throw new Error("Bạn không có quyền cập nhật bảo trì này")
+    }
+    if (existing.classroomEq?.category?.managerId && existing.classroomEq.category.managerId !== session.user.id) {
+      throw new Error("Bạn không có quyền cập nhật bảo trì này")
+    }
+  }
 
   await prisma.$transaction(async (tx) => {
     await tx.maintenance.update({

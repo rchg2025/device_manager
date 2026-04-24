@@ -67,7 +67,17 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
       where: { id: { in: equipmentIds } }, 
       select: { id: true, name: true, image: true, category: { select: { managerId: true } } } 
     })
-    const targetManagerIds = new Set(equipments.map(eq => eq.category?.managerId).filter(Boolean))
+    const targetManagerIds = new Set<string>()
+    let hasSharedCategory = false
+    
+    equipments.forEach(eq => {
+      if (eq.category?.managerId) {
+        targetManagerIds.add(eq.category.managerId)
+      } else {
+        hasSharedCategory = true
+      }
+    })
+
     const detailedItems = items.map(item => {
       const eq = equipments.find(e => e.id === item.equipmentId)
       return {
@@ -107,14 +117,21 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
         })
       }
 
+      const notifyWhere: any = {
+        OR: [
+          { role: "ADMIN" }
+        ]
+      }
+      
+      if (hasSharedCategory) {
+        notifyWhere.OR.push({ role: "MANAGER" })
+      } else if (targetManagerIds.size > 0) {
+        notifyWhere.OR.push({ id: { in: Array.from(targetManagerIds) as string[] } })
+      }
+
       // Notify all admins and specific managers
       const targetUsers = await tx.user.findMany({
-        where: {
-          OR: [
-            { role: "ADMIN" },
-            { id: { in: Array.from(targetManagerIds) as string[] } }
-          ]
-        }
+        where: notifyWhere
       })
 
       if (targetUsers.length > 0) {
@@ -128,15 +145,21 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
       }
     })
 
+    const emailNotifyWhere: any = {
+      OR: [
+        { role: "ADMIN" }
+      ],
+      email: { not: null }
+    }
+    if (hasSharedCategory) {
+      emailNotifyWhere.OR.push({ role: "MANAGER" })
+    } else if (targetManagerIds.size > 0) {
+      emailNotifyWhere.OR.push({ id: { in: Array.from(targetManagerIds) as string[] } })
+    }
+
     // Gửi email bất đồng bộ (không await để không block UI)
     const targetUserWithEmails = await prisma.user.findMany({
-      where: {
-        OR: [
-          { role: "ADMIN" },
-          { id: { in: Array.from(targetManagerIds) as string[] } }
-        ],
-        email: { not: null }
-      },
+      where: emailNotifyWhere,
       select: { email: true }
     })
     const emails = targetUserWithEmails.map(a => a.email as string).filter(e => e)

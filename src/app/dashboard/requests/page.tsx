@@ -29,6 +29,15 @@ export default async function RequestsPage({
   
   if (role === "MEMBER") {
     whereClause.userId = session?.user?.id
+  } else if (role === "MANAGER") {
+    whereClause.equipment = {
+      category: {
+        OR: [
+          { managerId: null },
+          { managerId: session?.user?.id }
+        ]
+      }
+    }
   }
 
   if (nameFilter && role !== "MEMBER") {
@@ -45,8 +54,12 @@ export default async function RequestsPage({
   }
 
   if (equipmentFilter) {
-    whereClause.equipment = {
-      name: { contains: equipmentFilter, mode: 'insensitive' }
+    if (role === "MANAGER") {
+      whereClause.equipment.name = { contains: equipmentFilter, mode: 'insensitive' }
+    } else {
+      whereClause.equipment = {
+        name: { contains: equipmentFilter, mode: 'insensitive' }
+      }
     }
   }
 

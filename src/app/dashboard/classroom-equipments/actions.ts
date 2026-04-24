@@ -20,6 +20,13 @@ export async function createClassroomEquipment(formData: FormData) {
     return { error: "Vui lòng nhập đầy đủ thông tin hợp lệ" }
   }
 
+  if (session.user.role === "MANAGER") {
+    const category = await prisma.category.findUnique({ where: { id: categoryId } })
+    if (category?.managerId && category.managerId !== session.user.id) {
+      return { error: "Bạn không có quyền thêm thiết bị vào danh mục này" }
+    }
+  }
+
   let imageUrl: string | null = null
   if (imageFile && imageFile.size > 0) {
     try {
@@ -71,6 +78,17 @@ export async function updateClassroomEquipment(formData: FormData) {
     return { error: "Vui lòng nhập đầy đủ thông tin hợp lệ" }
   }
 
+  if (session.user.role === "MANAGER") {
+    const existing = await prisma.classroomEquipment.findUnique({ where: { id }, include: { category: true } })
+    if (existing?.category?.managerId && existing.category.managerId !== session.user.id) {
+      return { error: "Bạn không có quyền sửa thiết bị này" }
+    }
+    const newCategory = await prisma.category.findUnique({ where: { id: categoryId } })
+    if (newCategory?.managerId && newCategory.managerId !== session.user.id) {
+      return { error: "Bạn không có quyền chuyển thiết bị sang danh mục này" }
+    }
+  }
+
   if (imageFile && imageFile.size > 0) {
     try {
       imageUrl = await uploadImageToDrive(imageFile)
@@ -110,6 +128,13 @@ export async function deleteClassroomEquipment(id: string) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
 
   try {
+    if (session?.user?.role === "MANAGER") {
+      const existing = await prisma.classroomEquipment.findUnique({ where: { id }, include: { category: true } })
+      if (existing?.category?.managerId && existing.category.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền xóa thiết bị này" }
+      }
+    }
+
     const maintenances = await prisma.maintenance.count({
       where: { classroomEqId: id }
     })

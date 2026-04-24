@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
 import { createEquipment } from "./actions"
 import EquipmentRow from "./equipment-row"
 import CreateEquipmentForm from "./create-form"
@@ -26,12 +27,28 @@ export default async function EquipmentsPage({
     whereClause.categoryId = categoryFilter
   }
 
+  const session = await auth()
+  const role = session?.user?.role
+  const userId = session?.user?.id
+
+  let categoryWhere: any = {}
+  if (role === 'MANAGER') {
+    categoryWhere = {
+      OR: [
+        { managerId: null },
+        { managerId: userId }
+      ]
+    }
+    // Also restrict equipments to those categories
+    whereClause.category = categoryWhere
+  }
+
   let page = parseInt(sp?.page as string)
   if (isNaN(page) || page < 1) page = 1
   const limit = 15
   const skip = (page - 1) * limit
 
-  const categories = await prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+  const categories = await prisma.category.findMany({ where: categoryWhere, select: { id: true, name: true }, orderBy: { name: 'asc' } })
   const [totalEquipments, equipments] = await Promise.all([
     prisma.equipment.count({ where: whereClause }),
     prisma.equipment.findMany({

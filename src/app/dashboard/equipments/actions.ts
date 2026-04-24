@@ -16,6 +16,13 @@ export async function createEquipment(formData: FormData) {
 
   if (!name || !categoryId || totalQty < 0) return { error: "Dữ liệu không hợp lệ" }
 
+  if (session.user.role === "MANAGER") {
+    const category = await prisma.category.findUnique({ where: { id: categoryId } })
+    if (category?.managerId && category.managerId !== session.user.id) {
+      return { error: "Bạn không có quyền thêm thiết bị vào danh mục này" }
+    }
+  }
+
   if (!barcode) {
     barcode = `EQ-${Date.now()}`
   }
@@ -55,6 +62,15 @@ export async function deleteEquipment(id: string) {
       return { error: "Bạn không có quyền thực hiện thao tác này" }
     }
 
+    const equipment = await prisma.equipment.findUnique({ where: { id }, include: { category: true } })
+    if (!equipment) return { error: "Không tìm thấy thiết bị" }
+
+    if (session.user.role === "MANAGER") {
+      if (equipment.category?.managerId && equipment.category.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền xóa thiết bị này" }
+      }
+    }
+
     await prisma.$transaction([
       prisma.borrowRequest.deleteMany({ where: { equipmentId: id } }),
       prisma.equipment.delete({ where: { id } })
@@ -81,17 +97,28 @@ export async function updateEquipment(formData: FormData) {
 
   if (!id || !name || !categoryId || totalQty < 0) return { error: "Dữ liệu không hợp lệ" }
 
-  if (imageFile && imageFile.size > 0) {
-    try {
-      imageUrl = await uploadImageToDrive(imageFile)
-    } catch (e: any) {
-      return { error: e.message || "Lỗi tải ảnh lên Google Drive" }
-    }
-  }
-
   try {
-    const existing = await prisma.equipment.findUnique({ where: { id } })
+    const existing = await prisma.equipment.findUnique({ where: { id }, include: { category: true } })
     if (!existing) return { error: "Không tìm thấy thiết bị" }
+
+    if (session.user.role === "MANAGER") {
+      if (existing.category?.managerId && existing.category.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền sửa thiết bị này" }
+      }
+      
+      const newCategory = await prisma.category.findUnique({ where: { id: categoryId } })
+      if (newCategory?.managerId && newCategory.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền chuyển thiết bị sang danh mục này" }
+      }
+    }
+
+    if (imageFile && imageFile.size > 0) {
+      try {
+        imageUrl = await uploadImageToDrive(imageFile)
+      } catch (e: any) {
+        return { error: e.message || "Lỗi tải ảnh lên Google Drive" }
+      }
+    }
 
     const qtyDiff = totalQty - existing.totalQty
     const newAvailableQty = existing.availableQty + qtyDiff

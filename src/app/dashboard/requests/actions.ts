@@ -15,9 +15,15 @@ export async function updateRequestStatus(
   try {
     const request = await prisma.borrowRequest.findUnique({ 
       where: { id: requestId },
-      include: { equipment: true, user: true }
+      include: { equipment: { include: { category: true } }, user: true }
     })
     if (!request) return { error: "Không tìm thấy yêu cầu" }
+
+    if (session.user.role === "MANAGER") {
+      if (request.equipment.category?.managerId && request.equipment.category.managerId !== session.user.id) {
+        return { error: "Bạn không có quyền xử lý yêu cầu cho thiết bị này" }
+      }
+    }
 
     const reviewerName = session?.user?.name || "Admin"
 
@@ -125,13 +131,19 @@ export async function requestReturn(requestId: string) {
     
     const targetManagerId = equipment?.category?.managerId
 
+    const notifyWhere: any = {
+      OR: [
+        { role: "ADMIN" }
+      ]
+    }
+    if (!targetManagerId) {
+      notifyWhere.OR.push({ role: "MANAGER" })
+    } else {
+      notifyWhere.OR.push({ id: targetManagerId })
+    }
+
     const targetUsers = await prisma.user.findMany({
-      where: {
-        OR: [
-          { role: "ADMIN" },
-          ...(targetManagerId ? [{ id: targetManagerId }] : [])
-        ]
-      }
+      where: notifyWhere
     })
 
     if (targetUsers.length > 0) {
