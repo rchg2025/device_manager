@@ -51,14 +51,20 @@ export default async function RequestsPage({
   }
 
   if (fromDate || toDate) {
-    whereClause.createdAt = {}
+    const dateFilter: any = {}
     if (fromDate) {
-      whereClause.createdAt.gte = new Date(fromDate)
+      const fromD = new Date(fromDate as string)
+      if (!isNaN(fromD.getTime())) dateFilter.gte = fromD
     }
     if (toDate) {
-      const toDateObj = new Date(toDate)
-      toDateObj.setHours(23, 59, 59, 999)
-      whereClause.createdAt.lte = toDateObj
+      const toD = new Date(toDate as string)
+      if (!isNaN(toD.getTime())) {
+        toD.setHours(23, 59, 59, 999)
+        dateFilter.lte = toD
+      }
+    }
+    if (Object.keys(dateFilter).length > 0) {
+      whereClause.createdAt = dateFilter
     }
   }
 
@@ -76,7 +82,8 @@ export default async function RequestsPage({
     })
   }
 
-  const page = parseInt(sp?.page || "1")
+  let page = parseInt(sp?.page as string)
+  if (isNaN(page) || page < 1) page = 1
   const limit = 15
   const skip = (page - 1) * limit
 

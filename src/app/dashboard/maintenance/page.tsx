@@ -23,7 +23,8 @@ export default async function MaintenancePage({
     ? { status: 'BROKEN' }
     : { status: { not: 'BROKEN' } }
 
-  const page = parseInt(sp?.page || "1")
+  let page = parseInt(sp?.page as string)
+  if (isNaN(page) || page < 1) page = 1
   const limit = 15
   const skip = (page - 1) * limit
 

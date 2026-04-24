@@ -12,7 +12,8 @@ export default async function CategoriesPage({
   const resolvedSearchParams = await searchParams
   const activeTab = resolvedSearchParams.tab || 'equipment'
   
-  const page = parseInt((resolvedSearchParams.page as string) || "1")
+  let page = parseInt((resolvedSearchParams.page as string))
+  if (isNaN(page) || page < 1) page = 1
   const limit = 15
   const skip = (page - 1) * limit
 
