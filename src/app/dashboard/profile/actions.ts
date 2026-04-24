@@ -3,6 +3,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { revalidatePath } from "next/cache"
+import { testDriveConnection } from "@/lib/gdrive"
 
 export async function updateProfile(formData: FormData) {
   const session = await auth()
@@ -94,4 +95,19 @@ export async function updateDriveSettings(formData: FormData) {
   } catch (error) {
     return { error: "Lỗi khi lưu cấu hình Google Drive" }
   }
+}
+
+export async function testDriveConnectionAction(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN") return { success: false, message: "Không có quyền thực hiện thao tác này" }
+
+  const email = formData.get("email") as string
+  const privateKey = formData.get("privateKey") as string
+  const folderId = formData.get("folderId") as string
+
+  if (!email || !privateKey || !folderId) {
+    return { success: false, message: "Vui lòng điền đầy đủ thông tin để kiểm tra." }
+  }
+
+  return await testDriveConnection(email, privateKey, folderId)
 }

@@ -1,12 +1,13 @@
 "use client"
 import { useState } from "react"
-import { updateSmtpSettings, updateDriveSettings } from "../profile/actions"
-import { Mail, Check, Settings, Cloud, Server } from "lucide-react"
+import { updateSmtpSettings, updateDriveSettings, testDriveConnectionAction } from "../profile/actions"
+import { Mail, Check, Settings, Cloud, Server, Activity } from "lucide-react"
 
 export default function SettingsForm({ settings }: { settings: Record<string, string> }) {
   const [activeTab, setActiveTab] = useState<'drive' | 'smtp'>('drive')
   const [isLoadingSmtp, setIsLoadingSmtp] = useState(false)
   const [isLoadingDrive, setIsLoadingDrive] = useState(false)
+  const [isTestingDrive, setIsTestingDrive] = useState(false)
 
   async function handleSmtp(formData: FormData) {
     setIsLoadingSmtp(true)
@@ -22,6 +23,32 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
     setIsLoadingDrive(false)
     if (res?.error) alert(res.error)
     else alert("Cập nhật cấu hình Google Drive thành công!")
+  }
+
+  async function handleTestDrive() {
+    const email = (document.querySelector('input[name="email"]') as HTMLInputElement)?.value
+    const privateKey = (document.querySelector('textarea[name="privateKey"]') as HTMLTextAreaElement)?.value
+    const folderId = (document.querySelector('input[name="folderId"]') as HTMLInputElement)?.value
+
+    if (!email || !privateKey || !folderId) {
+      alert("Vui lòng điền đầy đủ Email, Private Key và Folder ID để kiểm tra!")
+      return
+    }
+
+    setIsTestingDrive(true)
+    const formData = new FormData()
+    formData.append("email", email)
+    formData.append("privateKey", privateKey)
+    formData.append("folderId", folderId)
+
+    const res = await testDriveConnectionAction(formData)
+    setIsTestingDrive(false)
+
+    if (res.success) {
+      alert("✅ " + res.message)
+    } else {
+      alert("❌ " + res.message)
+    }
   }
 
   return (
@@ -83,7 +110,11 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-100 flex justify-end">
+              <div className="pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-end gap-3">
+                <button type="button" onClick={handleTestDrive} disabled={isTestingDrive} className="flex items-center justify-center gap-2 w-full md:w-auto bg-gray-100 text-gray-700 py-2.5 px-6 rounded-md hover:bg-gray-200 font-medium disabled:opacity-50 transition-colors">
+                  <Activity className="w-5 h-5" />
+                  {isTestingDrive ? "Đang kiểm tra..." : "Test kết nối"}
+                </button>
                 <button type="submit" disabled={isLoadingDrive} className="flex items-center justify-center gap-2 w-full md:w-auto bg-green-600 text-white py-2.5 px-8 rounded-md hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <Check className="w-5 h-5" />
                   {isLoadingDrive ? "Đang lưu..." : "Lưu cấu hình Drive"}

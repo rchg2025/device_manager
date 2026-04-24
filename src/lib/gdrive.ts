@@ -3,7 +3,6 @@ import { prisma } from "./prisma"
 import { Readable } from "stream"
 
 export async function uploadImageToDrive(file: File): Promise<string> {
-  // Lấy cấu hình từ DB
   const settings = await prisma.setting.findMany({
     where: {
       key: { in: ['DRIVE_CLIENT_EMAIL', 'DRIVE_PRIVATE_KEY', 'DRIVE_FOLDER_ID'] }
@@ -18,7 +17,6 @@ export async function uploadImageToDrive(file: File): Promise<string> {
     throw new Error("Chưa cấu hình Google Drive trong cài đặt hệ thống.")
   }
 
-  // Khôi phục ký tự \n trong private key
   const privateKey = privateKeyRaw.replace(/\\n/g, '\n')
 
   const auth = new google.auth.GoogleAuth({
@@ -31,7 +29,6 @@ export async function uploadImageToDrive(file: File): Promise<string> {
 
   const drive = google.drive({ version: 'v3', auth })
 
-  // Convert File to stream
   const buffer = Buffer.from(await file.arrayBuffer())
   const stream = Readable.from(buffer)
 
@@ -45,26 +42,60 @@ export async function uploadImageToDrive(file: File): Promise<string> {
         mimeType: file.type,
         body: stream
       },
-      fields: 'id, webViewLink, webContentLink'
+      fields: 'id, webViewLink, webContentLink',
+      supportsAllDrives: true // Hỗ trợ Team Drive
     })
 
     const fileId = response.data.id
     if (fileId) {
-      // Cấp quyền public cho file
       await drive.permissions.create({
         fileId,
         requestBody: {
           role: 'reader',
           type: 'anyone'
-        }
+        },
+        supportsAllDrives: true // Hỗ trợ Team Drive
       })
     }
 
-    // Ưu tiên webContentLink để hiển thị trực tiếp (download link) nhưng WebViewLink cũng hiển thị được trong thẻ img
-    // Google Drive webContentLink works well as src for img.
     return response.data.webContentLink || response.data.webViewLink || ""
   } catch (error) {
     console.error("Lỗi khi tải ảnh lên Google Drive:", error)
     throw new Error("Không thể tải ảnh lên Google Drive. Vui lòng kiểm tra lại cấu hình.")
+  }
+}
+
+// Hàm kiểm tra kết nối Google Drive (Team Drive)
+export async function testDriveConnection(clientEmail: string, privateKeyRaw: string, folderId: string) {
+  try {
+    const privateKey = privateKeyRaw.replace(/\\n/g, '\n')
+
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: clientEmail,
+        private_key: privateKey
+      },
+      scopes: ['https://www.googleapis.com/auth/drive']
+    })
+
+    const drive = google.drive({ version: 'v3', auth })
+
+    // Gọi API để lấy thông tin thư mục
+    const response = await drive.files.get({
+      fileId: folderId,
+      fields: 'id, name, capabilities',
+      supportsAllDrives: true // Hỗ trợ Team Drive
+    })
+
+    // Kiểm tra quyền upload (có thể thêm file mới không)
+    const canAddChildren = response.data.capabilities?.canAddChildren
+    if (!canAddChildren) {
+      return { success: false, message: "Kết nối thành công nhưng Service Account không có quyền thêm File vào thư mục này. Vui lòng cấp quyền 'Người chỉnh sửa'." }
+    }
+
+    return { success: true, message: `Kết nối thành công! Thư mục đích: ${response.data.name}` }
+  } catch (error: any) {
+    console.error("Lỗi khi test kết nối Drive:", error)
+    return { success: false, message: error.message || "Lỗi cấu hình Service Account hoặc Folder ID không đúng." }
   }
 }
