@@ -21,9 +21,13 @@ export default function LoginPage() {
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail")
+    const savedPassword = localStorage.getItem("rememberedPassword")
     if (savedEmail) {
       setEmail(savedEmail)
       setRememberMe(true)
+    }
+    if (savedPassword) {
+      setPassword(savedPassword)
     }
   }, [])
 
@@ -34,8 +38,10 @@ export default function LoginPage() {
 
     if (rememberMe) {
       localStorage.setItem("rememberedEmail", email)
+      localStorage.setItem("rememberedPassword", password)
     } else {
       localStorage.removeItem("rememberedEmail")
+      localStorage.removeItem("rememberedPassword")
     }
 
     const res = await signIn("credentials", {
