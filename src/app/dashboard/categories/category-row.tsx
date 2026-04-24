@@ -116,7 +116,6 @@ export default function CategoryRow({
           {item.manager?.name && <div className="text-xs text-blue-600 mt-1">QL: {item.manager.name}</div>}
         </td>
       )}
-      )}
       <td className="px-6 py-4 text-sm text-gray-500">
         <div className="font-medium text-gray-900">{countValue} {countLabel}</div>
         {type === 'room' && item.classroomEquipments && item.classroomEquipments.length > 0 && (
