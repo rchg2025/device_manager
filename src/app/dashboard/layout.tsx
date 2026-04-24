@@ -88,7 +88,7 @@ export default async function DashboardLayout({
           )}
 
           <Link href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-            <Package className="w-5 h-5 shrink-0" /> Mượn thiết bị mới
+            <Package className="w-5 h-5 shrink-0" /> Đăng ký mượn thiết bị
           </Link>
           
           {role !== "MEMBER" ? (

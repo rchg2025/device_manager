@@ -52,11 +52,9 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                 </Link>
               )}
 
-              {role === "MEMBER" && (
-                <Link onClick={closeMenu} href="/dashboard/borrow" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/borrow' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                  <Package className="w-5 h-5" /> Mượn thiết bị mới
-                </Link>
-              )}
+              <Link onClick={closeMenu} href="/dashboard/borrow" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/borrow' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                <Package className="w-5 h-5" /> Đăng ký mượn thiết bị
+              </Link>
               
               {role !== "MEMBER" ? (
                 <>

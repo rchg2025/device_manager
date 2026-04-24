@@ -50,7 +50,7 @@ export default async function DashboardPage() {
             <p className="text-gray-500 mt-1">Chào mừng bạn quay lại hệ thống quản lý thiết bị.</p>
           </div>
           <Link href="/dashboard/borrow" className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm w-full md:w-auto">
-            <PlusCircle className="w-5 h-5" /> Mượn thiết bị mới
+            <PlusCircle className="w-5 h-5" /> Đăng ký mượn thiết bị
           </Link>
         </div>
 
@@ -99,13 +99,13 @@ export default async function DashboardPage() {
           
           <div className="p-6">
             {requests.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-                  <Package className="w-10 h-10" />
+                <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center mt-6">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800">Chưa có yêu cầu mượn thiết bị</h3>
+                  <p className="text-gray-500 mt-2 max-w-sm mx-auto">Bạn chưa từng mượn thiết bị nào trên hệ thống. Hãy bắt đầu bằng cách bấm nút Đăng ký mượn thiết bị ở trên.</p>
                 </div>
-                <h4 className="text-lg font-medium text-gray-700">Chưa có lịch sử mượn</h4>
-                <p className="text-gray-500 mt-2 max-w-sm mx-auto">Bạn chưa từng mượn thiết bị nào trên hệ thống. Hãy bắt đầu bằng cách bấm nút Mượn thiết bị mới ở trên.</p>
-              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {requests.map((req: any) => {
