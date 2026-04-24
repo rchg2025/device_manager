@@ -20,41 +20,59 @@ export default async function CategoriesPage({
   const limit = 15
   const skip = (page - 1) * limit
 
-  const [
-    totalCategories, categories,
-    totalUnits, units,
-    totalPositions, positions,
-    totalAreas, areas,
-    totalRooms, rooms,
-    totalClassroomEqCats, classroomEqCats,
-    totalDeviceConfigs, deviceConfigs,
-    allAreas
-  ] = await Promise.all([
-    prisma.category.count(),
-    prisma.category.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.unit.count(),
-    prisma.unit.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.position.count(),
-    prisma.position.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.area.count(),
-    prisma.area.findMany({ select: { id: true, name: true, _count: { select: { rooms: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.room.count(),
-    prisma.room.findMany({ select: { id: true, name: true, area: { select: { id: true, name: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.classroomEqCategory.count(),
-    prisma.classroomEqCategory.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.deviceConfig.count(),
-    prisma.deviceConfig.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-    prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
-  ]);
+  let totalItems = 0;
+  let items: any[] = [];
+  let allAreas: any[] = [];
 
-  let totalPages = 1
-  if (activeTab === 'equipment') totalPages = Math.ceil(totalCategories / limit)
-  if (activeTab === 'unit') totalPages = Math.ceil(totalUnits / limit)
-  if (activeTab === 'position') totalPages = Math.ceil(totalPositions / limit)
-  if (activeTab === 'area') totalPages = Math.ceil(totalAreas / limit)
-  if (activeTab === 'room') totalPages = Math.ceil(totalRooms / limit)
-  if (activeTab === 'classroom-eq-cat') totalPages = Math.ceil(totalClassroomEqCats / limit)
-  if (activeTab === 'config') totalPages = Math.ceil(totalDeviceConfigs / limit)
+  switch (activeTab) {
+    case 'equipment':
+      [totalItems, items] = await Promise.all([
+        prisma.category.count(),
+        prisma.category.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+      ]);
+      break;
+    case 'unit':
+      [totalItems, items] = await Promise.all([
+        prisma.unit.count(),
+        prisma.unit.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+      ]);
+      break;
+    case 'position':
+      [totalItems, items] = await Promise.all([
+        prisma.position.count(),
+        prisma.position.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+      ]);
+      break;
+    case 'area':
+      [totalItems, items] = await Promise.all([
+        prisma.area.count(),
+        prisma.area.findMany({ select: { id: true, name: true, _count: { select: { rooms: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+      ]);
+      break;
+    case 'room':
+      [totalItems, items, allAreas] = await Promise.all([
+        prisma.room.count(),
+        prisma.room.findMany({ select: { id: true, name: true, area: { select: { id: true, name: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+        prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+      ]);
+      break;
+    case 'classroom-eq-cat':
+      [totalItems, items] = await Promise.all([
+        prisma.classroomEqCategory.count(),
+        prisma.classroomEqCategory.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+      ]);
+      break;
+    case 'config':
+      [totalItems, items] = await Promise.all([
+        prisma.deviceConfig.count(),
+        prisma.deviceConfig.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+      ]);
+      break;
+    default:
+      break;
+  }
+
+  const totalPages = Math.ceil(totalItems / limit) || 1
 
   return (
     <div>
@@ -89,25 +107,25 @@ export default async function CategoriesPage({
       </div>
 
       {activeTab === 'equipment' && (
-        <CategoryTab title="Thiết bị" createAction={createCategory} data={categories} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" />
+        <CategoryTab title="Thiết bị" createAction={createCategory} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" />
       )}
       {activeTab === 'unit' && (
-        <CategoryTab title="Đơn vị" createAction={createUnit} data={units} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="unit" />
+        <CategoryTab title="Đơn vị" createAction={createUnit} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="unit" />
       )}
       {activeTab === 'position' && (
-        <CategoryTab title="Chức vụ" createAction={createPosition} data={positions} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="position" />
+        <CategoryTab title="Chức vụ" createAction={createPosition} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="position" />
       )}
       {activeTab === 'area' && (
-        <CategoryTab title="Khu vực" createAction={createArea} data={areas} totalPages={totalPages} page={page} countLabel="phòng học" countKey="rooms" type="area" />
+        <CategoryTab title="Khu vực" createAction={createArea} data={items} totalPages={totalPages} page={page} countLabel="phòng học" countKey="rooms" type="area" />
       )}
       {activeTab === 'classroom-eq-cat' && (
-        <CategoryTab title="Thiết bị phòng học" createAction={createClassroomEqCategory} data={classroomEqCats} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="classroomEqCategory" />
+        <CategoryTab title="Thiết bị phòng học" createAction={createClassroomEqCategory} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="classroomEqCategory" />
       )}
       {activeTab === 'config' && (
-        <CategoryTab title="Cấu hình" createAction={createDeviceConfig} data={deviceConfigs} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="deviceConfig" />
+        <CategoryTab title="Cấu hình" createAction={createDeviceConfig} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="deviceConfig" />
       )}
       {activeTab === 'room' && (
-        <RoomTab data={rooms} allAreas={allAreas} totalPages={totalPages} page={page} />
+        <RoomTab data={items} allAreas={allAreas} totalPages={totalPages} page={page} />
       )}
     </div>
   )
@@ -138,13 +156,19 @@ function CategoryTab({ title, createAction, data, totalPages, page, countLabel, 
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} type={type} countLabel={countLabel} countValue={item._count[countKey]} />
+                <CategoryRow key={item.id} item={item} countKey={countKey} type={type} />
               ))}
-              {data.length === 0 && <tr><td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">Chưa có dữ liệu.</td></tr>}
+              {data.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có dữ liệu</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        <Pagination totalPages={totalPages} currentPage={page} />
+        <div className="mt-4">
+          <Pagination totalPages={totalPages} currentPage={page} />
+        </div>
       </div>
     </div>
   )
@@ -154,19 +178,17 @@ function RoomTab({ data, allAreas, totalPages, page }: any) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
-        <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm phòng học mới</h4>
+        <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm Phòng học mới</h4>
         <form action={async (formData) => { "use server"; await createRoom(formData) }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tên phòng học</label>
-            <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder="Ví dụ: Phòng 101" />
+            <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder="VD: Phòng B1.01" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Khu vực</label>
             <select name="areaId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white">
               <option value="">-- Chọn khu vực --</option>
-              {allAreas.map((area: any) => (
-                <option key={area.id} value={area.id}>{area.name}</option>
-              ))}
+              {allAreas.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
           </div>
           <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors">Thêm mới</button>
@@ -179,19 +201,25 @@ function RoomTab({ data, allAreas, totalPages, page }: any) {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên phòng</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khu vực</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng TB</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số thiết bị</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} type="room" countLabel="thiết bị" countValue={item._count.classroomEquipments} subtitle={item.area?.name} allAreas={allAreas} />
+                <CategoryRow key={item.id} item={item} countKey="classroomEquipments" type="room" extraData={{ areas: allAreas }} />
               ))}
-              {data.length === 0 && <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">Chưa có dữ liệu.</td></tr>}
+              {data.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có dữ liệu</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        <Pagination totalPages={totalPages} currentPage={page} />
+        <div className="mt-4">
+          <Pagination totalPages={totalPages} currentPage={page} />
+        </div>
       </div>
     </div>
   )
