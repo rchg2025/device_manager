@@ -17,26 +17,39 @@ export default async function DashboardLayout({
   const role = session?.user?.role || "MEMBER"
 
   let unreadCount = 0
+  let pendingRequestsCount = 0
   let overdueItems: any[] = []
   let notifications: any[] = []
 
   if (session?.user?.id) {
+    // Fetch unread notifications for everyone
+    unreadCount = await prisma.notification.count({
+      where: { userId: session.user.id, isRead: false }
+    })
+
+    // Fetch top 5 notifications
+    notifications = await prisma.notification.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    })
+
     if (role !== "MEMBER") {
-      unreadCount = await prisma.borrowRequest.count({
-        where: { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
+      let whereClause: any = { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
+      if (role === "MANAGER") {
+        whereClause.equipment = {
+          category: {
+            OR: [
+              { managerId: null },
+              { managerId: session.user.id }
+            ]
+          }
+        }
+      }
+      pendingRequestsCount = await prisma.borrowRequest.count({
+        where: whereClause
       })
     } else {
-      // Fetch unread notifications for member
-      unreadCount = await prisma.notification.count({
-        where: { userId: session.user.id, isRead: false }
-      })
-
-      // Fetch top 5 notifications
-      notifications = await prisma.notification.findMany({
-        where: { userId: session.user.id },
-        orderBy: { createdAt: 'desc' },
-        take: 5
-      })
 
       // Fetch overdue items for member
       const today = new Date()
@@ -97,7 +110,7 @@ export default async function DashboardLayout({
                 <div className="flex items-center gap-3">
                   <ClipboardList className="w-5 h-5 shrink-0" /> Yêu cầu mượn/trả
                 </div>
-                <AutoRefreshBadge initialCount={unreadCount} />
+                <AutoRefreshBadge initialCount={pendingRequestsCount} />
               </Link>
               <Link href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <History className="w-5 h-5 shrink-0" /> Lịch sử mượn trả
@@ -159,7 +172,7 @@ export default async function DashboardLayout({
         {/* Top Header */}
         <header className="bg-white shadow-sm border-b px-6 py-3 flex justify-between items-center shrink-0">
           <div className="xl:hidden flex items-center gap-2">
-            <MobileMenu role={role} unreadCount={unreadCount} />
+            <MobileMenu role={role} unreadCount={pendingRequestsCount} />
             <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
           </div>
           <div className="hidden xl:block"></div> {/* Spacer */}

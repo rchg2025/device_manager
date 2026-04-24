@@ -13,8 +13,19 @@ export async function GET() {
 
     let count = 0
     if (role !== "MEMBER") {
+      let whereClause: any = { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
+      if (role === "MANAGER") {
+        whereClause.equipment = {
+          category: {
+            OR: [
+              { managerId: null },
+              { managerId: session.user.id }
+            ]
+          }
+        }
+      }
       count = await prisma.borrowRequest.count({
-        where: { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
+        where: whereClause
       })
     } else {
       count = await prisma.notification.count({
