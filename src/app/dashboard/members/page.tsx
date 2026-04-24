@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import MemberRow from "./member-row"
 import { createMember } from "./actions"
+import ExcelButtons from "./excel-buttons"
 
 export default async function MembersPage() {
   const session = await auth()
@@ -31,8 +32,9 @@ export default async function MembersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-800">Quản lý thành viên</h2>
+        <ExcelButtons />
       </div>
       
       {/* Thêm thành viên mới */}

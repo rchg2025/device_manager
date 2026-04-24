@@ -100,6 +100,7 @@ model Equipment {
   totalQty    Int      @default(0)
   availableQty Int     @default(0)
   requests    BorrowRequest[]
+  maintenances Maintenance[]
 }
 
 model BorrowRequest {
@@ -138,3 +139,14 @@ model Setting {
   value String
 }
 
+model Maintenance {
+  id          String   @id @default(cuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  description String
+  cost        Float?
+  status      String   @default("COMPLETED") // PENDING, IN_PROGRESS, COMPLETED
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}

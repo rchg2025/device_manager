@@ -79,3 +79,40 @@ export async function createMember(formData: FormData) {
   revalidatePath("/dashboard/members")
   return { success: true }
 }
+
+export async function importMembersExcel(users: any[]) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
+
+  let successCount = 0
+  let skipCount = 0
+  const hashedPassword = await bcrypt.hash("123456", 10)
+
+  for (const u of users) {
+    if (!u.Email) continue
+    
+    const existing = await prisma.user.findUnique({ where: { email: u.Email } })
+    if (existing) {
+      skipCount++
+      continue
+    }
+
+    try {
+      await prisma.user.create({
+        data: {
+          email: u.Email,
+          password: hashedPassword,
+          name: u["Họ và tên"] || u.Name || "",
+          phone: u["Số điện thoại"]?.toString() || u.Phone?.toString() || null,
+          role: "MEMBER"
+        }
+      })
+      successCount++
+    } catch (err) {
+      console.error("Error creating user from excel:", err)
+    }
+  }
+
+  revalidatePath("/dashboard/members")
+  return { successCount, skipCount }
+}

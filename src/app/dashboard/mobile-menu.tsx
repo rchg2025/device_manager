@@ -2,7 +2,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings } from "lucide-react"
+import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench } from "lucide-react"
 import AutoRefreshBadge from "./auto-refresh-badge"
 
 export default function MobileMenu({ role, unreadCount }: { role: string, unreadCount: number }) {
@@ -39,6 +39,9 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   </Link>
                   <Link onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Package className="w-5 h-5" /> Quản lý thiết bị
+                  </Link>
+                  <Link onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <Wrench className="w-5 h-5" /> Bảo trì thiết bị
                   </Link>
                 </>
               )}
