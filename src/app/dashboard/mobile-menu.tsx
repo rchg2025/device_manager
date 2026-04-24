@@ -29,11 +29,11 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
             </div>
             
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+              <Link onClick={closeMenu} href="/dashboard" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                <LayoutDashboard className="w-5 h-5" /> Tổng quan
+              </Link>
               {role !== "MEMBER" && (
                 <>
-                  <Link onClick={closeMenu} href="/dashboard" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                    <LayoutDashboard className="w-5 h-5" /> Dashboard
-                  </Link>
                   <Link onClick={closeMenu} href="/dashboard/categories" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/categories' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Tags className="w-5 h-5" /> Quản lý danh mục
                   </Link>

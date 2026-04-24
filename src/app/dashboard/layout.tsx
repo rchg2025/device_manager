@@ -64,11 +64,11 @@ export default async function DashboardLayout({
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+            <LayoutDashboard className="w-5 h-5 shrink-0" /> Tổng quan
+          </Link>
           {role !== "MEMBER" && (
             <>
-              <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-                <LayoutDashboard className="w-5 h-5 shrink-0" /> Dashboard
-              </Link>
               <Link href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Tags className="w-5 h-5 shrink-0" /> Quản lý danh mục
               </Link>

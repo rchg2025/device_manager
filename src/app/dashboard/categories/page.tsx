@@ -187,7 +187,7 @@ function CategoryTab({ title, createAction, data, managers, totalPages, page, co
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
         <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm {title} mới</h4>
-        <form action={async (formData) => { "use server"; await createAction(formData) }} className="space-y-4">
+        <form action={createAction} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tên {title.toLowerCase()}</label>
             <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder={`Nhập tên ${title.toLowerCase()}...`} />
@@ -230,7 +230,7 @@ function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
         <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm Phòng học mới</h4>
-        <form action={async (formData) => { "use server"; await createRoom(formData) }} className="space-y-4">
+        <form action={createRoom} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tên phòng học</label>
             <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder="VD: Phòng B1.01" />
