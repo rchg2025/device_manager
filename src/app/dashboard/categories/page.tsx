@@ -65,10 +65,24 @@ export default async function CategoriesPage({
           <p className="text-gray-500 font-medium animate-pulse">Đang tải dữ liệu...</p>
         </div>
       }>
-        <CategoriesData resolvedSearchParams={resolvedSearchParams} />
+        <CategoriesDataWrapper resolvedSearchParams={resolvedSearchParams} />
       </Suspense>
     </div>
   )
+}
+
+async function CategoriesDataWrapper({ resolvedSearchParams }: { resolvedSearchParams: any }) {
+  try {
+    return <CategoriesData resolvedSearchParams={resolvedSearchParams} />
+  } catch (error: any) {
+    return (
+      <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded mb-4">
+        <h3 className="font-bold">Đã xảy ra lỗi khi tải dữ liệu:</h3>
+        <p className="mt-2 font-mono text-sm whitespace-pre-wrap">{error.message || String(error)}</p>
+        <p className="mt-2 font-mono text-xs text-gray-500">{error.stack}</p>
+      </div>
+    )
+  }
 }
 
 async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: any }) {
