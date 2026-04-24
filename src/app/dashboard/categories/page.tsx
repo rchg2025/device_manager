@@ -32,7 +32,7 @@ export default async function CategoriesPage({
         prisma.category.count({ where: searchFilter }),
         prisma.category.findMany({ where: searchFilter, select: { id: true, name: true, equipments: { select: { totalQty: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
-      items = items.map(item => ({ ...item, totalCount: item.equipments.reduce((sum: number, eq: any) => sum + eq.totalQty, 0) }));
+      items = items.map(item => ({ ...item, totalCount: item.equipments?.reduce((sum: number, eq: any) => sum + (eq.totalQty || 0), 0) || 0 }));
       break;
     case 'unit':
       [totalItems, items] = await Promise.all([
@@ -59,14 +59,14 @@ export default async function CategoriesPage({
         prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
         prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] }, email: { not: 'nguyenluyen@nsg.edu.vn' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
       ]);
-      items = items.map(item => ({ ...item, totalCount: item.classroomEquipments.reduce((sum: number, eq: any) => sum + eq.quantity, 0) }));
+      items = items.map(item => ({ ...item, totalCount: item.classroomEquipments?.reduce((sum: number, eq: any) => sum + (eq.quantity || 0), 0) || 0 }));
       break;
     case 'classroom-eq-cat':
       [totalItems, items] = await Promise.all([
         prisma.classroomEqCategory.count({ where: searchFilter }),
         prisma.classroomEqCategory.findMany({ where: searchFilter, select: { id: true, name: true, equipments: { select: { quantity: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
-      items = items.map(item => ({ ...item, totalCount: item.equipments.reduce((sum: number, eq: any) => sum + eq.quantity, 0) }));
+      items = items.map(item => ({ ...item, totalCount: item.equipments?.reduce((sum: number, eq: any) => sum + (eq.quantity || 0), 0) || 0 }));
       break;
     case 'config':
       [totalItems, items] = await Promise.all([
