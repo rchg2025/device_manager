@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Upload } from "lucide-react"
 import { createClassroomEquipment } from "./actions"
+import Select from "react-select"
 
 export default function CreateClassroomEqForm({
   areas,
@@ -62,10 +63,33 @@ export default function CreateClassroomEqForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Phòng học</label>
-        <select name="roomId" required className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500 bg-white">
-          <option value="">-- Chọn phòng học --</option>
-          {rooms.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
-        </select>
+        <Select
+          name="roomId"
+          required
+          placeholder="-- Tìm hoặc chọn phòng học --"
+          noOptionsMessage={() => "Không tìm thấy phòng học"}
+          options={rooms.map((r: any) => ({ value: r.id, label: r.name }))}
+          className="text-sm"
+          styles={{
+            control: (base) => ({
+              ...base,
+              borderColor: '#d1d5db',
+              borderRadius: '0.375rem',
+              padding: '1px 0',
+              minHeight: '38px',
+              boxShadow: 'none',
+              '&:hover': {
+                borderColor: '#3b82f6'
+              }
+            }),
+            option: (base, state) => ({
+              ...base,
+              backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+              color: state.isSelected ? 'white' : '#1f2937',
+              cursor: 'pointer'
+            })
+          }}
+        />
       </div>
 
       <div>

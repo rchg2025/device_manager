@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Search, Filter } from "lucide-react"
+import Select from "react-select"
 
 export default function FilterBar({ areas, rooms, categories }: { areas: any[], rooms: any[], categories: any[] }) {
   const router = useRouter()
@@ -79,19 +80,39 @@ export default function FilterBar({ areas, rooms, categories }: { areas: any[], 
           ))}
         </select>
 
-        <select
-          value={roomFilter}
-          onChange={(e) => {
-            setRoomFilter(e.target.value)
-            handleFilterChange('room', e.target.value)
-          }}
-          className="py-2 px-3 border border-gray-300 bg-white rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Tất cả phòng</option>
-          {availableRooms.map((r: any) => (
-            <option key={r.id} value={r.id}>{r.name}</option>
-          ))}
-        </select>
+        <div className="w-48">
+          <Select
+            value={roomFilter ? { value: roomFilter, label: availableRooms.find(r => r.id === roomFilter)?.name || 'Tất cả phòng' } : null}
+            onChange={(selectedOption: any) => {
+              const val = selectedOption?.value || ""
+              setRoomFilter(val)
+              handleFilterChange('room', val)
+            }}
+            options={[{ value: "", label: "Tất cả phòng" }, ...availableRooms.map((r: any) => ({ value: r.id, label: r.name }))]}
+            placeholder="Tất cả phòng"
+            noOptionsMessage={() => "Không tìm thấy"}
+            className="text-sm"
+            isClearable
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderColor: '#d1d5db',
+                borderRadius: '0.375rem',
+                minHeight: '38px',
+                boxShadow: 'none',
+                '&:hover': {
+                  borderColor: '#3b82f6'
+                }
+              }),
+              option: (base, state) => ({
+                ...base,
+                backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+                color: state.isSelected ? 'white' : '#1f2937',
+                cursor: 'pointer'
+              })
+            }}
+          />
+        </div>
 
         <select
           value={categoryFilter}

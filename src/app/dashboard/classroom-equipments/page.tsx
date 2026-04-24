@@ -37,6 +37,10 @@ export default async function ClassroomEquipmentsPage({
   if (roomId) whereClause.roomId = roomId
   if (categoryId) whereClause.categoryId = categoryId
 
+  if (session?.user?.role === "MANAGER") {
+    whereClause.room = { managerId: session.user.id }
+  }
+
   const [
     totalItems,
     items,
@@ -59,7 +63,10 @@ export default async function ClassroomEquipmentsPage({
       take: limit
     }),
     prisma.area.findMany({ orderBy: { name: 'asc' } }),
-    prisma.room.findMany({ orderBy: { name: 'asc' } }),
+    prisma.room.findMany({ 
+      where: session?.user?.role === "MANAGER" ? { managerId: session.user.id } : undefined,
+      orderBy: { name: 'asc' } 
+    }),
     prisma.classroomEqCategory.findMany({ orderBy: { name: 'asc' } }),
     prisma.deviceConfig.findMany({ orderBy: { name: 'asc' } })
   ])
