@@ -81,14 +81,8 @@ export default function CategoryRow({
             {type === 'room' && allAreas && (
               <>
                 <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[120px] bg-white">
-                  {allAreas.map(area => (
+                  {allAreas.map((area: any) => (
                     <option key={area.id} value={area.id}>{area.name}</option>
-                  ))}
-                </select>
-                <select name="managerId" defaultValue={item.manager?.id || ""} className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[140px] bg-white">
-                  <option value="">-- Quản lý --</option>
-                  {allManagers?.map((m: any) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
                   ))}
                 </select>
               </>
@@ -113,7 +107,6 @@ export default function CategoryRow({
       {type === 'room' && (
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           <div>{item.area?.name || subtitle}</div>
-          {item.manager?.name && <div className="text-xs text-blue-600 mt-1">QL: {item.manager.name}</div>}
         </td>
       )}
       <td className="px-6 py-4 text-sm text-gray-500">

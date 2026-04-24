@@ -128,11 +128,10 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
       ]);
       break;
     case 'room':
-      [totalItems, items, allAreas, managers] = await Promise.all([
+      [totalItems, items, allAreas] = await Promise.all([
         prisma.room.count({ where: searchFilter }),
-        prisma.room.findMany({ where: searchFilter, select: { id: true, name: true, area: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, classroomEquipments: { select: { name: true, quantity: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-        prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-        prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] }, email: { not: 'nguyenluyen@nsg.edu.vn' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
+        prisma.room.findMany({ where: searchFilter, select: { id: true, name: true, area: { select: { id: true, name: true } }, classroomEquipments: { select: { name: true, quantity: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+        prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
       ]);
       items = items.map(item => ({ ...item, totalCount: item.classroomEquipments?.reduce((sum: number, eq: any) => sum + (eq.quantity || 0), 0) || 0 }));
       break;
@@ -176,7 +175,7 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
         <CategoryTab title="Cấu hình" createAction={createDeviceConfig} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="deviceConfig" />
       )}
       {activeTab === 'room' && (
-        <RoomTab data={items} allAreas={allAreas} managers={managers} totalPages={totalPages} page={page} />
+        <RoomTab data={items} allAreas={allAreas} totalPages={totalPages} page={page} />
       )}
     </>
   )
@@ -225,7 +224,7 @@ function CategoryTab({ title, createAction, data, managers, totalPages, page, co
   )
 }
 
-function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
+function RoomTab({ data, allAreas, totalPages, page }: any) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
@@ -240,13 +239,6 @@ function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
             <select name="areaId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white">
               <option value="">-- Chọn khu vực --</option>
               {allAreas.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nhân viên quản lý (Tùy chọn)</label>
-            <select name="managerId" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white">
-              <option value="">-- Chọn người quản lý --</option>
-              {managers.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
           <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors">Thêm mới</button>
@@ -265,7 +257,7 @@ function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} countLabel="thiết bị" countValue={item.totalCount !== undefined ? item.totalCount : (item._count?.classroomEquipments || 0)} type="room" extraData={{ areas: allAreas, managers: managers }} />
+                <CategoryRow key={item.id} item={item} countLabel="thiết bị" countValue={item.totalCount !== undefined ? item.totalCount : (item._count?.classroomEquipments || 0)} type="room" extraData={{ areas: allAreas }} />
               ))}
               {data.length === 0 && (
                 <tr>
