@@ -130,6 +130,16 @@ export default function ClassroomEqRow({
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
           <div className="text-sm text-gray-900">Số lượng: <span className="font-semibold">{item.quantity}</span></div>
+          {item.creatorName && (
+            <div className="text-xs text-gray-500 mt-2">
+              <span className="font-medium">Thêm:</span> {item.creatorName} ({new Date(item.createdAt).toLocaleDateString('vi-VN')})
+            </div>
+          )}
+          {item.updatedByName && (
+            <div className="text-xs text-gray-500 mt-0.5">
+              <span className="font-medium">Sửa:</span> {item.updatedByName} ({new Date(item.updatedAt).toLocaleDateString('vi-VN')})
+            </div>
+          )}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <div className="relative inline-block text-left">

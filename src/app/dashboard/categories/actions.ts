@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
@@ -192,12 +192,13 @@ export async function createRoom(formData: FormData) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
   const name = formData.get("name") as string
   const areaId = formData.get("areaId") as string
-  if (!name || !areaId) return { error: "D? li?u kh�ng du?c tr?ng" }
+  const managerId = formData.get("managerId") as string || null
+  if (!name || !areaId) return { error: "Dữ liệu không được trống" }
   try {
-    await prisma.room.create({ data: { name, areaId } })
+    await prisma.room.create({ data: { name, areaId, managerId } })
     revalidatePath("/dashboard/categories")
     return { success: true }
-  } catch (error) { return { error: "L?i khi t?o ph�ng h?c" } }
+  } catch (error) { return { error: "Lỗi khi tạo phòng học" } }
 }
 
 export async function updateRoom(formData: FormData) {
@@ -206,12 +207,13 @@ export async function updateRoom(formData: FormData) {
   const id = formData.get("id") as string
   const name = formData.get("name") as string
   const areaId = formData.get("areaId") as string
-  if (!id || !name || !areaId) return { error: "D? li?u kh�ng h?p l?" }
+  const managerId = formData.get("managerId") as string || null
+  if (!id || !name || !areaId) return { error: "Dữ liệu không hợp lệ" }
   try {
-    await prisma.room.update({ where: { id }, data: { name, areaId } })
+    await prisma.room.update({ where: { id }, data: { name, areaId, managerId } })
     revalidatePath("/dashboard/categories")
     return { success: true }
-  } catch (error) { return { error: "L?i khi c?p nh?t ph�ng h?c" } }
+  } catch (error) { return { error: "Lỗi khi cập nhật phòng học" } }
 }
 
 export async function deleteRoom(id: string) {

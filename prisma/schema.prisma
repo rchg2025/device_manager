@@ -74,6 +74,7 @@ model User {
   sessions      Session[]
   requests      BorrowRequest[]
   notifications Notification[]
+  managedRooms  Room[]
 }
 
 model VerificationToken {
@@ -172,6 +173,8 @@ model Room {
   name   String
   areaId String
   area   Area   @relation(fields: [areaId], references: [id])
+  managerId String?
+  manager   User?  @relation(fields: [managerId], references: [id])
   classroomEquipments ClassroomEquipment[]
 
   @@unique([areaId, name])
@@ -206,6 +209,9 @@ model ClassroomEquipment {
   configs    DeviceConfig[]
   
   quantity   Int @default(1)
+  
+  creatorName   String?
+  updatedByName String?
   
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt

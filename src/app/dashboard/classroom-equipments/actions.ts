@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
@@ -38,6 +38,7 @@ export async function createClassroomEquipment(formData: FormData) {
         categoryId,
         quantity,
         image: imageUrl,
+        creatorName: session?.user?.name || "Unknown",
         configs: {
           connect: configIds.map(id => ({ id }))
         }
@@ -89,6 +90,7 @@ export async function updateClassroomEquipment(formData: FormData) {
         categoryId,
         quantity,
         image: imageUrl,
+        updatedByName: session?.user?.name || "Unknown",
         configs: {
           set: [], // clear existing
           connect: configIds.map(id => ({ id })) // add new

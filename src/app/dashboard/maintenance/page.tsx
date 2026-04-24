@@ -17,11 +17,11 @@ export default async function MaintenancePage({
   }
 
   const sp = await searchParams;
-  const tab = sp?.tab || 'maintenance'; // 'maintenance' or 'broken'
+  const tab = sp?.tab || 'general'; // 'general' or 'classroom'
 
-  const whereClause = tab === 'broken' 
-    ? { status: 'BROKEN' }
-    : { status: { not: 'BROKEN' } }
+  const whereClause = tab === 'classroom' 
+    ? { classroomEqId: { not: null } }
+    : { equipmentId: { not: null } }
 
   let page = parseInt(sp?.page as string)
   if (isNaN(page) || page < 1) page = 1
@@ -34,7 +34,12 @@ export default async function MaintenancePage({
       where: whereClause,
       include: {
         equipment: { select: { name: true, image: true, barcode: true } },
-        classroomEq: { select: { name: true, image: true } }
+        classroomEq: { 
+          include: { 
+            area: { select: { name: true } },
+            room: { include: { manager: { select: { name: true } } } } 
+          } 
+        }
       },
       orderBy: { date: 'desc' },
       skip,
@@ -49,23 +54,23 @@ export default async function MaintenancePage({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Lịch sử bảo trì & Sửa chữa</h2>
-          <p className="text-gray-500 mt-1 text-sm">Theo dõi chi phí và tình trạng sửa chữa thiết bị trong kho.</p>
+          <p className="text-gray-500 mt-1 text-sm">Theo dõi chi phí và tình trạng sửa chữa thiết bị trong kho và tại các phòng học.</p>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex space-x-1 border-b border-gray-200">
         <Link 
-          href="/dashboard/maintenance?tab=maintenance" 
-          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'maintenance' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          href="/dashboard/maintenance?tab=general" 
+          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'general' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
         >
-          Đang bảo trì / Sửa chữa
+          Thiết bị chung (Trong kho)
         </Link>
         <Link 
-          href="/dashboard/maintenance?tab=broken" 
-          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'broken' ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          href="/dashboard/maintenance?tab=classroom" 
+          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'classroom' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
         >
-          Thiết bị hư hỏng
+          Thiết bị phòng học
         </Link>
       </div>
 
@@ -74,9 +79,11 @@ export default async function MaintenancePage({
           <thead>
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thiết bị</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả lỗi / Bảo trì</th>
+              {tab === 'classroom' && (
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí & Quản lý</th>
+              )}
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả bảo trì / Lỗi</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày ghi nhận</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi phí (VNĐ)</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người xử lý</th>
@@ -88,7 +95,7 @@ export default async function MaintenancePage({
               <tr key={mt.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
                       {(mt.equipment?.image || mt.classroomEq?.image) ? (
                         <img src={mt.equipment?.image || mt.classroomEq?.image} alt={mt.equipment?.name || mt.classroomEq?.name} className="w-full h-full object-cover" />
                       ) : (
@@ -97,18 +104,29 @@ export default async function MaintenancePage({
                     </div>
                     <div>
                       <div className="font-medium text-gray-900">{mt.equipment?.name || mt.classroomEq?.name || "Đã xoá"}</div>
-                      <div className="text-xs text-gray-500">{mt.equipment?.barcode ? mt.equipment.barcode : (mt.classroomEq ? "Thiết bị phòng học" : "Không có mã vạch")}</div>
+                      <div className="text-xs text-gray-500">
+                        Số lượng xử lý: {mt.quantity}
+                        {mt.equipment?.barcode && ` • Mã: ${mt.equipment.barcode}`}
+                      </div>
                     </div>
                   </div>
                 </td>
+                
+                {tab === 'classroom' && (
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{mt.classroomEq?.room?.name || "N/A"}</div>
+                    <div className="text-xs text-gray-500">{mt.classroomEq?.area?.name || "N/A"}</div>
+                    {mt.classroomEq?.room?.manager?.name && (
+                      <div className="text-xs text-blue-600 mt-1">QL: {mt.classroomEq.room.manager.name}</div>
+                    )}
+                  </td>
+                )}
+
                 <td className="px-6 py-4">
                   <div className="text-sm text-gray-900 max-w-xs truncate" title={mt.description}>{mt.description}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {mt.date ? new Date(mt.date).toLocaleDateString('vi-VN') : "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                  {mt.quantity}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">
                   {mt.cost ? new Intl.NumberFormat('vi-VN').format(mt.cost) : "-"}
@@ -133,7 +151,7 @@ export default async function MaintenancePage({
             ))}
             {maintenances.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
+                <td colSpan={tab === 'classroom' ? 8 : 7} className="px-6 py-12 text-center text-sm text-gray-500">
                   Chưa có lịch sử bảo trì/sửa chữa nào ở mục này.
                 </td>
               </tr>

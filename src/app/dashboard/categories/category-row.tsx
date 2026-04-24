@@ -14,14 +14,14 @@ export default function CategoryRow({
   countLabel, 
   countValue,
   subtitle,
-  allAreas
+  extraData
 }: { 
   item: any, 
   type: ItemType, 
   countLabel: string, 
   countValue: number,
   subtitle?: string,
-  allAreas?: any[]
+  extraData?: { areas?: any[], managers?: any[] }
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -62,6 +62,9 @@ export default function CategoryRow({
     }
   }
 
+  const allAreas = extraData?.areas
+  const allManagers = extraData?.managers
+
   if (isEditing) {
     return (
       <tr>
@@ -75,11 +78,19 @@ export default function CategoryRow({
               className="flex-1 border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px]" 
             />
             {type === 'room' && allAreas && (
-              <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px] bg-white">
-                {allAreas.map(area => (
-                  <option key={area.id} value={area.id}>{area.name}</option>
-                ))}
-              </select>
+              <>
+                <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[120px] bg-white">
+                  {allAreas.map(area => (
+                    <option key={area.id} value={area.id}>{area.name}</option>
+                  ))}
+                </select>
+                <select name="managerId" defaultValue={item.manager?.id || ""} className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[140px] bg-white">
+                  <option value="">-- Quản lý --</option>
+                  {allManagers?.map((m: any) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </>
             )}
             <div className="flex items-center gap-2">
               <button type="submit" disabled={isLoading} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-green-700">
@@ -99,7 +110,10 @@ export default function CategoryRow({
     <tr>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
       {type === 'room' && (
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{subtitle}</td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <div>{item.area?.name || subtitle}</div>
+          {item.manager?.name && <div className="text-xs text-blue-600 mt-1">QL: {item.manager.name}</div>}
+        </td>
       )}
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{countValue} {countLabel}</td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
