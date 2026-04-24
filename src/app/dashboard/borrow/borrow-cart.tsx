@@ -22,6 +22,8 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
 
   // Form State
   const [selectedEqId, setSelectedEqId] = useState("")
+  const [searchEq, setSearchEq] = useState("")
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [borrowDate, setBorrowDate] = useState("")
   const [returnDate, setReturnDate] = useState("")
@@ -45,6 +47,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
     const eq = equipments.find(e => e.barcode === barcode)
     if (eq) {
       setSelectedEqId(eq.id)
+      setSearchEq(`${eq.name} (Sẵn sàng: ${eq.availableQty})`)
       setError("")
     } else {
       setError(`Không tìm thấy thiết bị nào có mã QR: ${barcode}`)
@@ -98,6 +101,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
 
     // Reset form partially
     setSelectedEqId("")
+    setSearchEq("")
     setQuantity(1)
     setError("")
   }
@@ -153,18 +157,56 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
                 <label className="block text-sm font-medium text-gray-700">Chọn thiết bị</label>
                 <QrScannerModal onScanSuccess={handleScanSuccess} />
               </div>
-              <select 
-                value={selectedEqId}
-                onChange={(e) => setSelectedEqId(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border"
-              >
-                <option value="">-- Chọn thiết bị cần mượn --</option>
-                {equipments.map((eq: any) => (
-                  <option key={eq.id} value={eq.id}>
-                    {eq.name} (Sẵn sàng: {eq.availableQty}) - {eq.category.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nhập tên, mã vạch hoặc danh mục để tìm kiếm..."
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border"
+                  value={searchEq}
+                  onChange={(e) => {
+                    setSearchEq(e.target.value);
+                    setIsDropdownOpen(true);
+                    if (!e.target.value) setSelectedEqId("");
+                  }}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                />
+                
+                {isDropdownOpen && (
+                  <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {equipments.filter(eq => 
+                      eq.name.toLowerCase().includes(searchEq.toLowerCase()) || 
+                      eq.category.name.toLowerCase().includes(searchEq.toLowerCase()) ||
+                      (eq.barcode && eq.barcode.toLowerCase().includes(searchEq.toLowerCase()))
+                    ).map(eq => (
+                      <li 
+                        key={eq.id}
+                        className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-blue-50 text-sm border-b last:border-0"
+                        onClick={() => {
+                          setSelectedEqId(eq.id);
+                          setSearchEq(`${eq.name} (Sẵn sàng: ${eq.availableQty})`);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <div className="font-medium">{eq.name}</div>
+                        <div className="text-xs text-gray-500 flex gap-2">
+                          <span>Sẵn sàng: <span className={eq.availableQty > 0 ? "text-green-600 font-semibold" : "text-red-600"}>{eq.availableQty}</span></span>
+                          <span>|</span>
+                          <span>DM: {eq.category.name}</span>
+                          {eq.barcode && <><span>|</span><span>Mã: {eq.barcode}</span></>}
+                        </div>
+                      </li>
+                    ))}
+                    {equipments.filter(eq => 
+                      eq.name.toLowerCase().includes(searchEq.toLowerCase()) || 
+                      eq.category.name.toLowerCase().includes(searchEq.toLowerCase()) ||
+                      (eq.barcode && eq.barcode.toLowerCase().includes(searchEq.toLowerCase()))
+                    ).length === 0 && (
+                      <li className="p-3 text-sm text-gray-500 text-center">Không tìm thấy thiết bị phù hợp</li>
+                    )}
+                  </ul>
+                )}
+              </div>
             </div>
 
             <div>

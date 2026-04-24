@@ -6,6 +6,7 @@ import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
 import AutoRefreshBadge from "./auto-refresh-badge"
 import MobileMenu from "./mobile-menu"
+import DesktopSidebarWrapper from "./desktop-sidebar"
 
 export default async function DashboardLayout({
   children,
@@ -53,9 +54,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md flex flex-col hidden xl:flex shrink-0">
+    <div className="flex h-screen bg-gray-100 relative">
+      {/* Sidebar Wrapper */}
+      <DesktopSidebarWrapper>
         <div className="p-4 border-b flex flex-col items-center">
           <img src="/logo.png" alt="NSG Logo" className="h-16 w-auto object-contain mb-2" />
           <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">NSG Device Manager</h1>
@@ -86,11 +87,9 @@ export default async function DashboardLayout({
             </Link>
           )}
 
-          {role === "MEMBER" && (
-            <Link href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-              <Package className="w-5 h-5 shrink-0" /> Mượn thiết bị mới
-            </Link>
-          )}
+          <Link href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+            <Package className="w-5 h-5 shrink-0" /> Mượn thiết bị mới
+          </Link>
           
           {role !== "MEMBER" ? (
             <>
@@ -139,7 +138,7 @@ export default async function DashboardLayout({
             </button>
           </form>
         </div>
-      </aside>
+      </DesktopSidebarWrapper>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen relative min-w-0">
