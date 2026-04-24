@@ -43,7 +43,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
   if (isEditing) {
     return (
       <tr>
-        <td colSpan={6} className="px-6 py-4">
+        <td colSpan={8} className="px-6 py-4">
           <form action={handleUpdate} className="grid grid-cols-6 gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Tên thiết bị</label>
@@ -95,6 +95,10 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
         <div className="text-sm text-gray-500">{eq.barcode || 'N/A'}</div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eq.category.name}</td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm font-medium text-gray-900">{eq.creatorName || "N/A"}</div>
+        <div className="text-xs text-gray-500">{new Date(eq.createdAt).toLocaleDateString('vi-VN')}</div>
+      </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eq.totalQty}</td>
       <td className="px-6 py-4 whitespace-nowrap">
         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${eq.availableQty > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -103,7 +107,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex items-center justify-end gap-3">
-          <MaintenanceModal equipmentId={eq.id} equipmentName={eq.name} />
+          <MaintenanceModal equipmentId={eq.id} equipmentName={eq.name} availableQty={eq.availableQty} />
           <QrModal barcode={eq.barcode} equipmentName={eq.name} />
           <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
             <Edit2 className="w-4 h-4" />

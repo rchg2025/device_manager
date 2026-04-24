@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Wrench, X, Check } from "lucide-react"
 import { createMaintenance } from "../maintenance/actions"
 
-export default function MaintenanceModal({ equipmentId, equipmentName }: { equipmentId: string, equipmentName: string }) {
+export default function MaintenanceModal({ equipmentId, equipmentName, availableQty }: { equipmentId: string, equipmentName: string, availableQty: number }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -56,6 +56,12 @@ export default function MaintenanceModal({ equipmentId, equipmentName }: { equip
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Số lượng bảo trì / báo hỏng</label>
+                <input type="number" name="quantity" required min="1" max={availableQty} defaultValue="1" className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500" />
+                <p className="text-xs text-gray-500 mt-1">Tối đa: {availableQty} thiết bị đang sẵn sàng.</p>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả hỏng hóc / sửa chữa</label>
                 <textarea name="description" required rows={3} placeholder="VD: Thay màn hình, sửa cổng sạc..." className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500"></textarea>
               </div>
@@ -71,6 +77,7 @@ export default function MaintenanceModal({ equipmentId, equipmentName }: { equip
                   <option value="PENDING">Chờ sửa chữa</option>
                   <option value="IN_PROGRESS">Đang sửa chữa</option>
                   <option value="COMPLETED">Đã hoàn thành</option>
+                  <option value="BROKEN">Hư hỏng (Không thể sửa)</option>
                 </select>
               </div>
 

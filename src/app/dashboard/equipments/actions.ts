@@ -27,7 +27,8 @@ export async function createEquipment(formData: FormData) {
         barcode,
         image,
         totalQty,
-        availableQty: totalQty
+        availableQty: totalQty,
+        creatorName: session?.user?.name || session?.user?.email || "Unknown"
       }
     })
     revalidatePath("/dashboard/equipments")

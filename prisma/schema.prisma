@@ -99,6 +99,8 @@ model Equipment {
   image       String?
   totalQty    Int      @default(0)
   availableQty Int     @default(0)
+  createdAt   DateTime @default(now())
+  creatorName String?
   requests    BorrowRequest[]
   maintenances Maintenance[]
 }
@@ -143,9 +145,10 @@ model Maintenance {
   id          String   @id @default(cuid())
   equipmentId String
   equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  quantity    Int      @default(1)
   description String
   cost        Float?
-  status      String   @default("COMPLETED") // PENDING, IN_PROGRESS, COMPLETED
+  status      String   @default("COMPLETED") // PENDING, IN_PROGRESS, COMPLETED, BROKEN
   date        DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt

@@ -1,16 +1,29 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { Wrench, CheckCircle, Clock } from "lucide-react"
+import { Wrench, CheckCircle, Clock, AlertTriangle } from "lucide-react"
 import MaintenanceActions from "./maintenance-actions"
+import Link from "next/link"
 
-export default async function MaintenancePage() {
+export default async function MaintenancePage({
+  searchParams
+}: {
+  searchParams: { [key: string]: string | undefined }
+}) {
   const session = await auth()
   if (session?.user?.role === "MEMBER") {
     redirect("/dashboard")
   }
 
+  const sp = await searchParams;
+  const tab = sp?.tab || 'maintenance'; // 'maintenance' or 'broken'
+
+  const whereClause = tab === 'broken' 
+    ? { status: 'BROKEN' }
+    : { status: { not: 'BROKEN' } }
+
   const maintenances = await prisma.maintenance.findMany({
+    where: whereClause,
     include: {
       equipment: { select: { name: true, image: true, barcode: true } }
     },
@@ -19,11 +32,27 @@ export default async function MaintenancePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Lịch sử bảo trì & Sửa chữa</h2>
           <p className="text-gray-500 mt-1 text-sm">Theo dõi chi phí và tình trạng sửa chữa thiết bị trong kho.</p>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex space-x-1 border-b border-gray-200">
+        <Link 
+          href="/dashboard/maintenance?tab=maintenance" 
+          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'maintenance' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+        >
+          Đang bảo trì / Sửa chữa
+        </Link>
+        <Link 
+          href="/dashboard/maintenance?tab=broken" 
+          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'broken' ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+        >
+          Thiết bị hư hỏng
+        </Link>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
@@ -33,6 +62,7 @@ export default async function MaintenancePage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thiết bị</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả lỗi / Bảo trì</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày ghi nhận</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi phí (VNĐ)</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
@@ -62,6 +92,9 @@ export default async function MaintenancePage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(mt.date).toLocaleDateString('vi-VN')}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                  {mt.quantity}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {mt.cost ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(mt.cost) : "-"}
                 </td>
@@ -69,14 +102,17 @@ export default async function MaintenancePage() {
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full gap-1 items-center ${
                     mt.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                     mt.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                    'bg-green-100 text-green-800'
+                    mt.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                    'bg-red-100 text-red-800'
                   }`}>
                     {mt.status === 'PENDING' && <Clock className="w-3 h-3" />}
                     {mt.status === 'IN_PROGRESS' && <Wrench className="w-3 h-3" />}
                     {mt.status === 'COMPLETED' && <CheckCircle className="w-3 h-3" />}
+                    {mt.status === 'BROKEN' && <AlertTriangle className="w-3 h-3" />}
                     
                     {mt.status === 'PENDING' ? 'Chờ sửa chữa' :
-                     mt.status === 'IN_PROGRESS' ? 'Đang sửa' : 'Đã hoàn thành'}
+                     mt.status === 'IN_PROGRESS' ? 'Đang sửa' :
+                     mt.status === 'COMPLETED' ? 'Đã hoàn thành' : 'Hư hỏng'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -86,8 +122,8 @@ export default async function MaintenancePage() {
             ))}
             {maintenances.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500">
-                  Chưa có dữ liệu bảo trì nào.
+                <td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-500">
+                  Chưa có dữ liệu.
                 </td>
               </tr>
             )}
