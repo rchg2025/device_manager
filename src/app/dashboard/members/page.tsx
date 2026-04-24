@@ -13,7 +13,7 @@ export default async function MembersPage({
   searchParams: { [key: string]: string | undefined }
 }) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") {
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER") {
     redirect("/dashboard")
   }
 

@@ -80,7 +80,7 @@ export default async function DashboardLayout({
             </>
           )}
 
-          {role === "ADMIN" && (
+          {(role === "ADMIN" || role === "MANAGER") && (
             <Link href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
               <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
             </Link>
