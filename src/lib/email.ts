@@ -26,7 +26,7 @@ async function getTransporter() {
 
 async function getFromAddress() {
   const setting = await prisma.setting.findUnique({ where: { key: "SMTP_FROM" } })
-  return setting?.value || "NSG Device Manager <noreply@nsg.edu.vn>"
+  return setting?.value || "Device Manager ITE <noreply@nsg.edu.vn>"
 }
 
 const emailWrapper = (title: string, content: string) => `
@@ -54,7 +54,7 @@ const emailWrapper = (title: string, content: string) => `
       ${content}
     </div>
     <div class="footer">
-      Email tự động từ hệ thống NSG Device Manager.<br>
+      Email tự động từ hệ thống Device Manager ITE.<br>
       Khoa CNTT - KTĐ.
     </div>
   </div>
@@ -82,7 +82,7 @@ export async function sendBorrowRequestEmailToAdmins(adminEmails: string[], memb
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[NSG Device] Yêu cầu mượn thiết bị mới từ ${memberName}`,
+    subject: `[Device Manager ITE] Yêu cầu mượn thiết bị mới từ ${memberName}`,
     html: emailWrapper("Yêu Cầu Mượn Thiết Bị Mới", content)
   })
 }
@@ -106,7 +106,7 @@ export async function sendReturnRequestEmailToAdmins(adminEmails: string[], memb
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[NSG Device] Yêu cầu trả thiết bị từ ${memberName}`,
+    subject: `[Device Manager ITE] Yêu cầu trả thiết bị từ ${memberName}`,
     html: emailWrapper("Yêu Cầu Trả Thiết Bị", content)
   })
 }
@@ -161,7 +161,7 @@ export async function sendStatusUpdateEmailToMember(memberEmail: string, equipme
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[NSG Device] Trạng thái thiết bị: ${statusText}`,
+    subject: `[Device Manager ITE] Trạng thái thiết bị: ${statusText}`,
     html: emailWrapper(title, content)
   })
 }

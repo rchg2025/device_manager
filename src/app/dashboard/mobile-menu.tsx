@@ -2,7 +2,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench } from "lucide-react"
+import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench, MonitorPlay } from "lucide-react"
 import AutoRefreshBadge from "./auto-refresh-badge"
 
 export default function MobileMenu({ role, unreadCount }: { role: string, unreadCount: number }) {
@@ -80,6 +80,14 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   </div>
                   <AutoRefreshBadge initialCount={unreadCount} />
                 </Link>
+              )}
+              {role !== "MEMBER" && (
+                <>
+                  <hr className="my-2 border-gray-200" />
+                  <Link onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-equipments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <MonitorPlay className="w-5 h-5" /> QL thiết bị phòng học
+                  </Link>
+                </>
               )}
             </nav>
           </div>

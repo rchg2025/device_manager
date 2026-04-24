@@ -44,7 +44,7 @@ export default function SettingsForm({ smtpSettings }: { smtpSettings: Record<st
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Email gửi đi (Từ ai?)</label>
-            <input type="text" name="from" placeholder="NSG Device Manager <noreply@nsg.edu.vn>" defaultValue={smtpSettings.SMTP_FROM || ""} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
+            <input type="text" name="from" placeholder="Device Manager ITE <noreply@nsg.edu.vn>" defaultValue={smtpSettings.SMTP_FROM || ""} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Tài khoản Email (Username)</label>

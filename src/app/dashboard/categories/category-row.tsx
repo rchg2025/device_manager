@@ -1,20 +1,27 @@
-"use client"
+﻿"use client"
 import { useState } from "react"
 import { Trash2, Edit2, Check, X } from "lucide-react"
-import { updateCategory, deleteCategory, updateUnit, deleteUnit, updatePosition, deletePosition } from "./actions"
+import { 
+  updateCategory, deleteCategory, updateUnit, deleteUnit, updatePosition, deletePosition,
+  updateArea, deleteArea, updateRoom, deleteRoom, updateClassroomEqCategory, deleteClassroomEqCategory, updateDeviceConfig, deleteDeviceConfig
+} from "./actions"
 
-type ItemType = "category" | "unit" | "position"
+type ItemType = "category" | "unit" | "position" | "area" | "room" | "classroomEqCategory" | "deviceConfig"
 
 export default function CategoryRow({ 
   item, 
   type, 
   countLabel, 
-  countValue 
+  countValue,
+  subtitle,
+  allAreas
 }: { 
   item: any, 
   type: ItemType, 
   countLabel: string, 
-  countValue: number 
+  countValue: number,
+  subtitle?: string,
+  allAreas?: any[]
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -26,6 +33,10 @@ export default function CategoryRow({
     if (type === "category") await updateCategory(formData)
     if (type === "unit") await updateUnit(formData)
     if (type === "position") await updatePosition(formData)
+    if (type === "area") await updateArea(formData)
+    if (type === "room") await updateRoom(formData)
+    if (type === "classroomEqCategory") await updateClassroomEqCategory(formData)
+    if (type === "deviceConfig") await updateDeviceConfig(formData)
       
     setIsEditing(false)
     setIsLoading(false)
@@ -37,6 +48,10 @@ export default function CategoryRow({
       if (type === "category") res = await deleteCategory(item.id)
       if (type === "unit") res = await deleteUnit(item.id)
       if (type === "position") res = await deletePosition(item.id)
+      if (type === "area") res = await deleteArea(item.id)
+      if (type === "room") res = await deleteRoom(item.id)
+      if (type === "classroomEqCategory") res = await deleteClassroomEqCategory(item.id)
+      if (type === "deviceConfig") res = await deleteDeviceConfig(item.id)
 
       if (res?.error) {
         alert(res.error)
@@ -50,15 +65,22 @@ export default function CategoryRow({
   if (isEditing) {
     return (
       <tr>
-        <td colSpan={3} className="px-6 py-4">
-          <form action={handleUpdate} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+        <td colSpan={type === 'room' ? 4 : 3} className="px-6 py-4">
+          <form action={handleUpdate} className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
             <input 
               type="text" 
               name="name" 
               defaultValue={item.name} 
               required
-              className="flex-1 border-gray-300 rounded text-sm py-1.5 px-3 border" 
+              className="flex-1 border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px]" 
             />
+            {type === 'room' && allAreas && (
+              <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px]">
+                {allAreas.map(area => (
+                  <option key={area.id} value={area.id}>{area.name}</option>
+                ))}
+              </select>
+            )}
             <div className="flex items-center gap-2">
               <button type="submit" disabled={isLoading} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-green-700">
                 <Check className="w-4 h-4" /> Lưu
@@ -76,13 +98,16 @@ export default function CategoryRow({
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
+      {type === 'room' && (
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{subtitle}</td>
+      )}
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{countValue} {countLabel}</td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex items-center justify-end gap-3">
           <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={handleDelete} disabled={countValue > 0} className={`text-red-600 hover:text-red-900 ${countValue > 0 ? 'opacity-50 cursor-not-allowed' : ''}`} title="Xóa">
+          <button onClick={handleDelete} disabled={countValue > 0} className={"text-red-600 hover:text-red-900 "} title="Xóa">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>

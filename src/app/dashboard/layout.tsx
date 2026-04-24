@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench } from "lucide-react"
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay } from "lucide-react"
 import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
 import AutoRefreshBadge from "./auto-refresh-badge"
@@ -59,7 +59,7 @@ export default async function DashboardLayout({
       <DesktopSidebarWrapper>
         <div className="p-4 border-b flex flex-col items-center">
           <img src="/logo.png" alt="NSG Logo" className="h-16 w-auto object-contain mb-2" />
-          <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">NSG Device Manager</h1>
+          <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
           <p className="text-xs text-gray-500">Khoa CNTT - KTĐ</p>
         </div>
         
@@ -116,6 +116,15 @@ export default async function DashboardLayout({
               <AutoRefreshBadge initialCount={unreadCount} />
             </Link>
           )}
+
+          {role !== "MEMBER" && (
+            <>
+              <hr className="my-2 border-gray-200" />
+              <Link href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                <MonitorPlay className="w-5 h-5 shrink-0" /> QL thiết bị phòng học
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="p-4 border-t">
@@ -148,7 +157,7 @@ export default async function DashboardLayout({
         <header className="bg-white shadow-sm border-b px-6 py-3 flex justify-between items-center shrink-0">
           <div className="xl:hidden flex items-center gap-2">
             <MobileMenu role={role} unreadCount={unreadCount} />
-            <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">NSG Device</h1>
+            <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
           </div>
           <div className="hidden xl:block"></div> {/* Spacer */}
           

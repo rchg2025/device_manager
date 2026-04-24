@@ -33,7 +33,8 @@ export default async function MaintenancePage({
     prisma.maintenance.findMany({
       where: whereClause,
       include: {
-        equipment: { select: { name: true, image: true, barcode: true } }
+        equipment: { select: { name: true, image: true, barcode: true } },
+        classroomEq: { select: { name: true, image: true } }
       },
       orderBy: { date: 'desc' },
       skip,
@@ -88,68 +89,59 @@ export default async function MaintenancePage({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                      {mt.equipment.image ? (
-                        <img src={mt.equipment.image} alt={mt.equipment.name} className="w-full h-full object-cover" />
+                      {(mt.equipment?.image || mt.classroomEq?.image) ? (
+                        <img src={mt.equipment?.image || mt.classroomEq?.image} alt={mt.equipment?.name || mt.classroomEq?.name} className="w-full h-full object-cover" />
                       ) : (
                         <Wrench className="w-5 h-5 text-gray-400" />
                       )}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">{mt.equipment.name}</div>
-                      <div className="text-xs text-gray-500">{mt.equipment.barcode || "Không có mã vạch"}</div>
+                      <div className="font-medium text-gray-900">{mt.equipment?.name || mt.classroomEq?.name || "Đã xoá"}</div>
+                      <div className="text-xs text-gray-500">{mt.equipment?.barcode ? mt.equipment.barcode : (mt.classroomEq ? "Thiết bị phòng học" : "Không có mã vạch")}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={mt.description}>
-                  {mt.description}
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 max-w-xs truncate" title={mt.description}>{mt.description}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(mt.date).toLocaleDateString('vi-VN')}
+                  {mt.date ? new Date(mt.date).toLocaleDateString('vi-VN') : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                   {mt.quantity}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {mt.cost ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(mt.cost) : "-"}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">
+                  {mt.cost ? new Intl.NumberFormat('vi-VN').format(mt.cost) : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full gap-1 items-center ${
-                    mt.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    mt.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                    mt.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {mt.status === 'PENDING' && <Clock className="w-3 h-3" />}
-                    {mt.status === 'IN_PROGRESS' && <Wrench className="w-3 h-3" />}
-                    {mt.status === 'COMPLETED' && <CheckCircle className="w-3 h-3" />}
-                    {mt.status === 'BROKEN' && <AlertTriangle className="w-3 h-3" />}
-                    
-                    {mt.status === 'PENDING' ? 'Chờ sửa chữa' :
-                     mt.status === 'IN_PROGRESS' ? 'Đang sửa' :
-                     mt.status === 'COMPLETED' ? 'Đã hoàn thành' : 'Hư hỏng'}
-                  </span>
+                  {mt.status === 'PENDING' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3"/> Chờ sửa chữa</span>}
+                  {mt.status === 'IN_PROGRESS' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><Wrench className="w-3 h-3"/> Đang sửa</span>}
+                  {mt.status === 'COMPLETED' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3"/> Đã hoàn thành</span>}
+                  {mt.status === 'BROKEN' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3"/> Hư hỏng</span>}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{mt.handlerName || "N/A"}</div>
-                  <div className="text-xs text-gray-500">
-                    {mt.updatedAt ? new Date(mt.updatedAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : "-"}
-                  </div>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {mt.handlerName || "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <MaintenanceActions maintenance={mt} role={session.user.role} />
+                  {session?.user?.role === "ADMIN" ? (
+                    <MaintenanceActions id={mt.id} currentStatus={mt.status} />
+                  ) : (
+                    <span className="text-gray-400 text-xs italic">Không có quyền</span>
+                  )}
                 </td>
               </tr>
             ))}
             {maintenances.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500">
-                  Chưa có dữ liệu.
+                <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
+                  Chưa có lịch sử bảo trì/sửa chữa nào ở mục này.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
       <Pagination totalPages={totalPages} currentPage={page} />
     </div>
   )

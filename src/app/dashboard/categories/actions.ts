@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
@@ -151,4 +151,145 @@ export async function updatePosition(formData: FormData) {
   } catch (error) {
     return { error: "Lỗi khi cập nhật chức vụ" }
   }
+}
+export async function createArea(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const name = formData.get("name") as string
+  if (!name) return { error: "T�n khu v?c kh�ng du?c tr?ng" }
+  try {
+    await prisma.area.create({ data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi t?o khu v?c" } }
+}
+
+export async function updateArea(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  if (!id || !name) return { error: "D? li?u kh�ng h?p l?" }
+  try {
+    await prisma.area.update({ where: { id }, data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi c?p nh?t khu v?c" } }
+}
+
+export async function deleteArea(id: string) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  try {
+    await prisma.area.delete({ where: { id } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "Kh�ng th? x�a khu v?c dang c� d? li?u" } }
+}
+
+export async function createRoom(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const name = formData.get("name") as string
+  const areaId = formData.get("areaId") as string
+  if (!name || !areaId) return { error: "D? li?u kh�ng du?c tr?ng" }
+  try {
+    await prisma.room.create({ data: { name, areaId } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi t?o ph�ng h?c" } }
+}
+
+export async function updateRoom(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  const areaId = formData.get("areaId") as string
+  if (!id || !name || !areaId) return { error: "D? li?u kh�ng h?p l?" }
+  try {
+    await prisma.room.update({ where: { id }, data: { name, areaId } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi c?p nh?t ph�ng h?c" } }
+}
+
+export async function deleteRoom(id: string) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  try {
+    await prisma.room.delete({ where: { id } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "Kh�ng th? x�a ph�ng h?c dang c� thi?t b?" } }
+}
+
+export async function createClassroomEqCategory(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const name = formData.get("name") as string
+  if (!name) return { error: "T�n danh m?c kh�ng du?c tr?ng" }
+  try {
+    await prisma.classroomEqCategory.create({ data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi t?o danh m?c" } }
+}
+
+export async function updateClassroomEqCategory(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  if (!id || !name) return { error: "D? li?u kh�ng h?p l?" }
+  try {
+    await prisma.classroomEqCategory.update({ where: { id }, data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi c?p nh?t danh m?c" } }
+}
+
+export async function deleteClassroomEqCategory(id: string) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  try {
+    await prisma.classroomEqCategory.delete({ where: { id } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "Kh�ng th? x�a danh m?c dang c� thi?t b?" } }
+}
+
+export async function createDeviceConfig(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const name = formData.get("name") as string
+  if (!name) return { error: "T�n c?u h�nh kh�ng du?c tr?ng" }
+  try {
+    await prisma.deviceConfig.create({ data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi t?o c?u h�nh" } }
+}
+
+export async function updateDeviceConfig(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  if (!id || !name) return { error: "D? li?u kh�ng h?p l?" }
+  try {
+    await prisma.deviceConfig.update({ where: { id }, data: { name } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "L?i khi c?p nh?t c?u h�nh" } }
+}
+
+export async function deleteDeviceConfig(id: string) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  try {
+    await prisma.deviceConfig.delete({ where: { id } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { return { error: "Kh�ng th? x�a c?u h�nh dang c� thi?t b?" } }
 }

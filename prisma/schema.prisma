@@ -143,8 +143,13 @@ model Setting {
 
 model Maintenance {
   id          String   @id @default(cuid())
-  equipmentId String
-  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  
+  equipmentId   String?
+  equipment     Equipment? @relation(fields: [equipmentId], references: [id])
+  
+  classroomEqId String?
+  classroomEq   ClassroomEquipment? @relation(fields: [classroomEqId], references: [id])
+  
   quantity    Int      @default(1)
   description String
   cost        Float?
@@ -153,4 +158,57 @@ model Maintenance {
   handlerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model Area {
+  id   String @id @default(cuid())
+  name String @unique
+  rooms Room[]
+  classroomEquipments ClassroomEquipment[]
+}
+
+model Room {
+  id     String @id @default(cuid())
+  name   String
+  areaId String
+  area   Area   @relation(fields: [areaId], references: [id])
+  classroomEquipments ClassroomEquipment[]
+
+  @@unique([areaId, name])
+}
+
+model ClassroomEqCategory {
+  id   String @id @default(cuid())
+  name String @unique
+  equipments ClassroomEquipment[]
+}
+
+model DeviceConfig {
+  id   String @id @default(cuid())
+  name String @unique
+  equipments ClassroomEquipment[]
+}
+
+model ClassroomEquipment {
+  id         String @id @default(cuid())
+  name       String
+  image      String?
+  
+  areaId     String
+  area       Area   @relation(fields: [areaId], references: [id])
+  
+  roomId     String
+  room       Room   @relation(fields: [roomId], references: [id])
+  
+  categoryId String
+  category   ClassroomEqCategory @relation(fields: [categoryId], references: [id])
+  
+  configs    DeviceConfig[]
+  
+  quantity   Int @default(1)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  
+  maintenances Maintenance[]
 }
