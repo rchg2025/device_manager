@@ -3,7 +3,7 @@ import { useState } from "react"
 import { MoreVertical, Edit, Trash2, ShieldAlert, MonitorPlay, QrCode } from "lucide-react"
 import { updateClassroomEquipment, deleteClassroomEquipment } from "./actions"
 import MaintenanceModal from "./maintenance-modal"
-import QRModal from "./qr-modal"
+import QrModal from "./qr-modal"
 
 export default function ClassroomEqRow({ 
   item, 
@@ -19,8 +19,6 @@ export default function ClassroomEqRow({
   configs: any[]
 }) {
   const [isEditing, setIsEditing] = useState(false)
-  const [showMenu, setShowMenu] = useState(false)
-  const [showQR, setShowQR] = useState(false)
 
   async function handleDelete() {
     if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
@@ -142,47 +140,18 @@ export default function ClassroomEqRow({
           )}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <div className="relative inline-block text-left">
-            <div className="flex items-center justify-end gap-2">
-              <MaintenanceModal equipmentId={item.id} equipmentName={item.name} availableQty={item.quantity} isClassroomEq={true} />
-              
-              <button onClick={() => setShowMenu(!showMenu)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                <MoreVertical className="w-5 h-5" />
-              </button>
-            </div>
-
-            {showMenu && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)}></div>
-                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
-                  <div className="py-1">
-                    <button onClick={() => { setIsEditing(true); setShowMenu(false); }} className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <Edit className="w-4 h-4" /> Chỉnh sửa
-                    </button>
-                    <button onClick={() => { setShowQR(true); setShowMenu(false); }} className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      <QrCode className="w-4 h-4" /> Tạo mã QR
-                    </button>
-                    <button onClick={() => { handleDelete(); setShowMenu(false); }} className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" /> Xóa thiết bị
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
+          <div className="flex items-center justify-end gap-3">
+            <MaintenanceModal equipmentId={item.id} equipmentName={item.name} availableQty={item.quantity} isClassroomEq={true} />
+            <QrModal barcode={item.id} equipmentName={item.name} />
+            <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
+              <Edit className="w-4 h-4" />
+            </button>
+            <button onClick={handleDelete} className="text-red-600 hover:text-red-900" title="Xóa thiết bị">
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         </td>
       </tr>
-
-      {showQR && (
-        <QRModal 
-          isOpen={showQR} 
-          onClose={() => setShowQR(false)} 
-          equipment={{
-            ...item,
-            barcode: item.id // Use ID as barcode for classroom equipments
-          }} 
-        />
-      )}
     </>
   )
 }
