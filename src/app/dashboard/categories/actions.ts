@@ -199,9 +199,10 @@ export async function createRoom(formData: FormData) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
   const name = formData.get("name") as string
   const areaId = formData.get("areaId") as string
+  const managerId = formData.get("managerId") as string || null
   if (!name || !areaId) return { error: "Dữ liệu không được trống" }
   try {
-    await prisma.room.create({ data: { name, areaId } })
+    await prisma.room.create({ data: { name, areaId, managerId } })
     revalidatePath("/dashboard/categories")
     return { success: true }
   } catch (error) { return { error: "Lỗi khi tạo phòng học" } }
@@ -213,9 +214,10 @@ export async function updateRoom(formData: FormData) {
   const id = formData.get("id") as string
   const name = formData.get("name") as string
   const areaId = formData.get("areaId") as string
+  const managerId = formData.get("managerId") as string || null
   if (!id || !name || !areaId) return { error: "Dữ liệu không hợp lệ" }
   try {
-    await prisma.room.update({ where: { id }, data: { name, areaId } })
+    await prisma.room.update({ where: { id }, data: { name, areaId, managerId } })
     revalidatePath("/dashboard/categories")
     return { success: true }
   } catch (error) { return { error: "Lỗi khi cập nhật phòng học" } }

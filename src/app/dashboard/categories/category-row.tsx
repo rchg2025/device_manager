@@ -85,6 +85,12 @@ export default function CategoryRow({
                     <option key={area.id} value={area.id}>{area.name}</option>
                   ))}
                 </select>
+                <select name="managerId" defaultValue={item.manager?.id || ""} className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[140px] bg-white">
+                  <option value="">-- Quản lý --</option>
+                  {allManagers?.map((m: any) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
               </>
             )}
             <div className="flex items-center gap-2">
@@ -107,6 +113,7 @@ export default function CategoryRow({
       {type === 'room' && (
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           <div>{item.area?.name || subtitle}</div>
+          {item.manager?.name && <div className="text-xs text-blue-600 mt-1">QL: {item.manager.name}</div>}
         </td>
       )}
       <td className="px-6 py-4 text-sm text-gray-500">
