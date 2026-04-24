@@ -75,6 +75,7 @@ model User {
   requests      BorrowRequest[]
   notifications Notification[]
   managedRooms  Room[]
+  managedCategories Category[]
 }
 
 model VerificationToken {
@@ -88,6 +89,8 @@ model VerificationToken {
 model Category {
   id          String   @id @default(cuid())
   name        String   @unique
+  managerId   String?
+  manager     User?    @relation(fields: [managerId], references: [id])
   equipments  Equipment[]
 }
 

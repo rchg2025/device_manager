@@ -70,7 +70,7 @@ export default function CategoryRow({
   if (isEditing) {
     return (
       <tr>
-        <td colSpan={type === 'room' ? 4 : 3} className="px-6 py-4">
+        <td colSpan={(type === 'room' || type === 'category') ? 4 : 3} className="px-6 py-4">
           <form action={handleUpdate} className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
             <input 
               type="text" 
@@ -79,6 +79,14 @@ export default function CategoryRow({
               required
               className="flex-1 border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px]" 
             />
+            {type === 'category' && allManagers && (
+              <select name="managerId" defaultValue={item.manager?.id || ""} className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[140px] bg-white ml-2">
+                <option value="">-- Quản lý --</option>
+                {allManagers.map((m: any) => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+            )}
             {type === 'room' && allAreas && (
               <>
                 <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[120px] bg-white">
@@ -111,6 +119,11 @@ export default function CategoryRow({
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
+      {type === 'category' && (
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <div>{item.manager?.name ? item.manager.name : 'Chưa cập nhật'}</div>
+        </td>
+      )}
       {type === 'room' && (
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           <div>{item.area?.name || subtitle}</div>
