@@ -78,6 +78,9 @@ export default async function DashboardLayout({
               <Link href="/dashboard/maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Wrench className="w-5 h-5 shrink-0" /> Bảo trì thiết bị
               </Link>
+              <Link href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                <Wrench className="w-5 h-5 shrink-0" /> Lịch sử bảo trì TB phòng
+              </Link>
             </>
           )}
 

@@ -18,7 +18,8 @@ export default async function CategoriesPage({
   let page = parseInt((resolvedSearchParams.page as string))
   if (isNaN(page) || page < 1) page = 1
   const limit = 15
-  const skip = (page - 1) * limit
+  const q = (resolvedSearchParams.q as string) || ''
+  const searchFilter = q ? { name: { contains: q, mode: 'insensitive' as const } } : {}
 
   let totalItems = 0;
   let items: any[] = [];
@@ -28,46 +29,49 @@ export default async function CategoriesPage({
   switch (activeTab) {
     case 'equipment':
       [totalItems, items] = await Promise.all([
-        prisma.category.count(),
-        prisma.category.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.category.count({ where: searchFilter }),
+        prisma.category.findMany({ where: searchFilter, select: { id: true, name: true, equipments: { select: { totalQty: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
+      items = items.map(item => ({ ...item, totalCount: item.equipments.reduce((sum: number, eq: any) => sum + eq.totalQty, 0) }));
       break;
     case 'unit':
       [totalItems, items] = await Promise.all([
-        prisma.unit.count(),
-        prisma.unit.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.unit.count({ where: searchFilter }),
+        prisma.unit.findMany({ where: searchFilter, select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
       break;
     case 'position':
       [totalItems, items] = await Promise.all([
-        prisma.position.count(),
-        prisma.position.findMany({ select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.position.count({ where: searchFilter }),
+        prisma.position.findMany({ where: searchFilter, select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
       break;
     case 'area':
       [totalItems, items] = await Promise.all([
-        prisma.area.count(),
-        prisma.area.findMany({ select: { id: true, name: true, _count: { select: { rooms: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.area.count({ where: searchFilter }),
+        prisma.area.findMany({ where: searchFilter, select: { id: true, name: true, _count: { select: { rooms: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
       break;
     case 'room':
       [totalItems, items, allAreas, managers] = await Promise.all([
-        prisma.room.count(),
-        prisma.room.findMany({ select: { id: true, name: true, area: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, classroomEquipments: { select: { name: true, quantity: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+        prisma.room.count({ where: searchFilter }),
+        prisma.room.findMany({ where: searchFilter, select: { id: true, name: true, area: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, classroomEquipments: { select: { name: true, quantity: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
         prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
         prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
       ]);
+      items = items.map(item => ({ ...item, totalCount: item.classroomEquipments.reduce((sum: number, eq: any) => sum + eq.quantity, 0) }));
       break;
     case 'classroom-eq-cat':
       [totalItems, items] = await Promise.all([
-        prisma.classroomEqCategory.count(),
-        prisma.classroomEqCategory.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.classroomEqCategory.count({ where: searchFilter }),
+        prisma.classroomEqCategory.findMany({ where: searchFilter, select: { id: true, name: true, equipments: { select: { quantity: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
+      items = items.map(item => ({ ...item, totalCount: item.equipments.reduce((sum: number, eq: any) => sum + eq.quantity, 0) }));
       break;
     case 'config':
       [totalItems, items] = await Promise.all([
-        prisma.deviceConfig.count(),
-        prisma.deviceConfig.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.deviceConfig.count({ where: searchFilter }),
+        prisma.deviceConfig.findMany({ where: searchFilter, select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
       break;
     default:
@@ -78,8 +82,15 @@ export default async function CategoriesPage({
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold">Quản lý Danh mục chung</h2>
+        <form method="get" className="relative w-full sm:w-auto min-w-[250px]">
+          <input type="hidden" name="tab" value={activeTab} />
+          <input type="text" name="q" defaultValue={q} placeholder="Tìm kiếm danh mục..." className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 pl-3 pr-10 text-sm border" />
+          <button type="submit" className="absolute inset-y-0 right-0 px-3 flex items-center bg-gray-50 border-l border-gray-300 rounded-r-md text-gray-500 hover:bg-gray-100">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </button>
+        </form>
       </div>
 
       <div className="border-b border-gray-200 mb-6 overflow-x-auto pb-1 custom-scrollbar">
@@ -158,7 +169,7 @@ function CategoryTab({ title, createAction, data, totalPages, page, countLabel, 
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} countLabel={countLabel} countValue={item._count?.[countKey] || 0} type={type} />
+                <CategoryRow key={item.id} item={item} countLabel={countLabel} countValue={item.totalCount !== undefined ? item.totalCount : (item._count?.[countKey] || 0)} type={type} />
               ))}
               {data.length === 0 && (
                 <tr>
@@ -216,7 +227,7 @@ function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} countLabel="thiết bị" countValue={item._count?.classroomEquipments || 0} type="room" extraData={{ areas: allAreas, managers: managers }} />
+                <CategoryRow key={item.id} item={item} countLabel="thiết bị" countValue={item.totalCount !== undefined ? item.totalCount : (item._count?.classroomEquipments || 0)} type="room" extraData={{ areas: allAreas, managers: managers }} />
               ))}
               {data.length === 0 && (
                 <tr>

@@ -177,7 +177,10 @@ export default async function DashboardPage() {
     activeBorrowsCount,
     overdueRequestsCount,
     recentRequests,
-    totalMembers
+    totalMembers,
+    classroomEqStats,
+    totalRooms,
+    totalAreas
   ] = await Promise.all([
     prisma.equipment.aggregate({ _sum: { totalQty: true, availableQty: true } }),
     prisma.borrowRequest.count({ where: { status: { in: ['PENDING', 'RETURN_REQUESTED'] } } }),
@@ -188,7 +191,10 @@ export default async function DashboardPage() {
       orderBy: { updatedAt: 'desc' },
       include: { user: { select: { name: true } }, equipment: { select: { name: true, image: true } } }
     }),
-    prisma.user.count({ where: { role: "MEMBER" } })
+    prisma.user.count({ where: { role: "MEMBER" } }),
+    prisma.classroomEquipment.aggregate({ _sum: { quantity: true } }),
+    prisma.room.count(),
+    prisma.area.count()
   ])
   
   const totalQty = equipmentStats._sum.totalQty || 0
@@ -196,6 +202,8 @@ export default async function DashboardPage() {
   const borrowedQty = totalQty - availableQty
   const availablePercent = totalQty > 0 ? Math.round((availableQty / totalQty) * 100) : 0
   const borrowedPercent = 100 - availablePercent
+  
+  const totalClassroomEq = classroomEqStats._sum.quantity || 0
 
   return (
     <div className="space-y-6">
@@ -220,7 +228,25 @@ export default async function DashboardPage() {
             </div>
           </div>
           <p className="text-xs text-green-600 font-medium mt-4 z-10 flex items-center gap-1">
-            <BadgeCheck className="w-3 h-3" /> Quản lý hệ thống
+            <BadgeCheck className="w-3 h-3" /> Thiết bị chung trong kho
+          </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 text-purple-50 opacity-50">
+            <MonitorPlay className="w-32 h-32" />
+          </div>
+          <div className="flex justify-between items-start z-10">
+            <div>
+              <p className="text-sm font-medium text-gray-500">TB Phòng học</p>
+              <h3 className="text-3xl font-bold text-gray-800 mt-1">{totalClassroomEq}</h3>
+            </div>
+            <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
+              <MonitorPlay className="w-6 h-6" />
+            </div>
+          </div>
+          <p className="text-xs text-purple-600 font-medium mt-4 z-10 flex items-center gap-1">
+            <Activity className="w-3 h-3" /> Tại {totalRooms} phòng / {totalAreas} khu vực
           </p>
         </div>
 
