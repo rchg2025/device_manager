@@ -126,10 +126,15 @@ export default async function MaintenancePage({
                   {mt.status === 'BROKEN' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3"/> Hư hỏng</span>}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {mt.handlerName || "-"}
+                  <div className="font-medium text-gray-900">{mt.handlerName || "-"}</div>
+                  {mt.updatedAt && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(mt.updatedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - {new Date(mt.updatedAt).toLocaleDateString('vi-VN')}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {session?.user?.role === "ADMIN" ? (
+                  {['ADMIN', 'MANAGER'].includes(session?.user?.role as string) ? (
                     <MaintenanceActions maintenance={mt} role={session.user.role} />
                   ) : (
                     <span className="text-gray-400 text-xs italic">Không có quyền</span>
