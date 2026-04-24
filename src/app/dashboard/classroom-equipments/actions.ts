@@ -1,7 +1,8 @@
-"use server"
+﻿"use server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { uploadImageToDrive } from "@/lib/gdrive"
 
 export async function createClassroomEquipment(formData: FormData) {
   const session = await auth()
@@ -12,11 +13,20 @@ export async function createClassroomEquipment(formData: FormData) {
   const roomId = formData.get("roomId") as string
   const categoryId = formData.get("categoryId") as string
   const quantity = parseInt(formData.get("quantity") as string)
-  const image = formData.get("image") as string || null
+  const imageFile = formData.get("image") as File | null
   const configIds = formData.getAll("configIds") as string[]
 
   if (!name || !areaId || !roomId || !categoryId || isNaN(quantity) || quantity < 1) {
     return { error: "Vui lòng nhập đầy đủ thông tin hợp lệ" }
+  }
+
+  let imageUrl: string | null = null
+  if (imageFile && imageFile.size > 0) {
+    try {
+      imageUrl = await uploadImageToDrive(imageFile)
+    } catch (e: any) {
+      return { error: e.message || "Lỗi tải ảnh lên Google Drive" }
+    }
   }
 
   try {
@@ -27,7 +37,7 @@ export async function createClassroomEquipment(formData: FormData) {
         roomId,
         categoryId,
         quantity,
-        image,
+        image: imageUrl,
         configs: {
           connect: configIds.map(id => ({ id }))
         }
@@ -51,11 +61,21 @@ export async function updateClassroomEquipment(formData: FormData) {
   const roomId = formData.get("roomId") as string
   const categoryId = formData.get("categoryId") as string
   const quantity = parseInt(formData.get("quantity") as string)
-  const image = formData.get("image") as string || null
+  const imageFile = formData.get("image") as File | null
   const configIds = formData.getAll("configIds") as string[]
+  
+  let imageUrl = formData.get("existingImage") as string || null
 
   if (!id || !name || !areaId || !roomId || !categoryId || isNaN(quantity) || quantity < 1) {
     return { error: "Vui lòng nhập đầy đủ thông tin hợp lệ" }
+  }
+
+  if (imageFile && imageFile.size > 0) {
+    try {
+      imageUrl = await uploadImageToDrive(imageFile)
+    } catch (e: any) {
+      return { error: e.message || "Lỗi tải ảnh lên Google Drive" }
+    }
   }
 
   try {
@@ -68,7 +88,7 @@ export async function updateClassroomEquipment(formData: FormData) {
         roomId,
         categoryId,
         quantity,
-        image,
+        image: imageUrl,
         configs: {
           set: [], // clear existing
           connect: configIds.map(id => ({ id })) // add new
@@ -88,7 +108,6 @@ export async function deleteClassroomEquipment(id: string) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
 
   try {
-    // Check if there are active maintenances
     const maintenances = await prisma.maintenance.count({
       where: { classroomEqId: id }
     })

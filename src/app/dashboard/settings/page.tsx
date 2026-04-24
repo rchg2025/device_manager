@@ -10,18 +10,23 @@ export default async function SettingsPage() {
   }
 
   const settings = await prisma.setting.findMany({
-    where: { key: { startsWith: "SMTP_" } }
+    where: { 
+      OR: [
+        { key: { startsWith: "SMTP_" } },
+        { key: { startsWith: "DRIVE_" } }
+      ]
+    }
   })
   
-  const smtpSettings: Record<string, string> = {}
+  const systemSettings: Record<string, string> = {}
   settings.forEach(s => {
-    smtpSettings[s.key] = s.value
+    systemSettings[s.key] = s.value
   })
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Cấu hình Hệ thống</h2>
-      <SettingsForm smtpSettings={smtpSettings} />
+      <SettingsForm settings={systemSettings} />
     </div>
   )
 }

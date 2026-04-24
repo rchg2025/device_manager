@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 import { useState } from "react"
 import { MoreVertical, Edit, Trash2, ShieldAlert, MonitorPlay, QrCode } from "lucide-react"
 import { updateClassroomEquipment, deleteClassroomEquipment } from "./actions"
@@ -67,8 +67,10 @@ export default function ClassroomEqRow({
                 <input type="number" name="quantity" defaultValue={item.quantity} required min="1" className="w-full text-sm border-gray-300 rounded border px-2 py-1" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Link ảnh (Tùy chọn)</label>
-                <input type="text" name="image" defaultValue={item.image || ""} className="w-full text-sm border-gray-300 rounded border px-2 py-1" />
+                <label className="block text-xs font-medium text-gray-700 mb-1">Ảnh đại diện mới (Tùy chọn)</label>
+                <input type="file" name="image" accept="image/*" className="w-full text-sm border-gray-300 rounded border px-2 py-1 bg-white" />
+                <input type="hidden" name="existingImage" value={item.image || ""} />
+                {item.image && <p className="text-[10px] text-gray-500 mt-1">Đã có ảnh. Chọn file mới để thay thế.</p>}
               </div>
               <div className="md:col-span-2">
                 <label className="block text-xs font-medium text-gray-700 mb-1">Cấu hình</label>

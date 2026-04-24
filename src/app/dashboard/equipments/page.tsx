@@ -85,12 +85,15 @@ export default async function EquipmentsPage({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Link ảnh đại diện (Tùy chọn)</label>
-              <input 
-                type="url" name="image"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border"
-                placeholder="https://example.com/image.jpg"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện (Tùy chọn)</label>
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 relative">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <p className="text-xs text-gray-500">Bấm để tải ảnh lên (tối đa 5MB)</p>
+                  </div>
+                  <input name="image" type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+                </label>
+              </div>
             </div>
 
             <div>

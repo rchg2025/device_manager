@@ -64,8 +64,10 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
               <input type="number" name="totalQty" defaultValue={eq.totalQty} min="1" required className="w-full border-gray-300 rounded text-sm py-1 px-2 border" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Link Ảnh</label>
-              <input type="url" name="image" defaultValue={eq.image || ''} className="w-full border-gray-300 rounded text-sm py-1 px-2 border" />
+              <label className="block text-xs font-medium text-gray-500 mb-1">Ảnh (Tùy chọn)</label>
+              <input type="file" name="image" accept="image/*" className="w-full text-[10px] py-1 px-1 border-gray-300 rounded border bg-white" />
+              <input type="hidden" name="existingImage" value={eq.image || ""} />
+              {eq.image && <p className="text-[9px] text-gray-400 mt-0.5">Đã có ảnh.</p>}
             </div>
             <div className="flex items-end gap-2 h-full pb-1">
               <button type="submit" disabled={isLoading} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-green-700">

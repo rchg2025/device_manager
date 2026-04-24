@@ -65,3 +65,33 @@ export async function updateSmtpSettings(formData: FormData) {
     return { error: "Lỗi khi lưu cấu hình SMTP" }
   }
 }
+
+export async function updateDriveSettings(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN") return { error: "Không có quyền thực hiện thao tác này" }
+
+  const email = formData.get("email") as string
+  const privateKey = formData.get("privateKey") as string
+  const folderId = formData.get("folderId") as string
+
+  try {
+    const settings = [
+      { key: "DRIVE_CLIENT_EMAIL", value: email },
+      { key: "DRIVE_PRIVATE_KEY", value: privateKey },
+      { key: "DRIVE_FOLDER_ID", value: folderId },
+    ]
+
+    for (const setting of settings) {
+      await prisma.setting.upsert({
+        where: { key: setting.key },
+        update: { value: setting.value },
+        create: { key: setting.key, value: setting.value }
+      })
+    }
+
+    revalidatePath("/dashboard/settings")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi lưu cấu hình Google Drive" }
+  }
+}
