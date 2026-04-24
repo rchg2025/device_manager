@@ -148,12 +148,12 @@ export default async function DashboardPage() {
                       <div className="mt-auto space-y-2 text-sm text-gray-600 pt-4 border-t border-gray-100">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
-                          <span>Mượn: {new Date(req.borrowDate).toLocaleDateString("vi-VN")}</span>
+                          <span>Mượn: {new Date(req.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
                           <span className={req.status === 'APPROVED' && new Date(req.returnDate) < today ? "text-red-600 font-medium" : ""}>
-                            Hẹn trả: {new Date(req.returnDate).toLocaleDateString("vi-VN")}
+                            Hẹn trả: {new Date(req.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                           </span>
                         </div>
                       </div>

@@ -46,10 +46,10 @@ export async function GET(request: Request) {
         req.status === 'APPROVED' ? 'Đang mượn' :
         req.status === 'RETURN_REQUESTED' ? 'Chờ nhận trả' :
         req.status === 'RETURNED' ? 'Đã trả' : 'Từ chối',
-      "Ngày tạo yêu cầu": new Date(req.createdAt).toLocaleDateString('vi-VN'),
-      "Ngày mượn": new Date(req.borrowDate).toLocaleDateString('vi-VN'),
-      "Hẹn trả": new Date(req.returnDate).toLocaleDateString('vi-VN'),
-      "Ngày trả thực tế": req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN') : "",
+      "Ngày tạo yêu cầu": new Date(req.createdAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      "Ngày mượn": new Date(req.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      "Hẹn trả": new Date(req.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      "Ngày trả thực tế": req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : "",
       "Tình trạng khi trả": req.returnCondition || "",
       "Lý do từ chối": req.rejectionReason || "",
       "Người duyệt/nhận": req.reviewerName || req.returnReviewerName || ""

@@ -130,12 +130,12 @@ export default function ClassroomEqRow({
           <div className="text-sm text-gray-900">Số lượng: <span className="font-semibold">{item.quantity}</span></div>
           {item.creatorName && (
             <div className="text-xs text-gray-500 mt-2">
-              <span className="font-medium">Thêm:</span> {item.creatorName} ({new Date(item.createdAt).toLocaleDateString('vi-VN')})
+              <span className="font-medium">Thêm:</span> {item.creatorName} ({new Date(item.createdAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })})
             </div>
           )}
           {item.updatedByName && (
             <div className="text-xs text-gray-500 mt-0.5">
-              <span className="font-medium">Sửa:</span> {item.updatedByName} ({new Date(item.updatedAt).toLocaleDateString('vi-VN')})
+              <span className="font-medium">Sửa:</span> {item.updatedByName} ({new Date(item.updatedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })})
             </div>
           )}
         </td>

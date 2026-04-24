@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       "Vai trò": 
         user.role === 'ADMIN' ? 'Quản trị viên' :
         user.role === 'MANAGER' ? 'Quản lý' : 'Thành viên',
-      "Ngày tạo": new Date(user.createdAt).toLocaleDateString('vi-VN')
+      "Ngày tạo": new Date(user.createdAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(excelData)

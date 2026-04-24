@@ -18,9 +18,9 @@ export default function ExportExcelButton({ requests }: { requests: any[] }) {
       "Tên thiết bị": req.equipment.name,
       "Mã vạch": req.equipment.barcode || "",
       "Số lượng": req.quantity,
-      "Ngày mượn": new Date(req.borrowDate).toLocaleDateString('vi-VN'),
-      "Ngày trả dự kiến": new Date(req.returnDate).toLocaleDateString('vi-VN'),
-      "Ngày trả thực tế": req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN') : "",
+      "Ngày mượn": new Date(req.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      "Ngày trả dự kiến": new Date(req.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      "Ngày trả thực tế": req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : "",
       "Trạng thái": req.status === 'PENDING' ? 'Chờ duyệt' :
                     req.status === 'APPROVED' ? 'Đang mượn' :
                     req.status === 'RETURN_REQUESTED' ? 'Chờ xác nhận trả' :

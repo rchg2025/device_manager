@@ -281,8 +281,8 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
                       <div className="text-xs text-gray-500">{item.categoryName}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.borrowDate).toLocaleDateString("vi-VN")}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.returnDate).toLocaleDateString("vi-VN")}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button onClick={() => handleRemoveFromCart(item.id)} className="text-red-600 hover:text-red-900" title="Xóa khỏi danh sách">
                         <Trash2 className="w-5 h-5" />

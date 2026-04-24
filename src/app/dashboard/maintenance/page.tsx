@@ -114,7 +114,7 @@ export default async function MaintenancePage({
                   <div className="text-sm text-gray-900 max-w-xs truncate" title={mt.description}>{mt.description}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {mt.date ? new Date(mt.date).toLocaleDateString('vi-VN') : "-"}
+                  {mt.date ? new Date(mt.date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">
                   {mt.cost ? new Intl.NumberFormat('vi-VN').format(mt.cost) : "-"}
@@ -129,7 +129,7 @@ export default async function MaintenancePage({
                   <div className="font-medium text-gray-900">{mt.handlerName || "-"}</div>
                   {mt.updatedAt && (
                     <div className="text-xs text-gray-500 mt-1">
-                      {new Date(mt.updatedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - {new Date(mt.updatedAt).toLocaleDateString('vi-VN')}
+                      {new Date(mt.updatedAt).toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' })} - {new Date(mt.updatedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                     </div>
                   )}
                 </td>

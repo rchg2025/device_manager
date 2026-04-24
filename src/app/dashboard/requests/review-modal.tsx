@@ -115,7 +115,7 @@ export default function ReviewModal({ req, children }: { req: any, children: Rea
                       
                       <div className="text-gray-500 col-span-2 mt-2 pt-2 border-t border-gray-200">Thời gian mượn:</div>
                       <div className="font-medium text-gray-900 col-span-2 bg-white p-2 rounded border mt-1 text-center">
-                        {new Date(req.borrowDate).toLocaleDateString('vi-VN')} <span className="text-gray-400 mx-1">→</span> {new Date(req.returnDate).toLocaleDateString('vi-VN')}
+                        {new Date(req.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} <span className="text-gray-400 mx-1">→</span> {new Date(req.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                       </div>
                     </div>
                   </div>

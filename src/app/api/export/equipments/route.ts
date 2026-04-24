@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       "Sẵn sàng": eq.availableQty,
       "Đang cho mượn / Bảo trì": eq.totalQty - eq.availableQty,
       "Người thêm": eq.creatorName || "",
-      "Ngày thêm": new Date(eq.createdAt).toLocaleDateString('vi-VN')
+      "Ngày thêm": new Date(eq.createdAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(excelData)

@@ -19,7 +19,7 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
       "Danh mục": item.category?.name || "",
       "Cấu hình": item.configs?.map((c: any) => c.name).join(", ") || "",
       "Số lượng": item.quantity,
-      "Ngày thêm": new Date(item.createdAt).toLocaleDateString('vi-VN')
+      "Ngày thêm": new Date(item.createdAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
