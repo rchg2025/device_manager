@@ -61,6 +61,22 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     const userId = session.user.id
     const userName = session.user.name || "Một thành viên"
 
+    // Prepare detailed items and target managers
+    const equipmentIds = items.map(i => i.equipmentId)
+    const equipments = await prisma.equipment.findMany({ 
+      where: { id: { in: equipmentIds } }, 
+      select: { id: true, name: true, image: true, category: { select: { managerId: true } } } 
+    })
+    const targetManagerIds = new Set(equipments.map(eq => eq.category?.managerId).filter(Boolean))
+    const detailedItems = items.map(item => {
+      const eq = equipments.find(e => e.id === item.equipmentId)
+      return {
+        ...item,
+        name: eq?.name || "Thiết bị không xác định",
+        image: eq?.image || ""
+      }
+    })
+
     // Process all items in a transaction to ensure either all succeed or none do
     await prisma.$transaction(async (tx) => {
       for (const item of items) {
@@ -91,14 +107,19 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
         })
       }
 
-      // Notify all admins and managers
-      const managers = await tx.user.findMany({
-        where: { role: { in: ["ADMIN", "MANAGER"] } }
+      // Notify all admins and specific managers
+      const targetUsers = await tx.user.findMany({
+        where: {
+          OR: [
+            { role: "ADMIN" },
+            { id: { in: Array.from(targetManagerIds) as string[] } }
+          ]
+        }
       })
 
-      if (managers.length > 0) {
+      if (targetUsers.length > 0) {
         await tx.notification.createMany({
-          data: managers.map(m => ({
+          data: targetUsers.map(m => ({
             userId: m.id,
             message: `${userName} vừa gửi yêu cầu mượn ${items.length} thiết bị.`,
             link: "/dashboard/requests"
@@ -108,22 +129,17 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     })
 
     // Gửi email bất đồng bộ (không await để không block UI)
-    const equipmentIds = items.map(i => i.equipmentId)
-    const equipments = await prisma.equipment.findMany({ where: { id: { in: equipmentIds } }, select: { id: true, name: true, image: true } })
-    const detailedItems = items.map(item => {
-      const eq = equipments.find(e => e.id === item.equipmentId)
-      return {
-        ...item,
-        name: eq?.name || "Thiết bị không xác định",
-        image: eq?.image || ""
-      }
-    })
-
-    const adminEmails = await prisma.user.findMany({
-      where: { role: { in: ["ADMIN", "MANAGER"] }, email: { not: null } },
+    const targetUserWithEmails = await prisma.user.findMany({
+      where: {
+        OR: [
+          { role: "ADMIN" },
+          { id: { in: Array.from(targetManagerIds) as string[] } }
+        ],
+        email: { not: null }
+      },
       select: { email: true }
     })
-    const emails = adminEmails.map(a => a.email as string).filter(e => e)
+    const emails = targetUserWithEmails.map(a => a.email as string).filter(e => e)
     if (emails.length > 0) {
       import("@/lib/email").then(m => m.sendBorrowRequestEmailToAdmins(emails, userName, detailedItems)).catch(console.error)
     }

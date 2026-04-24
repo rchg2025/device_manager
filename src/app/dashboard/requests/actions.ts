@@ -117,17 +117,38 @@ export async function requestReturn(requestId: string) {
       data: { status: "RETURN_REQUESTED" }
     })
 
-    // Gửi email cho admin báo có người trả thiết bị
-    const adminEmails = await prisma.user.findMany({
-      where: { role: { in: ["ADMIN", "MANAGER"] }, email: { not: null } },
-      select: { email: true }
+    // Tìm thông tin thiết bị và quản lý danh mục
+    const equipment = await prisma.equipment.findUnique({ 
+      where: { id: request.equipmentId },
+      include: { category: true }
     })
-    const emails = adminEmails.map(a => a.email as string).filter(e => e)
+    
+    const targetManagerId = equipment?.category?.managerId
+
+    const targetUsers = await prisma.user.findMany({
+      where: {
+        OR: [
+          { role: "ADMIN" },
+          ...(targetManagerId ? [{ id: targetManagerId }] : [])
+        ]
+      }
+    })
+
+    if (targetUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: targetUsers.map(m => ({
+          userId: m.id,
+          message: `${session.user?.name || 'Một thành viên'} vừa gửi yêu cầu TRẢ thiết bị: ${equipment?.name}.`,
+          link: "/dashboard/requests"
+        }))
+      })
+    }
+
+    const emails = targetUsers.map(u => u.email).filter(Boolean) as string[]
     if (emails.length > 0) {
-      const equipment = await prisma.equipment.findUnique({ where: { id: request.equipmentId } })
       import("@/lib/email").then(m => m.sendReturnRequestEmailToAdmins(
         emails, 
-        session.user.name || "Một thành viên", 
+        session.user?.name || "Một thành viên", 
         equipment?.name || "Thiết bị"
       )).catch(console.error)
     }
