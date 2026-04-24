@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { 
   createCategory, createUnit, createPosition,
   createArea, createRoom, createClassroomEqCategory, createDeviceConfig 
@@ -39,7 +39,7 @@ export default async function CategoriesPage({
     prisma.area.count(),
     prisma.area.findMany({ select: { id: true, name: true, _count: { select: { rooms: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
     prisma.room.count(),
-    prisma.room.findMany({ select: { id: true, name: true, area: { select: { name: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+    prisma.room.findMany({ select: { id: true, name: true, area: { select: { id: true, name: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
     prisma.classroomEqCategory.count(),
     prisma.classroomEqCategory.findMany({ select: { id: true, name: true, _count: { select: { equipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
     prisma.deviceConfig.count(),
@@ -62,7 +62,7 @@ export default async function CategoriesPage({
         <h2 className="text-2xl font-bold">Quản lý Danh mục chung</h2>
       </div>
 
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
+      <div className="border-b border-gray-200 mb-6 overflow-x-auto pb-1 custom-scrollbar">
         <nav className="-mb-px flex space-x-6 min-w-max">
           {[
             { id: 'equipment', label: 'DM Thiết bị' },
@@ -75,8 +75,12 @@ export default async function CategoriesPage({
           ].map(tab => (
             <Link
               key={tab.id}
-              href={"/dashboard/categories?tab="}
-              className={" whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"}
+              href={`/dashboard/categories?tab=${tab.id}`}
+              className={`${
+                activeTab === tab.id
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
               {tab.label}
             </Link>
@@ -117,9 +121,9 @@ function CategoryTab({ title, createAction, data, totalPages, page, countLabel, 
         <form action={async (formData) => { "use server"; await createAction(formData) }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tên {title.toLowerCase()}</label>
-            <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder={"Nhập tên ..."} />
+            <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder={`Nhập tên ${title.toLowerCase()}...`} />
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium">Thêm mới</button>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors">Thêm mới</button>
         </form>
       </div>
       <div className="col-span-1 md:col-span-2">
@@ -158,14 +162,14 @@ function RoomTab({ data, allAreas, totalPages, page }: any) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Khu vực</label>
-            <select name="areaId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border">
+            <select name="areaId" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white">
               <option value="">-- Chọn khu vực --</option>
               {allAreas.map((area: any) => (
                 <option key={area.id} value={area.id}>{area.name}</option>
               ))}
             </select>
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium">Thêm mới</button>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors">Thêm mới</button>
         </form>
       </div>
       <div className="col-span-1 md:col-span-2">

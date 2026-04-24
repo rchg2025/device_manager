@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 import { useState } from "react"
 import { Trash2, Edit2, Check, X } from "lucide-react"
 import { 
@@ -75,7 +75,7 @@ export default function CategoryRow({
               className="flex-1 border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px]" 
             />
             {type === 'room' && allAreas && (
-              <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px]">
+              <select name="areaId" defaultValue={item.area?.id} required className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[150px] bg-white">
                 {allAreas.map(area => (
                   <option key={area.id} value={area.id}>{area.name}</option>
                 ))}
@@ -107,7 +107,7 @@ export default function CategoryRow({
           <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={handleDelete} disabled={countValue > 0} className={"text-red-600 hover:text-red-900 "} title="Xóa">
+          <button onClick={handleDelete} disabled={countValue > 0} className={`text-red-600 hover:text-red-900 ${countValue > 0 ? 'opacity-50 cursor-not-allowed' : ''}`} title="Xóa">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
