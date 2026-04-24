@@ -18,6 +18,7 @@ export default async function CategoriesPage({
   let page = parseInt((resolvedSearchParams.page as string))
   if (isNaN(page) || page < 1) page = 1
   const limit = 15
+  const skip = (page - 1) * limit
   const q = (resolvedSearchParams.q as string) || ''
   const searchFilter = q ? { name: { contains: q, mode: 'insensitive' as const } } : {}
 

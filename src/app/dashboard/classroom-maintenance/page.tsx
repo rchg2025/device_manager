@@ -96,7 +96,7 @@ export default async function ClassroomMaintenancePage({
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
                       {mt.classroomEq?.image ? (
-                        <img src={mt.classroomEq.image} alt={mt.classroomEq.name} className="w-full h-full object-cover" />
+                        <img src={mt.classroomEq.image} alt={mt.classroomEq.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       ) : (
                         <Wrench className="w-5 h-5 text-gray-400" />
                       )}
