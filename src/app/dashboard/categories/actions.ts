@@ -8,14 +8,12 @@ export async function createCategory(formData: FormData) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
 
   const name = formData.get("name") as string
-  const managerId = formData.get("managerId") as string
   if (!name) return { error: "Tên danh mục không được trống" }
 
   try {
     await prisma.category.create({
       data: { 
-        name,
-        managerId: managerId || null
+        name
       }
     })
     revalidatePath("/dashboard/categories")
@@ -112,15 +110,13 @@ export async function updateCategory(formData: FormData) {
 
   const id = formData.get("id") as string
   const name = formData.get("name") as string
-  const managerId = formData.get("managerId") as string
   if (!id || !name) return { error: "Dữ liệu không hợp lệ" }
 
   try {
     await prisma.category.update({ 
       where: { id }, 
       data: { 
-        name,
-        managerId: managerId || null
+        name
       } 
     })
     revalidatePath("/dashboard/categories")

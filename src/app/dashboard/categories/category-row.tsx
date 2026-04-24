@@ -93,14 +93,6 @@ export default function CategoryRow({
                 </select>
               </>
             )}
-            {type === 'category' && allManagers && (
-              <select name="managerId" defaultValue={item.manager?.id || ""} className="border-gray-300 rounded text-sm py-1.5 px-3 border min-w-[160px] bg-white">
-                <option value="">-- Chọn quản lý --</option>
-                {allManagers.map((m: any) => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
-                ))}
-              </select>
-            )}
             <div className="flex items-center gap-2">
               <button type="submit" disabled={isLoading} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-green-700">
                 <Check className="w-4 h-4" /> Lưu
@@ -124,16 +116,6 @@ export default function CategoryRow({
           {item.manager?.name && <div className="text-xs text-blue-600 mt-1">QL: {item.manager.name}</div>}
         </td>
       )}
-      {type === 'category' && (
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {item.manager?.name ? (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {item.manager.name}
-            </span>
-          ) : (
-            <span className="text-xs text-gray-400 italic">Chưa phân công</span>
-          )}
-        </td>
       )}
       <td className="px-6 py-4 text-sm text-gray-500">
         <div className="font-medium text-gray-900">{countValue} {countLabel}</div>

@@ -88,10 +88,9 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
 
   switch (activeTab) {
     case 'equipment':
-      [totalItems, items, managers] = await Promise.all([
+      [totalItems, items] = await Promise.all([
         prisma.category.count({ where: searchFilter }),
-        prisma.category.findMany({ where: searchFilter, select: { id: true, name: true, manager: { select: { id: true, name: true } }, equipments: { select: { totalQty: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-        prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] }, email: { not: 'nguyenluyen@nsg.edu.vn' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
+        prisma.category.findMany({ where: searchFilter, select: { id: true, name: true, equipments: { select: { totalQty: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
       items = items.map(item => ({ ...item, totalCount: item.equipments?.reduce((sum: number, eq: any) => sum + (eq.totalQty || 0), 0) || 0 }));
       break;
@@ -144,7 +143,7 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
   return (
     <>
       {activeTab === 'equipment' && (
-        <CategoryTab title="Thiết bị" createAction={createCategory} data={items} managers={managers} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" />
+        <CategoryTab title="Thiết bị" createAction={createCategory} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" />
       )}
       {activeTab === 'unit' && (
         <CategoryTab title="Đơn vị" createAction={createUnit} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="unit" />
@@ -178,15 +177,6 @@ function CategoryTab({ title, createAction, data, managers, totalPages, page, co
             <label className="block text-sm font-medium text-gray-700 mb-1">Tên {title.toLowerCase()}</label>
             <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder={`Nhập tên ${title.toLowerCase()}...`} />
           </div>
-          {type === 'category' && managers && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nhân viên quản lý (Tùy chọn)</label>
-              <select name="managerId" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white">
-                <option value="">-- Chọn người quản lý --</option>
-                {managers.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
-              </select>
-            </div>
-          )}
           <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors">Thêm mới</button>
         </form>
       </div>
@@ -196,9 +186,6 @@ function CategoryTab({ title, createAction, data, managers, totalPages, page, co
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên {title.toLowerCase()}</th>
-                {type === 'category' && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người quản lý</th>
-                )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng {countLabel}</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
               </tr>
@@ -209,7 +196,7 @@ function CategoryTab({ title, createAction, data, managers, totalPages, page, co
               ))}
               {data.length === 0 && (
                 <tr>
-                  <td colSpan={type === 'category' ? 4 : 3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có dữ liệu</td>
+                  <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có dữ liệu</td>
                 </tr>
               )}
             </tbody>
