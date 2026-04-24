@@ -246,7 +246,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
               onClick={handleAddToCart}
               className="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 font-medium flex justify-center items-center gap-2 border border-gray-300"
             >
-              <ShoppingCart className="w-4 h-4" /> Bỏ vào danh sách
+              <ShoppingCart className="w-4 h-4" /> Thêm vào danh sách
             </button>
           </div>
         </div>
