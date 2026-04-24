@@ -9,11 +9,15 @@ export async function createEquipment(formData: FormData) {
 
   const name = formData.get("name") as string
   const categoryId = formData.get("categoryId") as string
-  const barcode = formData.get("barcode") as string || null
+  let barcode = formData.get("barcode") as string || null
   const image = formData.get("image") as string || null
   const totalQty = parseInt(formData.get("totalQty") as string || "0")
 
   if (!name || !categoryId || totalQty < 0) return { error: "Dữ liệu không hợp lệ" }
+
+  if (!barcode) {
+    barcode = `EQ-${Date.now()}`
+  }
 
   try {
     await prisma.equipment.create({

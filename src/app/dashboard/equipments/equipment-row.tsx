@@ -3,6 +3,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Trash2, Edit2, Check, X } from "lucide-react"
 import { updateEquipment, deleteEquipment } from "./actions"
+import QrModal from "./qr-modal"
 
 export default function EquipmentRow({ eq, categories }: { eq: any, categories: any[] }) {
   const router = useRouter()
@@ -101,6 +102,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex items-center justify-end gap-3">
+          <QrModal barcode={eq.barcode} equipmentName={eq.name} />
           <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
             <Edit2 className="w-4 h-4" />
           </button>

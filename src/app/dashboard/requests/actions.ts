@@ -116,10 +116,10 @@ export async function requestReturn(requestId: string) {
 }
 
 export async function deleteHistoryRecord(requestId: string) {
-  const session = await auth()
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
-
   try {
+    const session = await auth()
+    if (session?.user?.role !== "ADMIN") return { error: "Không có quyền xóa lịch sử" }
+
     const request = await prisma.borrowRequest.findUnique({ where: { id: requestId } })
     if (!request) return { error: "Không tìm thấy yêu cầu" }
 

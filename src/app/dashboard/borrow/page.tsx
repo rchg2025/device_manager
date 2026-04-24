@@ -7,6 +7,7 @@ export default async function BorrowPage() {
     select: {
       id: true,
       name: true,
+      barcode: true,
       availableQty: true,
       category: { select: { name: true } }
     },

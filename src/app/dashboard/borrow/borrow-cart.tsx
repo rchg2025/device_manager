@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ShoppingCart, Plus, Trash2, Send } from "lucide-react"
 import { createMultipleBorrowRequests } from "./actions"
+import QrScannerModal from "./qr-scanner-modal"
 
 type CartItem = {
   id: string; // Temporary unique ID for the cart
@@ -24,6 +25,16 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
   const [quantity, setQuantity] = useState(1)
   const [borrowDate, setBorrowDate] = useState("")
   const [returnDate, setReturnDate] = useState("")
+
+  const handleScanSuccess = (barcode: string) => {
+    const eq = equipments.find(e => e.barcode === barcode)
+    if (eq) {
+      setSelectedEqId(eq.id)
+      setError("")
+    } else {
+      setError(`Không tìm thấy thiết bị nào có mã QR: ${barcode}`)
+    }
+  }
 
   const handleAddToCart = () => {
     if (!selectedEqId || !borrowDate || !returnDate || quantity < 1) {
@@ -123,7 +134,10 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Chọn thiết bị</label>
+              <div className="flex justify-between items-end mb-1">
+                <label className="block text-sm font-medium text-gray-700">Chọn thiết bị</label>
+                <QrScannerModal onScanSuccess={handleScanSuccess} />
+              </div>
               <select 
                 value={selectedEqId}
                 onChange={(e) => setSelectedEqId(e.target.value)}
