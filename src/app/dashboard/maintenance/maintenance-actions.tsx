@@ -28,17 +28,19 @@ export default function MaintenanceActions({ maintenance, role }: { maintenance:
 
   return (
     <div className="flex items-center justify-end gap-2">
-      <select 
-        value={maintenance.status}
-        onChange={handleStatusChange}
-        disabled={isLoading}
-        className="text-sm rounded-md border-gray-300 py-1 pl-2 pr-6 border focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50"
-      >
-        <option value="PENDING">Chờ sửa</option>
-        <option value="IN_PROGRESS">Đang sửa</option>
-        <option value="COMPLETED">Đã xong</option>
-        <option value="BROKEN">Hư hỏng</option>
-      </select>
+      {maintenance.status !== 'COMPLETED' && (
+        <select 
+          value={maintenance.status}
+          onChange={handleStatusChange}
+          disabled={isLoading}
+          className="text-sm rounded-md border-gray-300 py-1 pl-2 pr-6 border focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50"
+        >
+          <option value="PENDING">Chờ sửa</option>
+          <option value="IN_PROGRESS">Đang sửa</option>
+          <option value="COMPLETED">Đã xong</option>
+          <option value="BROKEN">Hư hỏng</option>
+        </select>
+      )}
 
       {role === "ADMIN" && (
         <button 
