@@ -14,7 +14,8 @@ export default function CategoryRow({
   countLabel, 
   countValue,
   subtitle,
-  extraData
+  extraData,
+  managers
 }: { 
   item: any, 
   type: ItemType, 
