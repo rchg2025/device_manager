@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ShoppingCart, Plus, Trash2, Send } from "lucide-react"
 import { createMultipleBorrowRequests } from "./actions"
 import QrScannerModal from "./qr-scanner-modal"
@@ -25,6 +25,21 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
   const [quantity, setQuantity] = useState(1)
   const [borrowDate, setBorrowDate] = useState("")
   const [returnDate, setReturnDate] = useState("")
+  const [minDate, setMinDate] = useState("")
+
+  useEffect(() => {
+    const today = new Date()
+    const tzoffset = today.getTimezoneOffset() * 60000
+    const localToday = new Date(Date.now() - tzoffset).toISOString().slice(0, 10)
+    
+    const retDate = new Date()
+    retDate.setDate(retDate.getDate() + 3)
+    const localRetDate = new Date(retDate.getTime() - retDate.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+    
+    setBorrowDate(localToday)
+    setReturnDate(localRetDate)
+    setMinDate(localToday)
+  }, [])
 
   const handleScanSuccess = (barcode: string) => {
     const eq = equipments.find(e => e.barcode === barcode)
@@ -167,6 +182,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
               <label className="block text-sm font-medium text-gray-700">Ngày mượn</label>
               <input 
                 type="date" 
+                min={minDate}
                 value={borrowDate}
                 onChange={(e) => setBorrowDate(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" 
