@@ -4,8 +4,29 @@ import { Readable } from "stream"
 
 function formatPrivateKey(key: string) {
   if (!key) return ""
+  
+  // Try to parse as JSON first in case user pasted the whole JSON file
+  try {
+    const jsonObj = JSON.parse(key);
+    if (jsonObj && jsonObj.private_key) {
+      key = jsonObj.private_key;
+    }
+  } catch (e) {
+    // Not valid JSON, continue with normal processing
+  }
+
   let cleanKey = key.replace(/^"|"$/g, '').trim();
   cleanKey = cleanKey.replace(/\\n/g, '\n');
+  
+  // Fix spacing issues that might break PEM format
+  // Ensure the header and footer are exactly on their own lines
+  if (cleanKey.includes("-----BEGIN PRIVATE KEY-----")) {
+    cleanKey = cleanKey.replace(/-----BEGIN PRIVATE KEY-----/g, "-----BEGIN PRIVATE KEY-----\n");
+    cleanKey = cleanKey.replace(/-----END PRIVATE KEY-----/g, "\n-----END PRIVATE KEY-----");
+    // Clean up multiple newlines that might have been created
+    cleanKey = cleanKey.replace(/\n+/g, '\n');
+  }
+
   return cleanKey;
 }
 
