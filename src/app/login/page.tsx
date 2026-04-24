@@ -31,9 +31,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Camera className="w-8 h-8 text-white" />
-          </div>
+          <img src="/logo.png" alt="NSG Logo" className="w-32 h-32 object-contain" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 animate-gradient-x font-sans tracking-tight">
           Hệ thống Quản lý Thiết bị

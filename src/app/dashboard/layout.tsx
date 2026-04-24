@@ -56,9 +56,10 @@ export default async function DashboardLayout({
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md flex flex-col hidden xl:flex shrink-0">
-        <div className="p-6 border-b">
-          <h1 className="text-xl font-bold text-blue-600 whitespace-nowrap">NSG Device Manager</h1>
-          <p className="text-sm text-gray-500">Khoa CNTT - KTĐ</p>
+        <div className="p-4 border-b flex flex-col items-center">
+          <img src="/logo.png" alt="NSG Logo" className="h-16 w-auto object-contain mb-2" />
+          <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">NSG Device Manager</h1>
+          <p className="text-xs text-gray-500">Khoa CNTT - KTĐ</p>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
