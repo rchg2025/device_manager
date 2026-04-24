@@ -73,7 +73,8 @@ export default async function CategoriesPage({
 
 async function CategoriesDataWrapper({ resolvedSearchParams }: { resolvedSearchParams: any }) {
   try {
-    return <CategoriesData resolvedSearchParams={resolvedSearchParams} />
+    const content = await CategoriesData({ resolvedSearchParams })
+    return content
   } catch (error: any) {
     return (
       <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded mb-4">
