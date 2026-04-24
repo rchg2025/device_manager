@@ -156,6 +156,34 @@ export async function sendReturnRequestEmailToAdmins(adminEmails: string[], memb
   })
 }
 
+export async function sendOtpEmail(email: string, userName: string, otp: string) {
+  const transporter = await getTransporter()
+  
+  const content = `
+    <p>Xin chào ${userName},</p>
+    <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản trên hệ thống Quản lý Thiết bị ITE.</p>
+    <p>Mã xác thực (OTP) của bạn là:</p>
+    <div style="margin: 24px 0; text-align: center;">
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563eb; background: #eff6ff; padding: 12px 24px; border-radius: 8px; border: 1px dashed #bfdbfe;">
+        ${otp}
+      </span>
+    </div>
+    <p>Mã này có hiệu lực trong vòng <strong>15 phút</strong>. Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>
+    <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+  `
+  
+  const emailHtml = emailWrapper("Mã Xác Thực (OTP) Đặt Lại Mật Khẩu", content)
+
+  if (transporter) {
+    await transporter.sendMail({
+      from: await getFromAddress(),
+      to: email,
+      subject: `[Device Manager] Mã xác thực (OTP) đặt lại mật khẩu`,
+      html: emailHtml
+    })
+  }
+}
+
 export async function sendStatusUpdateEmailToMember(memberEmail: string, equipmentName: string, status: "APPROVED" | "REJECTED" | "RETURNED", reason?: string) {
   const transporter = await getTransporter()
   if (!transporter || !memberEmail) return

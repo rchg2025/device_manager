@@ -165,9 +165,7 @@ export default async function DashboardLayout({
           <div className="hidden xl:block"></div> {/* Spacer */}
           
           <div className="flex items-center gap-4">
-            {role === "MEMBER" && (
-              <NotificationDropdown unreadCount={unreadCount} notifications={notifications} />
-            )}
+            <NotificationDropdown unreadCount={unreadCount} notifications={notifications} />
             
             <div className="xl:hidden flex items-center gap-2">
               <Link href="/dashboard/profile" title="Quản lý tài khoản" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
