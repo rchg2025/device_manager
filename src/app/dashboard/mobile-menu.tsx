@@ -87,6 +87,9 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   <Link onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-equipments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <MonitorPlay className="w-5 h-5" /> QL thiết bị phòng học
                   </Link>
+                  <Link onClick={closeMenu} href="/dashboard/classroom-maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-maintenance') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <Wrench className="w-5 h-5" /> Lịch sử bảo trì TB phòng
+                  </Link>
                 </>
               )}
             </nav>
