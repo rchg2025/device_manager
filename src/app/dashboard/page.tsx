@@ -232,23 +232,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 text-purple-50 opacity-50">
-            <MonitorPlay className="w-32 h-32" />
-          </div>
-          <div className="flex justify-between items-start z-10">
-            <div>
-              <p className="text-sm font-medium text-gray-500">TB Phòng học</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-1">{totalClassroomEq}</h3>
-            </div>
-            <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
-              <MonitorPlay className="w-6 h-6" />
-            </div>
-          </div>
-          <p className="text-xs text-purple-600 font-medium mt-4 z-10 flex items-center gap-1">
-            <Activity className="w-3 h-3" /> Tại {totalRooms} phòng / {totalAreas} khu vực
-          </p>
-        </div>
+
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute -right-6 -top-6 text-green-50 opacity-50">
@@ -362,7 +346,7 @@ export default async function DashboardPage() {
         <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-gray-500" /> Cập nhật hệ thống gần đây
+              <Clock className="w-5 h-5 text-gray-500" /> Lịch sử mượn thiết bị gần đây
             </h3>
             <Link href="/dashboard/requests" className="text-sm text-blue-600 hover:underline flex items-center gap-1 font-medium">
               Xem tất cả <ArrowRight className="w-4 h-4" />
@@ -425,6 +409,72 @@ export default async function DashboardPage() {
                 })}
               </ul>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Thống kê Thiết bị Phòng học */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-6">
+        <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <MonitorPlay className="w-6 h-6 text-purple-600" /> Thống kê Thiết bị Phòng học
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 flex flex-col items-center justify-center text-center shadow-inner">
+            <p className="text-sm font-bold text-purple-700 mb-2 uppercase tracking-wide">Tổng Thiết bị</p>
+            <h4 className="text-5xl font-extrabold text-purple-800 drop-shadow-sm">{totalClassroomEq}</h4>
+            <p className="text-xs text-purple-600 mt-3 font-medium bg-purple-200 px-3 py-1 rounded-full">Đang lắp đặt & sử dụng</p>
+          </div>
+          
+          <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 flex flex-col items-center justify-center text-center shadow-inner">
+            <p className="text-sm font-bold text-blue-700 mb-2 uppercase tracking-wide">Tổng Số Phòng</p>
+            <h4 className="text-5xl font-extrabold text-blue-800 drop-shadow-sm">{totalRooms}</h4>
+            <p className="text-xs text-blue-600 mt-3 font-medium bg-blue-200 px-3 py-1 rounded-full">Phòng học có thiết bị</p>
+          </div>
+
+          <div className="p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border border-emerald-200 flex flex-col items-center justify-center text-center shadow-inner">
+            <p className="text-sm font-bold text-emerald-700 mb-2 uppercase tracking-wide">Số Khu Vực</p>
+            <h4 className="text-5xl font-extrabold text-emerald-800 drop-shadow-sm">{totalAreas}</h4>
+            <p className="text-xs text-emerald-600 mt-3 font-medium bg-emerald-200 px-3 py-1 rounded-full">Khu vực / Dãy nhà</p>
+          </div>
+        </div>
+        
+        {/* Biểu đồ phân bổ nguồn lực (CSS Visuals) */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h4 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider flex items-center gap-2">
+              <Activity className="w-4 h-4 text-gray-400" /> Tỷ trọng Thiết bị / Phòng
+            </h4>
+            <div className="space-y-5">
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="font-medium text-gray-600">Trung bình thiết bị mỗi phòng</span>
+                  <span className="text-purple-600 font-bold">{totalRooms > 0 ? Math.round(totalClassroomEq / totalRooms) : 0} tb / phòng</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div className="bg-purple-500 h-3 rounded-full transition-all duration-1000" style={{ width: '85%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider flex items-center gap-2">
+              <Activity className="w-4 h-4 text-gray-400" /> Mật độ Phòng / Khu vực
+            </h4>
+            <div className="space-y-5">
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="font-medium text-gray-600">Trung bình phòng mỗi khu vực</span>
+                  <span className="text-blue-600 font-bold">{totalAreas > 0 ? Math.round(totalRooms / totalAreas) : 0} phòng / khu</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div className="bg-blue-500 h-3 rounded-full transition-all duration-1000" style={{ width: '65%' }}></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
