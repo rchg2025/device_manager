@@ -2,6 +2,13 @@ import { google } from "googleapis"
 import { prisma } from "./prisma"
 import { Readable } from "stream"
 
+function formatPrivateKey(key: string) {
+  if (!key) return ""
+  let cleanKey = key.replace(/^"|"$/g, '').trim();
+  cleanKey = cleanKey.replace(/\\n/g, '\n');
+  return cleanKey;
+}
+
 export async function uploadImageToDrive(file: File): Promise<string> {
   const settings = await prisma.setting.findMany({
     where: {
@@ -17,7 +24,7 @@ export async function uploadImageToDrive(file: File): Promise<string> {
     throw new Error("Chưa cấu hình Google Drive trong cài đặt hệ thống.")
   }
 
-  const privateKey = privateKeyRaw.replace(/\\n/g, '\n')
+  const privateKey = formatPrivateKey(privateKeyRaw)
 
   const auth = new google.auth.GoogleAuth({
     credentials: {
@@ -68,7 +75,7 @@ export async function uploadImageToDrive(file: File): Promise<string> {
 // Hàm kiểm tra kết nối Google Drive (Team Drive)
 export async function testDriveConnection(clientEmail: string, privateKeyRaw: string, folderId: string) {
   try {
-    const privateKey = privateKeyRaw.replace(/\\n/g, '\n')
+    const privateKey = formatPrivateKey(privateKeyRaw)
 
     const auth = new google.auth.GoogleAuth({
       credentials: {
