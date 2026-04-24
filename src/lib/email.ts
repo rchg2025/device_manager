@@ -25,8 +25,24 @@ async function getTransporter() {
 }
 
 async function getFromAddress() {
-  const setting = await prisma.setting.findUnique({ where: { key: "SMTP_FROM" } })
-  return setting?.value || "Device Manager ITE <noreply@nsg.edu.vn>"
+  const fromSetting = await prisma.setting.findUnique({ where: { key: "SMTP_FROM" } })
+  const userSetting = await prisma.setting.findUnique({ where: { key: "SMTP_USER" } })
+  
+  let fromValue = fromSetting?.value?.trim()
+  
+  if (!fromValue) {
+    return `"Device Manager ITE" <${userSetting?.value || "noreply@nsg.edu.vn"}>`
+  }
+  
+  if (fromValue.includes('@') && !fromValue.includes('<')) {
+    return `"Device Manager ITE" <${fromValue}>`
+  }
+  
+  if (!fromValue.includes('@') && !fromValue.includes('<')) {
+    return `"${fromValue}" <${userSetting?.value || "noreply@nsg.edu.vn"}>`
+  }
+  
+  return fromValue
 }
 
 const emailWrapper = (title: string, content: string) => `
@@ -184,7 +200,14 @@ export async function sendOtpEmail(email: string, userName: string, otp: string)
   }
 }
 
-export async function sendStatusUpdateEmailToMember(memberEmail: string, equipmentName: string, status: "APPROVED" | "REJECTED" | "RETURNED", reason?: string) {
+export async function sendStatusUpdateEmailToMember(
+  memberEmail: string, 
+  item: { name: string, image?: string, quantity: number, borrowDate: string | Date, returnDate: string | Date }, 
+  status: "APPROVED" | "REJECTED" | "RETURNED", 
+  processorName: string,
+  processingTime: Date,
+  reason?: string
+) {
   const transporter = await getTransporter()
   if (!transporter || !memberEmail) return
 
@@ -213,9 +236,53 @@ export async function sendStatusUpdateEmailToMember(memberEmail: string, equipme
       break
   }
   
+  let imgUrl = item.image;
+  if (imgUrl?.includes('drive.google.com/uc?')) {
+    try {
+      const fileId = new URL(imgUrl).searchParams.get('id');
+      if (fileId) imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    } catch (e) {}
+  }
+
+  const imgTag = imgUrl 
+    ? `<img src="${imgUrl}" alt="${item.name}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #e5e7eb; display: block; margin: 0 auto;" />`
+    : `<div style="width: 48px; height: 48px; background: #f3f4f6; border-radius: 4px; display: inline-block; border: 1px solid #e5e7eb; line-height: 48px; text-align: center; color: #9ca3af; font-size: 10px; margin: 0 auto;">N/A</div>`;
+
+  const itemsHtml = `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle;">${imgTag}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; vertical-align: middle;"><strong>${item.name}</strong></td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle; font-weight: bold;">${item.quantity}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle; font-size: 13px; color: #4b5563;">
+        <div style="margin-bottom: 4px;">${new Date(item.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</div>
+        <div style="color: #9ca3af; font-size: 11px;">đến</div>
+        <div style="margin-top: 4px;">${new Date(item.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</div>
+      </td>
+    </tr>
+  `
+
   let content = `
     <p>Xin chào,</p>
-    <p>Yêu cầu mượn/trả thiết bị <strong>${equipmentName}</strong> của bạn đã được cập nhật trạng thái thành: <strong style="color: ${color};">${statusText}</strong>.</p>
+    <p>Yêu cầu mượn/trả thiết bị <strong>${item.name}</strong> của bạn đã được cập nhật trạng thái thành: <strong style="color: ${color};">${statusText}</strong>.</p>
+    
+    <table style="width: 100%; border-collapse: collapse; margin: 24px 0; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; font-family: sans-serif;">
+      <thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+        <tr>
+          <th style="padding: 12px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase;">Ảnh</th>
+          <th style="padding: 12px; text-align: left; font-size: 12px; color: #6b7280; text-transform: uppercase;">Thiết bị</th>
+          <th style="padding: 12px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase;">SL</th>
+          <th style="padding: 12px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase;">Thời gian</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHtml}
+      </tbody>
+    </table>
+
+    <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 24px; font-size: 14px; color: #475569;">
+      <p style="margin: 0 0 8px 0;"><strong>Người xử lý:</strong> ${processorName}</p>
+      <p style="margin: 0;"><strong>Thời gian xử lý:</strong> ${new Date(processingTime).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</p>
+    </div>
   `
 
   if (reason && status === "REJECTED") {

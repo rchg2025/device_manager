@@ -91,8 +91,16 @@ export async function updateRequestStatus(
     if (request.user?.email && (status === "APPROVED" || status === "REJECTED" || status === "RETURNED")) {
       import("@/lib/email").then(m => m.sendStatusUpdateEmailToMember(
         request.user.email as string, 
-        request.equipment.name, 
+        { 
+          name: request.equipment.name, 
+          image: request.equipment.image || undefined, 
+          quantity: request.quantity, 
+          borrowDate: request.borrowDate, 
+          returnDate: request.returnDate 
+        }, 
         status, 
+        reviewerName,
+        status === "RETURNED" ? new Date() : (request.approvedAt || new Date()),
         status === "REJECTED" ? rejectionReason : returnCondition
       )).catch(console.error)
     }
