@@ -10,3 +10,4 @@
     at F (C:\Users\nvluy\Studio\Du an Nodejs\device_manager\.next\server\chunks\ssr\src_app_dashboard_categories_0sgbbu3._.js:1:11948) {
   digest: '2832408029'
 }
+^C

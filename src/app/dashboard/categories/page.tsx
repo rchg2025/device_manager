@@ -7,12 +7,71 @@ import Link from "next/link"
 import CategoryRow from "./category-row"
 import Pagination from "../pagination"
 
+import { Suspense } from "react"
+import { Loader2 } from "lucide-react"
+
 export default async function CategoriesPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const resolvedSearchParams = await searchParams
+  const activeTab = (resolvedSearchParams.tab as string) || 'equipment'
+  const q = (resolvedSearchParams.q as string) || ''
+  const page = (resolvedSearchParams.page as string) || '1'
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <h2 className="text-2xl font-bold">Quản lý Danh mục chung</h2>
+        <form method="get" className="relative w-full sm:w-auto min-w-[250px]">
+          <input type="hidden" name="tab" value={activeTab} />
+          <input type="text" name="q" defaultValue={q} placeholder="Tìm kiếm danh mục..." className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 pl-3 pr-10 text-sm border" />
+          <button type="submit" className="absolute inset-y-0 right-0 px-3 flex items-center bg-gray-50 border-l border-gray-300 rounded-r-md text-gray-500 hover:bg-gray-100">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </button>
+        </form>
+      </div>
+
+      <div className="border-b border-gray-200 mb-6 overflow-x-auto pb-1 custom-scrollbar">
+        <nav className="-mb-px flex space-x-6 min-w-max">
+          {[
+            { id: 'equipment', label: 'DM Thiết bị' },
+            { id: 'unit', label: 'DM Đơn vị' },
+            { id: 'position', label: 'DM Chức vụ' },
+            { id: 'area', label: 'DM Khu vực' },
+            { id: 'room', label: 'DM Phòng học' },
+            { id: 'classroom-eq-cat', label: 'DM Thiết bị phòng' },
+            { id: 'config', label: 'DM Cấu hình' }
+          ].map(tab => (
+            <Link
+              key={tab.id}
+              href={`/dashboard/categories?tab=${tab.id}${q ? `&q=${q}` : ''}`}
+              className={`${
+                activeTab === tab.id
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      <Suspense key={`${activeTab}-${q}-${page}`} fallback={
+        <div className="flex flex-col items-center justify-center py-24 text-blue-600">
+          <Loader2 className="w-10 h-10 animate-spin mb-4" />
+          <p className="text-gray-500 font-medium animate-pulse">Đang tải dữ liệu...</p>
+        </div>
+      }>
+        <CategoriesData resolvedSearchParams={resolvedSearchParams} />
+      </Suspense>
+    </div>
+  )
+}
+
+async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: any }) {
   const activeTab = resolvedSearchParams.tab || 'equipment'
   
   let page = parseInt((resolvedSearchParams.page as string))
@@ -82,44 +141,7 @@ export default async function CategoriesPage({
   const totalPages = Math.ceil(totalItems / limit) || 1
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold">Quản lý Danh mục chung</h2>
-        <form method="get" className="relative w-full sm:w-auto min-w-[250px]">
-          <input type="hidden" name="tab" value={activeTab} />
-          <input type="text" name="q" defaultValue={q} placeholder="Tìm kiếm danh mục..." className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 pl-3 pr-10 text-sm border" />
-          <button type="submit" className="absolute inset-y-0 right-0 px-3 flex items-center bg-gray-50 border-l border-gray-300 rounded-r-md text-gray-500 hover:bg-gray-100">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          </button>
-        </form>
-      </div>
-
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto pb-1 custom-scrollbar">
-        <nav className="-mb-px flex space-x-6 min-w-max">
-          {[
-            { id: 'equipment', label: 'DM Thiết bị' },
-            { id: 'unit', label: 'DM Đơn vị' },
-            { id: 'position', label: 'DM Chức vụ' },
-            { id: 'area', label: 'DM Khu vực' },
-            { id: 'room', label: 'DM Phòng học' },
-            { id: 'classroom-eq-cat', label: 'DM Thiết bị phòng' },
-            { id: 'config', label: 'DM Cấu hình' }
-          ].map(tab => (
-            <Link
-              key={tab.id}
-              href={`/dashboard/categories?tab=${tab.id}`}
-              className={`${
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </nav>
-      </div>
-
+    <>
       {activeTab === 'equipment' && (
         <CategoryTab title="Thiết bị" createAction={createCategory} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" />
       )}
@@ -141,7 +163,7 @@ export default async function CategoriesPage({
       {activeTab === 'room' && (
         <RoomTab data={items} allAreas={allAreas} managers={managers} totalPages={totalPages} page={page} />
       )}
-    </div>
+    </>
   )
 }
 
