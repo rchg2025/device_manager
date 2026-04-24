@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { Wrench, CheckCircle, Clock, AlertTriangle } from "lucide-react"
 import MaintenanceActions from "../maintenance/maintenance-actions"
 import Link from "next/link"
-import Pagination from "../../pagination"
+import Pagination from "../pagination"
 
 export default async function ClassroomMaintenancePage({
   searchParams
