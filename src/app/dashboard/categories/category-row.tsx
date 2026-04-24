@@ -115,7 +115,18 @@ export default function CategoryRow({
           {item.manager?.name && <div className="text-xs text-blue-600 mt-1">QL: {item.manager.name}</div>}
         </td>
       )}
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{countValue} {countLabel}</td>
+      <td className="px-6 py-4 text-sm text-gray-500">
+        <div className="font-medium text-gray-900">{countValue} {countLabel}</div>
+        {type === 'room' && item.classroomEquipments && item.classroomEquipments.length > 0 && (
+          <div className="text-xs text-gray-500 mt-1.5 flex flex-wrap gap-1">
+            {item.classroomEquipments.map((eq: any, idx: number) => (
+              <span key={idx} className="bg-gray-100 px-1.5 py-0.5 rounded text-[11px] whitespace-nowrap border border-gray-200">
+                {eq.name} <span className="text-gray-400">x{eq.quantity}</span>
+              </span>
+            ))}
+          </div>
+        )}
+      </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex items-center justify-end gap-3">
           <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">

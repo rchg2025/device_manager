@@ -53,7 +53,7 @@ export default async function CategoriesPage({
     case 'room':
       [totalItems, items, allAreas, managers] = await Promise.all([
         prisma.room.count(),
-        prisma.room.findMany({ select: { id: true, name: true, area: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
+        prisma.room.findMany({ select: { id: true, name: true, area: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, classroomEquipments: { select: { name: true, quantity: true } }, _count: { select: { classroomEquipments: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
         prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
         prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
       ]);
@@ -158,7 +158,7 @@ function CategoryTab({ title, createAction, data, totalPages, page, countLabel, 
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} countKey={countKey} type={type} />
+                <CategoryRow key={item.id} item={item} countLabel={countLabel} countValue={item._count?.[countKey] || 0} type={type} />
               ))}
               {data.length === 0 && (
                 <tr>
@@ -216,7 +216,7 @@ function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} countKey="classroomEquipments" type="room" extraData={{ areas: allAreas, managers: managers }} />
+                <CategoryRow key={item.id} item={item} countLabel="thiết bị" countValue={item._count?.classroomEquipments || 0} type="room" extraData={{ areas: allAreas, managers: managers }} />
               ))}
               {data.length === 0 && (
                 <tr>
