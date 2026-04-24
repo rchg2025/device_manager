@@ -21,6 +21,7 @@ export default async function MembersPage({
   let page = parseInt(sp?.page as string)
   if (isNaN(page) || page < 1) page = 1
   const query = sp?.query || ""
+  const roleFilter = sp?.role || ""
   const limit = 15
   const skip = (page - 1) * limit
 
@@ -33,6 +34,10 @@ export default async function MembersPage({
       { name: { contains: query, mode: 'insensitive' } },
       { email: { contains: query, mode: 'insensitive' } }
     ]
+  }
+
+  if (roleFilter) {
+    whereClause.role = roleFilter
   }
 
   const [totalMembers, members, units, positions] = await Promise.all([
