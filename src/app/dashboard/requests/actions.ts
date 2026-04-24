@@ -156,10 +156,34 @@ export async function requestReturn(requestId: string) {
       })
     }
 
-    const emails = targetUsers.map(u => u.email).filter(Boolean) as string[]
-    if (emails.length > 0) {
-      import("@/lib/email").then(m => m.sendReturnRequestEmailToAdmins(
-        emails, 
+    // Gửi email cho người quản lý thiết bị
+    const emailNotifyWhere: any = {
+      email: { not: null },
+      OR: []
+    }
+    if (targetManagerId) {
+      emailNotifyWhere.OR.push({ id: targetManagerId })
+    }
+
+    if (emailNotifyWhere.OR.length > 0) {
+      const targetUserWithEmails = await prisma.user.findMany({
+        where: emailNotifyWhere,
+        select: { email: true }
+      })
+      const emails = targetUserWithEmails.map(u => u.email).filter(Boolean) as string[]
+      if (emails.length > 0) {
+        import("@/lib/email").then(m => m.sendReturnRequestEmailToAdmins(
+          emails, 
+          session.user?.name || "Một thành viên", 
+          equipment?.name || "Thiết bị"
+        )).catch(console.error)
+      }
+    }
+
+    // Gửi email xác nhận cho người mượn/trả
+    if (session.user.email) {
+      import("@/lib/email").then(m => m.sendReturnRequestEmailToMember(
+        session.user.email as string,
         session.user?.name || "Một thành viên", 
         equipment?.name || "Thiết bị"
       )).catch(console.error)

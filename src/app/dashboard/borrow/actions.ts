@@ -146,25 +146,34 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     })
 
     const emailNotifyWhere: any = {
-      OR: [
-        { role: "ADMIN" }
-      ],
-      email: { not: null }
+      email: { not: null },
+      OR: []
     }
-    if (hasSharedCategory) {
-      emailNotifyWhere.OR.push({ role: "MANAGER" })
-    } else if (targetManagerIds.size > 0) {
+    
+    if (targetManagerIds.size > 0) {
       emailNotifyWhere.OR.push({ id: { in: Array.from(targetManagerIds) as string[] } })
     }
+    
+    // Fallback: If no manager is specifically assigned to any of the categories, we can omit sending to ADMINs or send to ADMINs.
+    // Dựa theo yêu cầu "chỉ gửi ... cho Nhân viên quản lý thiết bị đó thôi". 
+    // Nếu không có manager, chúng ta có thể không gửi. 
+    // Hoặc gửi cho MANAGER role nói chung?
+    // User: "fix lại chỉ gửi email thông báo cho tài khoản email của Nhân viên quản lý thiết bị đó thôi"
+    if (emailNotifyWhere.OR.length > 0) {
+      // Gửi email bất đồng bộ cho Quản lý
+      const targetUserWithEmails = await prisma.user.findMany({
+        where: emailNotifyWhere,
+        select: { email: true }
+      })
+      const emails = targetUserWithEmails.map(a => a.email as string).filter(e => e)
+      if (emails.length > 0) {
+        import("@/lib/email").then(m => m.sendBorrowRequestEmailToAdmins(emails, userName, detailedItems)).catch(console.error)
+      }
+    }
 
-    // Gửi email bất đồng bộ (không await để không block UI)
-    const targetUserWithEmails = await prisma.user.findMany({
-      where: emailNotifyWhere,
-      select: { email: true }
-    })
-    const emails = targetUserWithEmails.map(a => a.email as string).filter(e => e)
-    if (emails.length > 0) {
-      import("@/lib/email").then(m => m.sendBorrowRequestEmailToAdmins(emails, userName, detailedItems)).catch(console.error)
+    // Gửi email cho người mượn
+    if (session.user.email) {
+      import("@/lib/email").then(m => m.sendBorrowRequestEmailToMember(session.user.email as string, userName, detailedItems)).catch(console.error)
     }
 
     revalidatePath("/dashboard")
