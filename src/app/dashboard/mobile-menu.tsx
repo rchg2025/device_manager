@@ -13,12 +13,12 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
+      <button onClick={() => setIsOpen(true)} className="xl:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md">
         <Menu className="w-6 h-6" />
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
+        <div className="fixed inset-0 z-50 flex xl:hidden">
           <div className="fixed inset-0 bg-black/50" onClick={closeMenu}></div>
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white shadow-xl">
             <div className="p-4 flex justify-between items-center border-b">
