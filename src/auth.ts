@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import Credentials from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
+import { writeLog } from "@/lib/system-log"
 
 if (!process.env.AUTH_SECRET) {
   process.env.AUTH_SECRET = "fallback_secret_for_build_only_do_not_use_in_prod"
@@ -99,6 +100,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as any
       }
       return session
+    }
+  },
+  events: {
+    async signIn({ user }) {
+      if (user && user.id) {
+        await writeLog({
+          userId: user.id,
+          action: 'LOGIN',
+          entity: 'member',
+          entityId: user.id,
+          detail: `Thành viên ${user.name || user.email} đăng nhập vào hệ thống`
+        })
+      }
     }
   }
 })

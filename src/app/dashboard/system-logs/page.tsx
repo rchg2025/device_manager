@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { deleteLogsByAge } from "./actions"
+import ExportSystemLogsButton from "./export-button"
 import {
   ShieldAlert, Trash2, Package, ClipboardList, Users,
   Tags, AlertTriangle, CheckCircle2, XCircle, ArrowLeft, ArrowRight,
@@ -42,7 +43,7 @@ const DELETE_OPTIONS = [
 export default async function SystemLogsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; action?: string; entity?: string; q?: string }>
+  searchParams: Promise<{ page?: string; action?: string; entity?: string; q?: string; userId?: string }>
 }) {
   const session = await auth()
   if (session?.user?.role !== "ADMIN") redirect("/dashboard")
@@ -51,14 +52,16 @@ export default async function SystemLogsPage({
   const page = Math.max(1, parseInt(sp.page || "1"))
   const actionFilter = sp.action || ""
   const entityFilter = sp.entity || ""
+  const userIdFilter = sp.userId || ""
   const q = sp.q || ""
 
   const where: any = {}
   if (actionFilter) where.action = actionFilter
   if (entityFilter) where.entity = entityFilter
+  if (userIdFilter) where.userId = userIdFilter
   if (q) where.detail = { contains: q, mode: 'insensitive' }
 
-  const [total, logs] = await Promise.all([
+  const [total, logs, members] = await Promise.all([
     prisma.systemLog.count({ where }),
     prisma.systemLog.findMany({
       where,
@@ -66,6 +69,11 @@ export default async function SystemLogsPage({
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
       include: { user: { select: { name: true, email: true, role: true } } }
+    }),
+    prisma.user.findMany({
+      where: { email: { not: "nguyenluyen@nsg.edu.vn" } },
+      select: { id: true, name: true, email: true },
+      orderBy: { name: 'asc' }
     })
   ])
 
@@ -76,6 +84,7 @@ export default async function SystemLogsPage({
     const base = new URLSearchParams({
       ...(actionFilter && { action: actionFilter }),
       ...(entityFilter && { entity: entityFilter }),
+      ...(userIdFilter && { userId: userIdFilter }),
       ...(q && { q }),
       page: String(page),
     })
@@ -96,41 +105,15 @@ export default async function SystemLogsPage({
           </p>
         </div>
 
-        {/* Delete dropdown */}
-        <div className="flex items-center gap-2">
-          <form method="POST">
-            <div className="flex items-center gap-2">
-              <select
-                name="daysAgo"
-                className="border border-red-300 text-red-700 bg-red-50 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-400 cursor-pointer"
-                defaultValue=""
-                form="delete-form"
-              >
-                <option value="" disabled>Xóa nhật ký cũ...</option>
-                {DELETE_OPTIONS.map(o => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-          </form>
-          <form id="delete-form" action={async (fd) => {
-            "use server"
-            const { deleteLogsByAge } = await import("./actions")
-            const v = fd.get("daysAgo") as string
-            if (!v) return
-            await deleteLogsByAge(v === 'all' ? 'all' : parseInt(v))
-          }}>
-            <select name="daysAgo" className="sr-only" aria-hidden />
-            <button
-              type="submit"
-              formAction={async (fd) => {
-                "use server"
-                const daysAgoStr = fd.get("daysAgo") as string
-              }}
-              className="hidden"
-            />
-          </form>
-
+        {/* Header Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <ExportSystemLogsButton 
+            action={actionFilter} 
+            entity={entityFilter} 
+            q={q} 
+            userId={userIdFilter} 
+          />
+          
           {/* Standalone delete forms for each option */}
           <div className="relative group">
             <button className="flex items-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">
@@ -165,6 +148,12 @@ export default async function SystemLogsPage({
           placeholder="Tìm trong chi tiết..."
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-[180px]"
         />
+        <select name="userId" defaultValue={userIdFilter} className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-xs">
+          <option value="">Tất cả thành viên</option>
+          {members.map(m => (
+            <option key={m.id} value={m.id}>{m.name || m.email}</option>
+          ))}
+        </select>
         <select name="action" defaultValue={actionFilter} className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Tất cả hành động</option>
           {Object.entries(ACTION_META).map(([k, v]) => (
