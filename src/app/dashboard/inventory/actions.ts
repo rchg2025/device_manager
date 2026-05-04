@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 export async function getEquipmentByBarcode(barcode: string) {
   const session = await auth()
@@ -57,11 +58,11 @@ export async function completeInventorySession(id: string) {
       where: { id },
       data: { status: "COMPLETED" }
     })
-    revalidatePath("/dashboard/inventory")
-    return { success: true }
   } catch (error: any) {
     return { error: "Lỗi hoàn tất đợt kiểm kê: " + error.message }
   }
+  revalidatePath("/dashboard/inventory")
+  redirect("/dashboard/inventory")
 }
 
 export async function deleteInventorySession(id: string) {

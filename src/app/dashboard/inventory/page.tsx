@@ -127,7 +127,7 @@ export default async function InventoryPage({
               </div>
             </div>
             {role !== "MEMBER" && (
-              <form action={async () => { "use server"; await completeInventorySession(activeSession.id) }}>
+              <form action={completeInventorySession.bind(null, activeSession.id)}>
                 <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
                   <CheckCircle2 className="w-4 h-4" /> Hoàn tất đợt này
                 </button>
