@@ -1,12 +1,14 @@
 "use client"
 
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { useTransition } from "react"
 
 export default function Pagination({ totalPages, currentPage }: { totalPages: number, currentPage: number }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   if (totalPages <= 1) return null
 
@@ -17,7 +19,9 @@ export default function Pagination({ totalPages, currentPage }: { totalPages: nu
   }
 
   const handlePageChange = (page: number) => {
-    router.push(createPageURL(page))
+    startTransition(() => {
+      router.push(createPageURL(page))
+    })
   }
 
   const generatePagination = () => {
@@ -57,10 +61,11 @@ export default function Pagination({ totalPages, currentPage }: { totalPages: nu
         </button>
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
+        <div className="flex items-center gap-3">
           <p className="text-sm text-gray-700">
             Trang <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
           </p>
+          {isPending && <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />}
         </div>
         <div>
           <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
