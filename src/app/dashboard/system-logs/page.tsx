@@ -121,11 +121,7 @@ export default async function SystemLogsPage({
             </button>
             <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-20 hidden group-hover:block">
               {DELETE_OPTIONS.map(opt => (
-                <form key={opt.value} action={async () => {
-                  "use server"
-                  const { deleteLogsByAge } = await import("./actions")
-                  await deleteLogsByAge(opt.value === 'all' ? 'all' : parseInt(opt.value))
-                }}>
+                <form key={opt.value} action={deleteLogsByAge.bind(null, opt.value === 'all' ? 'all' : parseInt(opt.value))}>
                   <button
                     type="submit"
                     className={`w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 hover:text-red-700 transition-colors first:rounded-t-xl last:rounded-b-xl ${opt.value === 'all' ? 'text-red-600 font-semibold border-t border-gray-100' : 'text-gray-700'}`}
