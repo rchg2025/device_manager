@@ -111,6 +111,19 @@ export default async function InventoryPage({
         </div>
       </div>
 
+      {/* Create new session (when active exists) */}
+      {activeSession && role !== "MEMBER" && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <h4 className="text-sm font-semibold text-gray-600 mb-2">Tạo đợt kiểm kê mới</h4>
+          <form action={createInventorySession} className="flex gap-2">
+            <input type="text" name="name" required placeholder="Tên đợt kiểm kê..." className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-medium shrink-0">
+              <PlusCircle className="w-4 h-4" /> Tạo mới
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* Active Session */}
       {activeSession ? (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4">
@@ -214,6 +227,7 @@ export default async function InventoryPage({
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Thiết bị</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vị trí ghi nhận</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Số lượng</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tình trạng</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Người quét</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Thời gian</th>
@@ -248,6 +262,11 @@ export default async function InventoryPage({
                               <span>{rec.location || '—'}</span>
                             </div>
                             {rec.note && <p className="text-xs text-gray-400 mt-0.5 ml-4 line-clamp-1">{rec.note}</p>}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="inline-flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-gray-800 text-xs font-bold min-w-[2rem]">
+                              {rec.quantity || 1}
+                            </span>
                           </td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${s.color}`}>
@@ -291,19 +310,6 @@ export default async function InventoryPage({
               </button>
             </form>
           )}
-        </div>
-      )}
-
-      {/* Create new session (when active exists) */}
-      {activeSession && role !== "MEMBER" && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h4 className="text-sm font-semibold text-gray-600 mb-2">Tạo đợt kiểm kê mới</h4>
-          <form action={createInventorySession} className="flex gap-2">
-            <input type="text" name="name" required placeholder="Tên đợt kiểm kê..." className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-medium shrink-0">
-              <PlusCircle className="w-4 h-4" /> Tạo mới
-            </button>
-          </form>
         </div>
       )}
 
