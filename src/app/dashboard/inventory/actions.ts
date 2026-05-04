@@ -6,7 +6,7 @@ import { writeLog } from "@/lib/system-log"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-export async function getEquipmentByBarcode(barcode: string) {
+export async function getEquipmentByBarcode(barcode: string, activeSessionId?: string) {
   const session = await auth()
   if (!session?.user?.id) return { error: "Vui lòng đăng nhập" }
 
@@ -20,14 +20,34 @@ export async function getEquipmentByBarcode(barcode: string) {
     },
     select: { id: true, name: true, category: { select: { name: true } }, image: true, totalQty: true }
   })
-  if (equipment) return { type: 'equipment', data: equipment }
+  if (equipment) {
+    let scannedQty = 0
+    if (activeSessionId) {
+      const records = await prisma.inventoryRecord.findMany({
+        where: { sessionId: activeSessionId, equipmentId: equipment.id },
+        select: { quantity: true }
+      })
+      scannedQty = records.reduce((sum, r) => sum + r.quantity, 0)
+    }
+    return { type: 'equipment', data: { ...equipment, scannedQty } }
+  }
 
   // Search in ClassroomEquipment
   const classroomEq = await prisma.classroomEquipment.findUnique({
     where: { id: barcode },
     select: { id: true, name: true, room: { select: { name: true } }, area: { select: { name: true } }, image: true, quantity: true }
   })
-  if (classroomEq) return { type: 'classroom-equipment', data: classroomEq }
+  if (classroomEq) {
+    let scannedQty = 0
+    if (activeSessionId) {
+      const records = await prisma.inventoryRecord.findMany({
+        where: { sessionId: activeSessionId, classroomEqId: classroomEq.id },
+        select: { quantity: true }
+      })
+      scannedQty = records.reduce((sum, r) => sum + r.quantity, 0)
+    }
+    return { type: 'classroom-equipment', data: { ...classroomEq, scannedQty } }
+  }
 
   return { error: "Không tìm thấy thiết bị với mã này" }
 }
