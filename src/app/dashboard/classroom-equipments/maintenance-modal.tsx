@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { createMaintenance } from "../maintenance/actions"
 import toast from "react-hot-toast"
+import { Wrench, X, Check } from "lucide-react"
 
 export default function MaintenanceModal({ equipmentId, equipmentName, availableQty }: { equipmentId: string, equipmentName: string, availableQty: number }) {
   const [isOpen, setIsOpen] = useState(false)
