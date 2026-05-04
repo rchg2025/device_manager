@@ -20,12 +20,7 @@ export async function createClassroomEquipment(formData: FormData) {
     return { error: "Vui lòng nhập đầy đủ thông tin hợp lệ" }
   }
 
-  if (session.user.role === "MANAGER") {
-    const category = await prisma.category.findUnique({ where: { id: categoryId } })
-    if (category?.managerId && category.managerId !== session.user.id) {
-      return { error: "Bạn không có quyền thêm thiết bị vào danh mục này" }
-    }
-  }
+  // No manager restriction on classroomEqCategory (they don't have managerId field)
 
   let imageUrl: string | null = null
   if (imageFile && imageFile.size > 0) {
@@ -79,13 +74,9 @@ export async function updateClassroomEquipment(formData: FormData) {
   }
 
   if (session.user.role === "MANAGER") {
-    const existing = await prisma.classroomEquipment.findUnique({ where: { id }, include: { category: true } })
-    if (existing?.category?.managerId && existing.category.managerId !== session.user.id) {
+    const existing = await prisma.classroomEquipment.findUnique({ where: { id }, include: { room: true } })
+    if (existing?.room?.managerId && existing.room.managerId !== session.user.id) {
       return { error: "Bạn không có quyền sửa thiết bị này" }
-    }
-    const newCategory = await prisma.category.findUnique({ where: { id: categoryId } })
-    if (newCategory?.managerId && newCategory.managerId !== session.user.id) {
-      return { error: "Bạn không có quyền chuyển thiết bị sang danh mục này" }
     }
   }
 
@@ -129,8 +120,8 @@ export async function deleteClassroomEquipment(id: string) {
 
   try {
     if (session?.user?.role === "MANAGER") {
-      const existing = await prisma.classroomEquipment.findUnique({ where: { id }, include: { category: true } })
-      if (existing?.category?.managerId && existing.category.managerId !== session.user.id) {
+      const existing = await prisma.classroomEquipment.findUnique({ where: { id }, include: { room: true } })
+      if (existing?.room?.managerId && existing.room.managerId !== session.user.id) {
         return { error: "Bạn không có quyền xóa thiết bị này" }
       }
     }

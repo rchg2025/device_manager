@@ -46,35 +46,46 @@ export default async function ClassroomEquipmentsPage({
     }
   }
 
-  const [
-    totalItems,
-    items,
-    areas,
-    rooms,
-    categories,
-    configs
-  ] = await Promise.all([
-    prisma.classroomEquipment.count({ where: whereClause }),
-    prisma.classroomEquipment.findMany({
-      where: whereClause,
-      include: {
-        area: true,
-        room: true,
-        category: true,
-        configs: true
-      },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit
-    }),
-    prisma.area.findMany({ orderBy: { name: 'asc' } }),
-    prisma.room.findMany({ 
-      where: session?.user?.role === "MANAGER" ? { managerId: session.user.id } : undefined,
-      orderBy: { name: 'asc' } 
-    }),
-    prisma.classroomEqCategory.findMany({ orderBy: { name: 'asc' } }),
-    prisma.deviceConfig.findMany({ orderBy: { name: 'asc' } })
-  ])
+  let totalItems = 0
+  let items: any[] = []
+  let areas: any[] = []
+  let rooms: any[] = []
+  let categories: any[] = []
+  let configs: any[] = []
+
+  try {
+    ;[
+      totalItems,
+      items,
+      areas,
+      rooms,
+      categories,
+      configs
+    ] = await Promise.all([
+      prisma.classroomEquipment.count({ where: whereClause }),
+      prisma.classroomEquipment.findMany({
+        where: whereClause,
+        include: {
+          area: true,
+          room: true,
+          category: true,
+          configs: true
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      }),
+      prisma.area.findMany({ orderBy: { name: 'asc' } }),
+      prisma.room.findMany({ 
+        where: session?.user?.role === "MANAGER" ? { managerId: session.user.id } : undefined,
+        orderBy: { name: 'asc' } 
+      }),
+      prisma.classroomEqCategory.findMany({ orderBy: { name: 'asc' } }),
+      prisma.deviceConfig.findMany({ orderBy: { name: 'asc' } })
+    ])
+  } catch (err) {
+    console.error("ClassroomEquipmentsPage DB error:", err)
+  }
 
   const totalPages = Math.ceil(totalItems / limit)
 
