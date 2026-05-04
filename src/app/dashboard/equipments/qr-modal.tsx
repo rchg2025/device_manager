@@ -90,7 +90,7 @@ export default function QrModal({ barcode, equipmentName }: QrModalProps) {
               <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <QRCodeCanvas 
                   value={barcode} 
-                  size={200}
+                  size={256}
                   level="H"
                   includeMargin={true}
                   ref={qrRef}
