@@ -142,7 +142,7 @@ export default function ClassroomEqRow({
         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <div className="flex items-center justify-end gap-3">
             <MaintenanceModal equipmentId={item.id} equipmentName={item.name} availableQty={item.quantity} isClassroomEq={true} />
-            <QrModal barcode={item.id} equipmentName={item.name} />
+            <QrModal barcode={item.id} equipmentName={item.name} roomName={item.room?.name} areaName={item.area?.name} />
             <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
               <Edit className="w-4 h-4" />
             </button>

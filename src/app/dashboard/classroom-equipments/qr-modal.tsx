@@ -6,9 +6,11 @@ import { QRCodeCanvas } from "qrcode.react"
 interface QrModalProps {
   barcode: string | null
   equipmentName: string
+  roomName?: string
+  areaName?: string
 }
 
-export default function QrModal({ barcode, equipmentName }: QrModalProps) {
+export default function QrModal({ barcode, equipmentName, roomName, areaName }: QrModalProps) {
   const [isOpen, setIsOpen] = useState(false)
   const qrRef = useRef<HTMLCanvasElement>(null)
 
@@ -22,7 +24,7 @@ export default function QrModal({ barcode, equipmentName }: QrModalProps) {
 
     const qrSize = 256
     const padding = 20
-    const textHeight = 40
+    const textHeight = (roomName && areaName) ? 60 : 40
     
     canvas.width = qrSize + padding * 2
     canvas.height = qrSize + padding * 2 + textHeight
@@ -46,7 +48,19 @@ export default function QrModal({ barcode, equipmentName }: QrModalProps) {
       displayText = displayText.substring(0, 25) + "..."
     }
     
-    ctx.fillText(displayText, canvas.width / 2, canvas.height - textHeight / 2)
+    if (roomName && areaName) {
+      ctx.fillText(displayText, canvas.width / 2, canvas.height - textHeight + 15)
+      
+      ctx.font = "normal 14px Arial"
+      const locationText = `${roomName} - ${areaName}`
+      let displayLocation = locationText
+      if (ctx.measureText(displayLocation).width > canvas.width - padding * 2) {
+        displayLocation = displayLocation.substring(0, 30) + "..."
+      }
+      ctx.fillText(displayLocation, canvas.width / 2, canvas.height - textHeight + 35)
+    } else {
+      ctx.fillText(displayText, canvas.width / 2, canvas.height - textHeight / 2)
+    }
 
     // Download
     const dataUrl = canvas.toDataURL("image/png")
@@ -97,6 +111,9 @@ export default function QrModal({ barcode, equipmentName }: QrModalProps) {
                 />
               </div>
               <p className="mt-4 font-medium text-center text-gray-800">{equipmentName}</p>
+              {roomName && areaName && (
+                <p className="text-sm text-center text-gray-600 mt-1">{roomName} - {areaName}</p>
+              )}
               <p className="text-xs text-gray-500 mt-1">Mã: {barcode}</p>
             </div>
 
