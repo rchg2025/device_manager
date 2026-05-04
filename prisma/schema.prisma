@@ -271,6 +271,7 @@ model InventoryRecord {
   location      String?  // Vị trí thực tế
   note          String?  // Ghi chú tình trạng
   status        String   @default("PRESENT") // PRESENT, MISSING, DAMAGED
+  quantity      Int      @default(1)
 
   createdAt     DateTime @default(now())
 

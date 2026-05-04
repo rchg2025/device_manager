@@ -25,6 +25,7 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
   const [location, setLocation] = useState("")
   const [note, setNote] = useState("")
   const [status, setStatus] = useState("PRESENT")
+  const [quantity, setQuantity] = useState(1)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleOpen = () => {
@@ -36,6 +37,7 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
     setLocation("")
     setNote("")
     setStatus("PRESENT")
+    setQuantity(1)
     setSuccess(false)
   }
 
@@ -121,7 +123,8 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
         classroomEqId: result.type === 'classroom-equipment' ? result.data.id : undefined,
         location,
         note,
-        status
+        status,
+        quantity
       }
       const res = await saveInventoryRecord(data)
       if (res.error) {
@@ -135,6 +138,7 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
           setLocation("")
           setNote("")
           setStatus("PRESENT")
+          setQuantity(1)
           setSuccess(false)
           setError("")
         }, 1500)
@@ -244,6 +248,26 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
                             </button>
                           ))}
                         </div>
+                      </div>
+
+                      {/* Quantity */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                           Số lượng kiểm kê thực tế
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={quantity}
+                          onChange={e => setQuantity(parseInt(e.target.value) || 1)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {quantity > (result.type === 'equipment' ? result.data.totalQty : result.data.quantity) && (
+                          <p className="text-xs text-orange-600 mt-1.5 flex items-center gap-1 bg-orange-50 p-2 rounded border border-orange-100">
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            Cảnh báo: Vượt quá số lượng hệ thống ({result.type === 'equipment' ? result.data.totalQty : result.data.quantity}).
+                          </p>
+                        )}
                       </div>
 
                       {/* Location */}

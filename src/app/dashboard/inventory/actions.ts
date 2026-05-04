@@ -17,14 +17,14 @@ export async function getEquipmentByBarcode(barcode: string) {
         { barcode: barcode }
       ]
     },
-    select: { id: true, name: true, category: { select: { name: true } }, image: true }
+    select: { id: true, name: true, category: { select: { name: true } }, image: true, totalQty: true }
   })
   if (equipment) return { type: 'equipment', data: equipment }
 
   // Search in ClassroomEquipment
   const classroomEq = await prisma.classroomEquipment.findUnique({
     where: { id: barcode },
-    select: { id: true, name: true, room: { select: { name: true } }, area: { select: { name: true } }, image: true }
+    select: { id: true, name: true, room: { select: { name: true } }, area: { select: { name: true } }, image: true, quantity: true }
   })
   if (classroomEq) return { type: 'classroom-equipment', data: classroomEq }
 
@@ -92,7 +92,8 @@ export async function saveInventoryRecord(data: {
   classroomEqId?: string,
   location?: string,
   note?: string,
-  status: string
+  status: string,
+  quantity?: number
 }) {
   const session = await auth()
   if (!session?.user?.id) return { error: "Vui lòng đăng nhập" }
@@ -118,7 +119,8 @@ export async function saveInventoryRecord(data: {
         scannerId: session.user.id,
         location: data.location || "",
         note: data.note || "",
-        status: data.status
+        status: data.status,
+        quantity: data.quantity || 1
       }
     })
     
