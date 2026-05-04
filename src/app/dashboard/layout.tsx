@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck } from "lucide-react"
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck, ShieldAlert } from "lucide-react"
 import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
 import AutoRefreshBadge from "./auto-refresh-badge"
@@ -123,6 +123,11 @@ export default async function DashboardLayout({
               {role === "ADMIN" && (
                 <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
                   <Settings className="w-5 h-5 shrink-0" /> Cấu hình hệ thống
+                </Link>
+              )}
+              {role === "ADMIN" && (
+                <Link href="/dashboard/system-logs" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-600 whitespace-nowrap">
+                  <ShieldAlert className="w-5 h-5 shrink-0" /> Nhật ký hệ thống
                 </Link>
               )}
             </>

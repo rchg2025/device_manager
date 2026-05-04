@@ -2,7 +2,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck } from "lucide-react"
+import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck, ShieldAlert } from "lucide-react"
 import AutoRefreshBadge from "./auto-refresh-badge"
 
 export default function MobileMenu({ role, unreadCount }: { role: string, unreadCount: number }) {
@@ -70,6 +70,11 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   {role === "ADMIN" && (
                     <Link onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                       <Settings className="w-5 h-5" /> Cấu hình hệ thống
+                    </Link>
+                  )}
+                  {role === "ADMIN" && (
+                    <Link onClick={closeMenu} href="/dashboard/system-logs" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/system-logs' ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-700'}`}>
+                      <ShieldAlert className="w-5 h-5" /> Nhật ký hệ thống
                     </Link>
                   )}
                 </>

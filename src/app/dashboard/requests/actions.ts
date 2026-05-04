@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 
 export async function updateRequestStatus(
   requestId: string, 
@@ -106,6 +107,7 @@ export async function updateRequestStatus(
     }
 
     revalidatePath("/dashboard/requests")
+    await writeLog({ userId: session?.user?.id, action: status, entity: 'request', entityId: requestId, detail: `${status === 'APPROVED' ? 'Duyệt' : status === 'REJECTED' ? 'Từ chối' : 'Xác nhận trả'} yêu cầu mượn thiết bị "${request.equipment.name}" của ${request.user?.name || request.user?.email}` })
     return { success: true }
   } catch (error) {
     return { error: "Lỗi cập nhật trạng thái" }
@@ -198,6 +200,7 @@ export async function requestReturn(requestId: string) {
     }
 
     revalidatePath("/dashboard/requests")
+    await writeLog({ userId: session?.user?.id, action: 'RETURN_REQUESTED', entity: 'request', entityId: requestId, detail: `${session.user?.name || 'Thành viên'} đăng ký trả thiết bị: ${equipment?.name}` })
     return { success: true }
   } catch (error) {
     return { error: "Lỗi khi đăng ký trả" }

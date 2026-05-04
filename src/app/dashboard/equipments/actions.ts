@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 import { uploadImageToDrive } from "@/lib/gdrive"
+import { writeLog } from "@/lib/system-log"
 
 export async function createEquipment(formData: FormData) {
   const session = await auth()
@@ -37,7 +38,7 @@ export async function createEquipment(formData: FormData) {
   }
 
   try {
-    await prisma.equipment.create({
+    const eq = await prisma.equipment.create({
       data: {
         name,
         categoryId,
@@ -48,6 +49,7 @@ export async function createEquipment(formData: FormData) {
         creatorName: session?.user?.name || session?.user?.email || "Unknown"
       }
     })
+    await writeLog({ userId: session?.user?.id, action: 'CREATE', entity: 'equipment', entityId: eq.id, detail: `Thêm thiết bị mới: "${name}" (Số lượng: ${totalQty})` })
     revalidatePath("/dashboard/equipments")
     return { success: true }
   } catch (error) {
@@ -75,7 +77,7 @@ export async function deleteEquipment(id: string) {
       prisma.borrowRequest.deleteMany({ where: { equipmentId: id } }),
       prisma.equipment.delete({ where: { id } })
     ])
-    
+    await writeLog({ userId: session?.user?.id, action: 'DELETE', entity: 'equipment', entityId: id, detail: `Xóa thiết bị: "${equipment.name}"` })
     revalidatePath("/dashboard/equipments")
     return { success: true }
   } catch (error: any) {
@@ -135,7 +137,7 @@ export async function updateEquipment(formData: FormData) {
         availableQty: newAvailableQty
       }
     })
-
+    await writeLog({ userId: session?.user?.id, action: 'UPDATE', entity: 'equipment', entityId: id, detail: `Cập nhật thiết bị: "${name}" (Tổng: ${totalQty}, Sẵn sàng: ${newAvailableQty})` })
     revalidatePath("/dashboard/equipments")
     return { success: true }
   } catch (error) {

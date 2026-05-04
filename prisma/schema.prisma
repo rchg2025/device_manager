@@ -78,6 +78,7 @@ model User {
   managedCategories Category[]
   inventorySessions InventorySession[]
   inventoryRecords InventoryRecord[]
+  systemLogs    SystemLog[]
 }
 
 model VerificationToken {
@@ -277,4 +278,20 @@ model InventoryRecord {
   @@index([equipmentId])
   @@index([classroomEqId])
   @@index([scannerId])
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String   // CREATE, UPDATE, DELETE, LOGIN, APPROVE, REJECT, etc.
+  entity    String   // equipment, request, member, category, borrow, inventory, etc.
+  entityId  String?
+  detail    String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@index([createdAt])
 }
