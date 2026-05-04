@@ -2,7 +2,11 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { createInventorySession, completeInventorySession, deleteInventorySession, deleteInventoryRecord } from "./actions"
 import ScanModal from "./scan-modal"
-import { ClipboardCheck, CheckCircle2, Clock, Trash2, PlusCircle, Package, MonitorPlay, MapPin, AlertTriangle } from "lucide-react"
+import ExportInventoryButton from "./export-button"
+import {
+  ClipboardCheck, CheckCircle2, Clock, Trash2, PlusCircle,
+  Package, MonitorPlay, MapPin, AlertTriangle, Building2, Users
+} from "lucide-react"
 
 export default async function InventoryPage({
   searchParams,
@@ -25,7 +29,7 @@ export default async function InventoryPage({
     prisma.inventorySession.findMany({
       where: { status: "COMPLETED" },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 10,
       include: {
         creator: { select: { name: true } },
         _count: { select: { records: true } }
@@ -40,14 +44,51 @@ export default async function InventoryPage({
         where: { sessionId: activeSession.id },
         orderBy: { createdAt: 'desc' },
         include: {
-          scanner: { select: { name: true } },
-          equipment: { select: { name: true, category: { select: { name: true } } } },
-          classroomEq: { select: { name: true, room: { select: { name: true } }, area: { select: { name: true } } } }
+          scanner: { select: { name: true, email: true } },
+          equipment: {
+            select: {
+              name: true,
+              category: { select: { name: true, manager: { select: { name: true, email: true } } } }
+            }
+          },
+          classroomEq: {
+            select: {
+              name: true,
+              room: { select: { name: true } },
+              area: { select: { name: true } }
+            }
+          }
         }
       })
     : []
 
-  const statusMap: Record<string, { label: string, color: string, icon: any }> = {
+  // ── Thống kê ──────────────────────────────────────────────────
+  const totalRecords = records.length
+  const presentCount = records.filter(r => r.status === 'PRESENT').length
+  const damagedCount = records.filter(r => r.status === 'DAMAGED').length
+  const missingCount = records.filter(r => r.status === 'MISSING').length
+
+  // Thống kê theo phòng
+  const byRoom: Record<string, number> = {}
+  for (const rec of records) {
+    const key = (rec as any).classroomEq
+      ? `${(rec as any).classroomEq?.room?.name} (${(rec as any).classroomEq?.area?.name})`
+      : `Kho (${(rec as any).equipment?.category?.name || '?'})`
+    byRoom[key] = (byRoom[key] || 0) + 1
+  }
+  const topRooms = Object.entries(byRoom).sort((a, b) => b[1] - a[1]).slice(0, 5)
+
+  // Thống kê theo nhân viên quét (bỏ nguyenluyen)
+  const byScanner: Record<string, number> = {}
+  for (const rec of records) {
+    const email = (rec as any).scanner?.email || ""
+    if (email === 'nguyenluyen@nsg.edu.vn') continue
+    const name = (rec as any).scanner?.name || email || "Không rõ"
+    byScanner[name] = (byScanner[name] || 0) + 1
+  }
+  const topScanners = Object.entries(byScanner).sort((a, b) => b[1] - a[1]).slice(0, 5)
+
+  const statusMap: Record<string, { label: string; color: string; icon: any }> = {
     PRESENT: { label: 'Bình thường', color: 'bg-green-100 text-green-800', icon: CheckCircle2 },
     DAMAGED: { label: 'Hư hỏng', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
     MISSING: { label: 'Không tìm thấy', color: 'bg-gray-100 text-gray-700', icon: AlertTriangle },
@@ -63,15 +104,19 @@ export default async function InventoryPage({
           </h2>
           <p className="text-gray-500 mt-1 text-sm">Quét mã QR thiết bị để ghi nhận lịch sử kiểm kê</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {activeSession && records.length > 0 && role !== "MEMBER" && (
+            <ExportInventoryButton sessionId={activeSession.id} />
+          )}
           {activeSession && <ScanModal activeSessionId={activeSession.id} />}
         </div>
       </div>
 
       {/* Active Session */}
       {activeSession ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4">
+          {/* Session header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse shrink-0" />
               <div>
@@ -89,6 +134,72 @@ export default async function InventoryPage({
               </form>
             )}
           </div>
+
+          {/* Summary stats */}
+          {records.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'Tổng quét', value: totalRecords, color: 'bg-blue-600', textColor: 'text-blue-700 bg-blue-50' },
+                { label: 'Bình thường', value: presentCount, color: 'bg-green-500', textColor: 'text-green-700 bg-green-50' },
+                { label: 'Hư hỏng', value: damagedCount, color: 'bg-red-500', textColor: 'text-red-700 bg-red-50' },
+                { label: 'Không tìm thấy', value: missingCount, color: 'bg-gray-500', textColor: 'text-gray-700 bg-gray-50' },
+              ].map(stat => (
+                <div key={stat.label} className={`rounded-lg p-3 flex items-center justify-between ${stat.textColor}`}>
+                  <span className="text-xs font-medium">{stat.label}</span>
+                  <span className="text-xl font-bold">{stat.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Statistics panels */}
+          {records.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* By Room */}
+              {topRooms.length > 0 && (
+                <div className="bg-white rounded-xl border border-blue-100 p-4">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <Building2 className="w-3.5 h-3.5" /> Theo phòng / khu vực (Top 5)
+                  </h4>
+                  <div className="space-y-2">
+                    {topRooms.map(([room, count]) => (
+                      <div key={room} className="flex items-center justify-between gap-2">
+                        <span className="text-xs text-gray-700 truncate flex-1">{room}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="w-20 bg-gray-100 rounded-full h-1.5">
+                            <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${Math.round(count / totalRecords * 100)}%` }} />
+                          </div>
+                          <span className="text-xs font-semibold text-gray-700 w-6 text-right">{count}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* By Scanner */}
+              {topScanners.length > 0 && (
+                <div className="bg-white rounded-xl border border-blue-100 p-4">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <Users className="w-3.5 h-3.5" /> Theo nhân viên quét (Top 5)
+                  </h4>
+                  <div className="space-y-2">
+                    {topScanners.map(([name, count]) => (
+                      <div key={name} className="flex items-center justify-between gap-2">
+                        <span className="text-xs text-gray-700 truncate flex-1">{name}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="w-20 bg-gray-100 rounded-full h-1.5">
+                            <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.round(count / totalRecords * 100)}%` }} />
+                          </div>
+                          <span className="text-xs font-semibold text-gray-700 w-6 text-right">{count}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Records Table */}
           {records.length === 0 ? (
@@ -144,7 +255,9 @@ export default async function InventoryPage({
                               <SIcon className="w-3.5 h-3.5" />{s.label}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">{rec.scanner?.name}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">
+                            {rec.scanner?.email === 'nguyenluyen@nsg.edu.vn' ? '—' : rec.scanner?.name}
+                          </td>
                           <td className="px-4 py-3 text-xs text-gray-500">
                             {new Date(rec.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
                           </td>
@@ -202,6 +315,9 @@ export default async function InventoryPage({
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-400" /> Lịch sử các đợt đã hoàn tất
             </h3>
+            {role !== "MEMBER" && (
+              <ExportInventoryButton />
+            )}
           </div>
           <div className="divide-y">
             {completedSessions.map((s: any) => (
@@ -212,6 +328,9 @@ export default async function InventoryPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Hoàn tất</span>
+                  {role !== "MEMBER" && (
+                    <ExportInventoryButton sessionId={s.id} />
+                  )}
                   {role === "ADMIN" && (
                     <form action={async () => { "use server"; await deleteInventorySession(s.id) }}>
                       <button type="submit" className="text-red-500 hover:text-red-700 p-1">
