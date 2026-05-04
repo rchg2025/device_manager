@@ -40,7 +40,15 @@ export default async function EquipmentsPage({
       ]
     }
     // Also restrict equipments to those categories
-    whereClause.category = categoryWhere
+    if (whereClause.categoryId) {
+      whereClause.category = {
+        id: whereClause.categoryId,
+        ...categoryWhere
+      }
+      delete whereClause.categoryId
+    } else {
+      whereClause.category = categoryWhere
+    }
   }
 
   let page = parseInt(sp?.page as string)

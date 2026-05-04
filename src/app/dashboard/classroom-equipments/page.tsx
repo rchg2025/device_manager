@@ -38,7 +38,12 @@ export default async function ClassroomEquipmentsPage({
   if (categoryId) whereClause.categoryId = categoryId
 
   if (session?.user?.role === "MANAGER") {
-    whereClause.room = { managerId: session.user.id }
+    if (whereClause.roomId) {
+      whereClause.room = { id: whereClause.roomId, managerId: session.user.id }
+      delete whereClause.roomId
+    } else {
+      whereClause.room = { managerId: session.user.id }
+    }
   }
 
   const [
