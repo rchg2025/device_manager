@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay } from "lucide-react"
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck } from "lucide-react"
 import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
 import AutoRefreshBadge from "./auto-refresh-badge"
@@ -143,6 +143,10 @@ export default async function DashboardLayout({
               </Link>
               <Link href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Wrench className="w-5 h-5 shrink-0" /> Lịch sử bảo trì TB phòng
+              </Link>
+              <hr className="my-2 border-gray-200" />
+              <Link href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
             </>
           )}

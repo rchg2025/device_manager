@@ -2,7 +2,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench, MonitorPlay } from "lucide-react"
+import { Menu, X, LayoutDashboard, Package, Tags, ClipboardList, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck } from "lucide-react"
 import AutoRefreshBadge from "./auto-refresh-badge"
 
 export default function MobileMenu({ role, unreadCount }: { role: string, unreadCount: number }) {
@@ -89,6 +89,10 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   </Link>
                   <Link onClick={closeMenu} href="/dashboard/classroom-maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-maintenance') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Wrench className="w-5 h-5" /> Lịch sử bảo trì TB phòng
+                  </Link>
+                  <hr className="my-2 border-gray-200" />
+                  <Link onClick={closeMenu} href="/dashboard/inventory" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/inventory') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <ClipboardCheck className="w-5 h-5" /> Kiểm kê thiết bị
                   </Link>
                 </>
               )}

@@ -76,6 +76,8 @@ model User {
   notifications Notification[]
   managedRooms  Room[]
   managedCategories Category[]
+  inventorySessions InventorySession[]
+  inventoryRecords InventoryRecord[]
 }
 
 model VerificationToken {
@@ -109,6 +111,7 @@ model Equipment {
   creatorName String?
   requests    BorrowRequest[]
   maintenances Maintenance[]
+  inventoryRecords InventoryRecord[] @relation("InventoryEquip")
 
   @@index([categoryId])
   @@index([name])
@@ -232,8 +235,46 @@ model ClassroomEquipment {
   updatedAt  DateTime @default(now()) @updatedAt
   
   maintenances Maintenance[]
+  inventoryRecords InventoryRecord[] @relation("InventoryClassroomEquip")
 
   @@index([areaId])
   @@index([roomId])
   @@index([categoryId])
+}
+
+model InventorySession {
+  id          String   @id @default(cuid())
+  name        String   // VD: "Kiểm kê tháng 5/2026"
+  status      String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id])
+  records     InventoryRecord[]
+  createdAt   DateTime @default(now())
+}
+
+model InventoryRecord {
+  id            String   @id @default(cuid())
+  
+  sessionId     String?
+  session       InventorySession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  equipmentId   String?  
+  equipment     Equipment? @relation("InventoryEquip", fields: [equipmentId], references: [id])
+  
+  classroomEqId String?
+  classroomEq   ClassroomEquipment? @relation("InventoryClassroomEquip", fields: [classroomEqId], references: [id])
+
+  scannerId     String
+  scanner       User     @relation(fields: [scannerId], references: [id])
+
+  location      String?  // Vị trí thực tế
+  note          String?  // Ghi chú tình trạng
+  status        String   @default("PRESENT") // PRESENT, MISSING, DAMAGED
+
+  createdAt     DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([equipmentId])
+  @@index([classroomEqId])
+  @@index([scannerId])
 }
