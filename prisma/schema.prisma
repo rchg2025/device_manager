@@ -92,6 +92,8 @@ model Category {
   managerId   String?
   manager     User?    @relation(fields: [managerId], references: [id])
   equipments  Equipment[]
+
+  @@index([managerId])
 }
 
 model Equipment {
@@ -107,6 +109,9 @@ model Equipment {
   creatorName String?
   requests    BorrowRequest[]
   maintenances Maintenance[]
+
+  @@index([categoryId])
+  @@index([name])
 }
 
 model BorrowRequest {
@@ -127,6 +132,11 @@ model BorrowRequest {
   returnCondition  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([equipmentId])
+  @@index([createdAt])
 }
 
 model Notification {
@@ -137,6 +147,8 @@ model Notification {
   isRead    Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }
 
 model Setting {
@@ -220,4 +232,8 @@ model ClassroomEquipment {
   updatedAt  DateTime @default(now()) @updatedAt
   
   maintenances Maintenance[]
+
+  @@index([areaId])
+  @@index([roomId])
+  @@index([categoryId])
 }

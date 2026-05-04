@@ -22,37 +22,50 @@ export default async function DashboardLayout({
   let notifications: any[] = []
 
   if (session?.user?.id) {
-    // Fetch unread notifications for everyone
-    unreadCount = await prisma.notification.count({
+    // Determine queries to run based on role
+    const queries = [];
+    
+    // 0: Unread notifications count
+    queries.push(prisma.notification.count({
       where: { userId: session.user.id, isRead: false }
-    })
-
-    // Fetch top 5 notifications
-    notifications = await prisma.notification.findMany({
+    }));
+    
+    // 1: Top 5 notifications
+    queries.push(prisma.notification.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' },
       take: 5
-    })
+    }));
 
     if (role !== "MEMBER") {
+      // 2: Pending requests count for managers/admins
       let whereClause: any = { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
-      pendingRequestsCount = await prisma.borrowRequest.count({
+      queries.push(prisma.borrowRequest.count({
         where: whereClause
-      })
+      }));
     } else {
-
-      // Fetch overdue items for member
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      
-      overdueItems = await prisma.borrowRequest.findMany({
+      // 2: Overdue items for members
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      queries.push(prisma.borrowRequest.findMany({
         where: {
           userId: session.user.id,
           status: "APPROVED",
           returnDate: { lt: today }
         },
         include: { equipment: { select: { name: true } } }
-      })
+      }));
+    }
+
+    const results = await Promise.all(queries);
+
+    unreadCount = results[0] as number;
+    notifications = results[1] as any[];
+    
+    if (role !== "MEMBER") {
+      pendingRequestsCount = results[2] as number;
+    } else {
+      overdueItems = results[2] as any[];
     }
   }
 
