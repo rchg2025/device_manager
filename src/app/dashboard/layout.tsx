@@ -36,16 +36,6 @@ export default async function DashboardLayout({
 
     if (role !== "MEMBER") {
       let whereClause: any = { status: { in: ["PENDING", "RETURN_REQUESTED"] } }
-      if (role === "MANAGER") {
-        whereClause.equipment = {
-          category: {
-            OR: [
-              { managerId: null },
-              { managerId: session.user.id }
-            ]
-          }
-        }
-      }
       pendingRequestsCount = await prisma.borrowRequest.count({
         where: whereClause
       })
@@ -71,9 +61,11 @@ export default async function DashboardLayout({
       {/* Sidebar Wrapper */}
       <DesktopSidebarWrapper>
         <div className="p-4 border-b flex flex-col items-center">
-          <img src="/logo.png" alt="NSG Logo" className="h-16 w-auto object-contain mb-2" />
-          <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
-          <p className="text-xs text-gray-500">Khoa CNTT - KTĐ</p>
+          <Link href="/dashboard" className="flex flex-col items-center hover:opacity-80 transition-opacity">
+            <img src="/logo.png" alt="NSG Logo" className="h-16 w-auto object-contain mb-2" />
+            <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
+            <p className="text-xs text-gray-500">Khoa CNTT - KTĐ</p>
+          </Link>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -173,7 +165,9 @@ export default async function DashboardLayout({
         <header className="bg-white shadow-sm border-b px-6 py-3 flex justify-between items-center shrink-0">
           <div className="xl:hidden flex items-center gap-2">
             <MobileMenu role={role} unreadCount={pendingRequestsCount} />
-            <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
+            <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+              <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
+            </Link>
           </div>
           <div className="hidden xl:block"></div> {/* Spacer */}
           

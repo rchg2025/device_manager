@@ -1,17 +1,19 @@
 "use client"
 import { signIn } from "next-auth/react"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Lock, Mail, KeyRound, ArrowLeft } from "lucide-react"
 import { sendOtpToEmail, verifyOtp, resetPassword } from "./actions"
+import { Suspense } from "react"
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   // Các state cho Quên mật khẩu
   const [mode, setMode] = useState<"login" | "forgot_password" | "verify_otp" | "reset_password">("login")
@@ -29,7 +31,14 @@ export default function LoginPage() {
     if (savedPassword) {
       setPassword(savedPassword)
     }
-  }, [])
+
+    const urlError = searchParams.get("error")
+    if (urlError === "OAuthAccountNotLinked") {
+      setError("Email này đã được sử dụng. Vui lòng đăng nhập bằng mật khẩu hoặc sử dụng Quên mật khẩu.")
+    } else if (urlError) {
+      setError("Đã xảy ra lỗi đăng nhập: " + urlError)
+    }
+  }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -352,5 +361,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex justify-center items-center"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

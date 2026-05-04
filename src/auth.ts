@@ -50,6 +50,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          if (user.email) {
+            const existingUser = await prisma.user.findUnique({
+              where: { email: user.email },
+              include: { accounts: true }
+            })
+            
+            if (existingUser) {
+              const isLinked = existingUser.accounts.some(acc => acc.provider === account.provider)
+              if (!isLinked) {
+                await prisma.account.create({
+                  data: {
+                    userId: existingUser.id,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    access_token: account.access_token as string,
+                    refresh_token: account.refresh_token as string,
+                    expires_at: account.expires_at,
+                    token_type: account.token_type,
+                    scope: account.scope,
+                    id_token: account.id_token as string,
+                    session_state: account.session_state as string,
+                  }
+                })
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Lỗi khi link account Google:", error)
+        }
+      }
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id

@@ -24,12 +24,14 @@ export default async function RequestsPage({
   const fromDate = sp?.fromDate || ""
   const toDate = sp?.toDate || ""
 
+  const filterParams = sp?.filter || ""
+
   // Build where clause dynamically
   const whereClause: any = {}
   
   if (role === "MEMBER") {
     whereClause.userId = session?.user?.id
-  } else if (role === "MANAGER") {
+  } else if (role === "MANAGER" && filterParams !== "action_required") {
     whereClause.equipment = {
       category: {
         OR: [
@@ -54,7 +56,7 @@ export default async function RequestsPage({
   }
 
   if (equipmentFilter) {
-    if (role === "MANAGER") {
+    if (whereClause.equipment) {
       whereClause.equipment.name = { contains: equipmentFilter, mode: 'insensitive' }
     } else {
       whereClause.equipment = {
@@ -82,7 +84,6 @@ export default async function RequestsPage({
   }
 
   // Handle quick filters
-  const filterParams = sp?.filter || ""
   if (filterParams === "action_required" && role !== "MEMBER") {
     whereClause.status = { in: ["PENDING", "RETURN_REQUESTED"] }
   }

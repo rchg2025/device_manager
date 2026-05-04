@@ -106,7 +106,7 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
       [totalItems, items, managers] = await Promise.all([
         prisma.category.count({ where: searchFilter }),
         prisma.category.findMany({ where: searchFilter, select: { id: true, name: true, manager: { select: { id: true, name: true } }, equipments: { select: { totalQty: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
-        prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
+        prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] }, email: { notIn: ['nguyenlyen@nsg.edu.vn', 'nguyenluyen@nsg.edu.vn'] } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
       ]);
       items = items.map(item => ({ ...item, totalCount: item.equipments?.reduce((sum: number, eq: any) => sum + (eq.totalQty || 0), 0) || 0 }));
       break;
@@ -133,7 +133,7 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
         prisma.room.count({ where: searchFilter }),
         prisma.room.findMany({ where: searchFilter, select: { id: true, name: true, area: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, classroomEquipments: { select: { name: true, quantity: true } } }, orderBy: { name: 'asc' }, skip, take: limit }),
         prisma.area.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-        prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] }, email: { not: 'nguyenluyen@nsg.edu.vn' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
+        prisma.user.findMany({ where: { role: { in: ['ADMIN', 'MANAGER'] }, email: { notIn: ['nguyenlyen@nsg.edu.vn', 'nguyenluyen@nsg.edu.vn'] } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
       ]);
       items = items.map(item => ({ ...item, totalCount: item.classroomEquipments?.reduce((sum: number, eq: any) => sum + (eq.quantity || 0), 0) || 0 }));
       break;
