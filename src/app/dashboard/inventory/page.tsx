@@ -3,6 +3,7 @@ import { auth } from "@/auth"
 import { createInventorySession, completeInventorySession, deleteInventorySession, deleteInventoryRecord } from "./actions"
 import ScanModal from "./scan-modal"
 import ExportInventoryButton from "./export-button"
+import DeleteInventoryButton from "./delete-button"
 import {
   ClipboardCheck, CheckCircle2, Clock, Trash2, PlusCircle,
   Package, MonitorPlay, MapPin, AlertTriangle, Building2, Users
@@ -281,11 +282,7 @@ export default async function InventoryPage({
                           </td>
                           {role !== "MEMBER" && (
                             <td className="px-4 py-3 text-right">
-                              <form action={async () => { "use server"; await deleteInventoryRecord(rec.id) }}>
-                                <button type="submit" className="text-red-500 hover:text-red-700 p-1" title="Xóa bản ghi">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </form>
+                              <DeleteInventoryButton id={rec.id} type="record" />
                             </td>
                           )}
                         </tr>
@@ -337,11 +334,7 @@ export default async function InventoryPage({
                     <ExportInventoryButton sessionId={s.id} />
                   )}
                   {role === "ADMIN" && (
-                    <form action={async () => { "use server"; await deleteInventorySession(s.id) }}>
-                      <button type="submit" className="text-red-500 hover:text-red-700 p-1">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </form>
+                    <DeleteInventoryButton id={s.id} type="session" />
                   )}
                 </div>
               </div>
