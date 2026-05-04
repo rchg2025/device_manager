@@ -67,16 +67,7 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   <Link onClick={closeMenu} href="/dashboard/requests" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/requests' && typeof window !== 'undefined' && !window.location.search.includes('action_required') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <History className="w-5 h-5" /> Lịch sử mượn trả
                   </Link>
-                  {role === "ADMIN" && (
-                    <Link onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                      <Settings className="w-5 h-5" /> Cấu hình hệ thống
-                    </Link>
-                  )}
-                  {role === "ADMIN" && (
-                    <Link onClick={closeMenu} href="/dashboard/system-logs" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/system-logs' ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-700'}`}>
-                      <ShieldAlert className="w-5 h-5" /> Nhật ký hệ thống
-                    </Link>
-                  )}
+
                 </>
               ) : (
                 <Link onClick={closeMenu} href="/dashboard/requests" className={`flex items-center justify-between px-3 py-3 rounded-md ${pathname === '/dashboard/requests' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
@@ -99,6 +90,16 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   <Link onClick={closeMenu} href="/dashboard/inventory" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/inventory') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <ClipboardCheck className="w-5 h-5" /> Kiểm kê thiết bị
                   </Link>
+                  {role === "ADMIN" && (
+                    <Link onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                      <Settings className="w-5 h-5" /> Cấu hình hệ thống
+                    </Link>
+                  )}
+                  {role === "ADMIN" && (
+                    <Link onClick={closeMenu} href="/dashboard/system-logs" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/system-logs' ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-700'}`}>
+                      <ShieldAlert className="w-5 h-5" /> Nhật ký hệ thống
+                    </Link>
+                  )}
                 </>
               )}
             </nav>

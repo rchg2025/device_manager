@@ -120,16 +120,7 @@ export default async function DashboardLayout({
               <Link href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <History className="w-5 h-5 shrink-0" /> Lịch sử mượn trả
               </Link>
-              {role === "ADMIN" && (
-                <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
-                  <Settings className="w-5 h-5 shrink-0" /> Cấu hình hệ thống
-                </Link>
-              )}
-              {role === "ADMIN" && (
-                <Link href="/dashboard/system-logs" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-600 whitespace-nowrap">
-                  <ShieldAlert className="w-5 h-5 shrink-0" /> Nhật ký hệ thống
-                </Link>
-              )}
+
             </>
           ) : (
             <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
@@ -153,6 +144,16 @@ export default async function DashboardLayout({
               <Link href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
+              {role === "ADMIN" && (
+                <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
+                  <Settings className="w-5 h-5 shrink-0" /> Cấu hình hệ thống
+                </Link>
+              )}
+              {role === "ADMIN" && (
+                <Link href="/dashboard/system-logs" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-600 whitespace-nowrap">
+                  <ShieldAlert className="w-5 h-5 shrink-0" /> Nhật ký hệ thống
+                </Link>
+              )}
             </>
           )}
         </nav>
