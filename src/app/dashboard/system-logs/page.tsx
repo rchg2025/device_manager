@@ -3,6 +3,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { deleteLogsByAge } from "./actions"
 import ExportSystemLogsButton from "./export-button"
+import DeleteSystemLogsForm from "./delete-system-logs-form"
+import Pagination from "../pagination"
 import {
   ShieldAlert, Trash2, Package, ClipboardList, Users,
   Tags, AlertTriangle, CheckCircle2, XCircle, ArrowLeft, ArrowRight,
@@ -115,23 +117,7 @@ export default async function SystemLogsPage({
           />
           
           {/* Standalone delete forms for each option */}
-          <div className="relative group">
-            <button className="flex items-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">
-              <Trash2 className="w-4 h-4" /> Xóa nhật ký <ChevronDown className="w-3.5 h-3.5" />
-            </button>
-            <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-20 hidden group-hover:block">
-              {DELETE_OPTIONS.map(opt => (
-                <form key={opt.value} action={deleteLogsByAge.bind(null, opt.value === 'all' ? 'all' : parseInt(opt.value))}>
-                  <button
-                    type="submit"
-                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 hover:text-red-700 transition-colors first:rounded-t-xl last:rounded-b-xl ${opt.value === 'all' ? 'text-red-600 font-semibold border-t border-gray-100' : 'text-gray-700'}`}
-                  >
-                    {opt.label}
-                  </button>
-                </form>
-              ))}
-            </div>
-          </div>
+          <DeleteSystemLogsForm />
         </div>
       </div>
 
