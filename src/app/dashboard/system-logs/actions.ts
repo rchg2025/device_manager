@@ -8,17 +8,18 @@ export async function deleteLogsByAge(daysAgo: number | 'all') {
   if (session?.user?.role !== "ADMIN") return { error: "Chỉ Quản trị viên mới có quyền xóa nhật ký" }
 
   try {
+    let result
     if (daysAgo === 'all') {
-      await prisma.systemLog.deleteMany({})
+      result = await prisma.systemLog.deleteMany({})
     } else {
       const cutoff = new Date()
       cutoff.setDate(cutoff.getDate() - daysAgo)
-      await prisma.systemLog.deleteMany({
+      result = await prisma.systemLog.deleteMany({
         where: { createdAt: { lt: cutoff } }
       })
     }
     revalidatePath("/dashboard/system-logs")
-    return { success: true }
+    return { success: true, count: result.count }
   } catch (error: any) {
     return { error: "Lỗi khi xóa nhật ký: " + error.message }
   }

@@ -28,7 +28,11 @@ export default function DeleteSystemLogsForm() {
       if (res.error) {
         toast.error(res.error)
       } else {
-        toast.success("Xóa thành công!")
+        if (res.count === 0) {
+          toast.success("Hệ thống không có bản ghi nào cũ hơn thời gian này để xóa.")
+        } else {
+          toast.success(`Đã xóa thành công ${res.count} bản ghi nhật ký!`)
+        }
         router.refresh()
       }
     } catch (err: any) {
