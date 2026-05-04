@@ -78,11 +78,10 @@ export default async function InventoryPage({
   }
   const topRooms = Object.entries(byRoom).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
-  // Thống kê theo nhân viên quét (bỏ nguyenluyen)
+  // Thống kê theo nhân viên quét
   const byScanner: Record<string, number> = {}
   for (const rec of records) {
     const email = (rec as any).scanner?.email || ""
-    if (email === 'nguyenluyen@nsg.edu.vn') continue
     const name = (rec as any).scanner?.name || email || "Không rõ"
     byScanner[name] = (byScanner[name] || 0) + 1
   }
@@ -256,7 +255,7 @@ export default async function InventoryPage({
                             </span>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600">
-                            {rec.scanner?.email === 'nguyenluyen@nsg.edu.vn' ? '—' : rec.scanner?.name}
+                            {rec.scanner?.name || rec.scanner?.email || 'Không rõ'}
                           </td>
                           <td className="px-4 py-3 text-xs text-gray-500">
                             {new Date(rec.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
