@@ -11,7 +11,7 @@ import {
   LogIn, Plus, Edit, RotateCcw, ClipboardCheck, ChevronDown
 } from "lucide-react"
 
-const PAGE_SIZE = 30
+const PAGE_SIZE = 15
 
 const ACTION_META: Record<string, { label: string; color: string; Icon: any }> = {
   CREATE:           { label: 'Tạo mới',       color: 'bg-green-100 text-green-800',  Icon: Plus },
@@ -214,39 +214,7 @@ export default async function SystemLogsPage({
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between bg-gray-50">
-            <p className="text-xs text-gray-500">
-              Trang {page} / {totalPages} · {total.toLocaleString()} bản ghi
-            </p>
-            <div className="flex items-center gap-1">
-              {page > 1 && (
-                <a href={buildUrl({ page: page - 1 })} className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                  <ArrowLeft className="w-3.5 h-3.5" /> Trước
-                </a>
-              )}
-              {/* Page number pills */}
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const startPage = Math.max(1, Math.min(page - 2, totalPages - 4))
-                const p = startPage + i
-                return (
-                  <a
-                    key={p}
-                    href={buildUrl({ page: p })}
-                    className={`w-8 h-8 flex items-center justify-center text-xs font-medium rounded-md border transition-colors ${p === page ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
-                  >
-                    {p}
-                  </a>
-                )
-              })}
-              {page < totalPages && (
-                <a href={buildUrl({ page: page + 1 })} className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                  Sau <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              )}
-            </div>
-          </div>
-        )}
+        <Pagination totalPages={totalPages} currentPage={page} />
       </div>
     </div>
   )
