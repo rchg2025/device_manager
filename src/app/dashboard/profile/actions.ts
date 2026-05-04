@@ -1,5 +1,6 @@
 "use server"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { revalidatePath } from "next/cache"
@@ -25,6 +26,13 @@ export async function updateProfile(formData: FormData) {
     await prisma.user.update({
       where: { id: session.user.id },
       data: dataToUpdate
+    })
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "profile",
+      entityId: session.user.id,
+      detail: `Cập nhật thông tin cá nhân`
     })
     revalidatePath("/dashboard/profile")
     return { success: true }
@@ -59,6 +67,13 @@ export async function updateSmtpSettings(formData: FormData) {
         create: { key: setting.key, value: setting.value }
       })
     }
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "system_config",
+      entityId: "smtp",
+      detail: `Cập nhật cấu hình email (SMTP)`
+    })
 
     revalidatePath("/dashboard/profile")
     return { success: true }
@@ -90,6 +105,13 @@ export async function updateDriveSettings(formData: FormData) {
       })
     }
 
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "system_config",
+      entityId: "gdrive",
+      detail: `Cập nhật cấu hình Google Drive`
+    })
     revalidatePath("/dashboard/settings")
     return { success: true }
   } catch (error) {

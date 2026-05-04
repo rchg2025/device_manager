@@ -220,6 +220,13 @@ export async function deleteHistoryRecord(requestId: string) {
     }
 
     await prisma.borrowRequest.delete({ where: { id: requestId } })
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "request",
+      entityId: requestId,
+      detail: `Xóa lịch sử mượn trả: ${requestId}`
+    })
     revalidatePath("/dashboard/requests")
     return { success: true }
   } catch (error) {

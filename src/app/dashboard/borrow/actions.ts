@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 
 
 
@@ -135,6 +136,13 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     revalidatePath("/dashboard")
     revalidatePath("/dashboard/borrow")
     revalidatePath("/dashboard/requests")
+    await writeLog({
+      userId: session.user.id,
+      action: "CREATE",
+      entity: "request",
+      entityId: null,
+      detail: `Tạo yêu cầu mượn ${items.length} thiết bị`
+    })
     return { success: true }
   } catch (error: any) {
     try {

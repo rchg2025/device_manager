@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 import { uploadImageToDrive } from "@/lib/gdrive"
 
 export async function createClassroomEquipment(formData: FormData) {
@@ -45,6 +46,13 @@ export async function createClassroomEquipment(formData: FormData) {
           connect: configIds.map(id => ({ id }))
         }
       }
+    })
+    await writeLog({
+      userId: session.user.id,
+      action: "CREATE",
+      entity: "classroom_equipment",
+      entityId: null,
+      detail: `Thêm thiết bị phòng học: ${name}`
     })
     revalidatePath("/dashboard/classroom-equipments")
     return { success: true }
@@ -106,6 +114,13 @@ export async function updateClassroomEquipment(formData: FormData) {
         }
       }
     })
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "classroom_equipment",
+      entityId: id,
+      detail: `Cập nhật thiết bị phòng học: ${name}`
+    })
     revalidatePath("/dashboard/classroom-equipments")
     return { success: true }
   } catch (error: any) {
@@ -135,6 +150,13 @@ export async function deleteClassroomEquipment(id: string) {
 
     await prisma.classroomEquipment.delete({
       where: { id }
+    })
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "classroom_equipment",
+      entityId: id,
+      detail: `Xóa thiết bị phòng học: ${id}`
     })
     revalidatePath("/dashboard/classroom-equipments")
     return { success: true }

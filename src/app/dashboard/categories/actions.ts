@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 
 export async function createCategory(formData: FormData) {
   const session = await auth()

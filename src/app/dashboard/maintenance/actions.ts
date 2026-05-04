@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 
 export async function createMaintenance(formData: FormData) {
   const session = await auth()
@@ -61,6 +62,13 @@ export async function createMaintenance(formData: FormData) {
         handlerName: session?.user?.name || session?.user?.email || "Unknown"
       }
     })
+    await writeLog({
+      userId: session.user.id,
+      action: "CREATE",
+      entity: "maintenance",
+      entityId: null,
+      detail: `Tạo ghi nhận bảo trì cho thiết bị ${equipmentId || classroomEqId} (Trạng thái: ${status}, SL: ${quantity})`
+    })
 
     // Giảm số lượng sẵn sàng nếu không phải hoàn thành ngay lập tức
     if (status !== "COMPLETED") {
@@ -108,6 +116,13 @@ export async function updateMaintenanceStatus(id: string, status: string) {
         handlerName: session?.user?.name || session?.user?.email || "Unknown" 
       }
     })
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "maintenance",
+      entityId: id,
+      detail: `Cập nhật trạng thái bảo trì ${id} thành ${status}`
+    })
 
     if (existing.equipmentId) {
       // Nếu từ trạng thái khác chuyển sang COMPLETED, hoàn trả lại số lượng
@@ -141,6 +156,13 @@ export async function deleteMaintenance(id: string) {
 
   await prisma.$transaction(async (tx) => {
     await tx.maintenance.delete({ where: { id } })
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "maintenance",
+      entityId: id,
+      detail: `Xóa ghi nhận bảo trì: ${id}`
+    })
 
     // Nếu xoá bản ghi bảo trì đang không ở trạng thái COMPLETED, trả lại số lượng
     if (existing.status !== "COMPLETED" && existing.equipmentId) {

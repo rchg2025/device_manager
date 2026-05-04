@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -46,6 +47,13 @@ export async function createInventorySession(formData: FormData) {
         creatorId: session.user.id
       }
     })
+    await writeLog({
+      userId: session.user.id,
+      action: "CREATE",
+      entity: "inventory_session",
+      entityId: newSession.id,
+      detail: `Tạo đợt kiểm kê: ${name}`
+    })
     revalidatePath("/dashboard/inventory")
     return { success: true, id: newSession.id }
   } catch (error: any) {
@@ -63,6 +71,13 @@ export async function completeInventorySession(id: string) {
       where: { id },
       data: { status: "COMPLETED" }
     })
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "inventory_session",
+      entityId: id,
+      detail: `Hoàn tất đợt kiểm kê: ${id}`
+    })
   } catch (error: any) {
     return { error: "Lỗi hoàn tất đợt kiểm kê: " + error.message }
   }
@@ -78,6 +93,13 @@ export async function deleteInventorySession(id: string) {
   try {
     await prisma.inventorySession.delete({
       where: { id }
+    })
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "inventory_session",
+      entityId: id,
+      detail: `Xóa đợt kiểm kê: ${id}`
     })
     revalidatePath("/dashboard/inventory")
     return { success: true }
@@ -123,6 +145,13 @@ export async function saveInventoryRecord(data: {
         quantity: data.quantity || 1
       }
     })
+    await writeLog({
+      userId: session.user.id,
+      action: "CREATE",
+      entity: "inventory_record",
+      entityId: null,
+      detail: `Ghi nhận kiểm kê thiết bị ${data.equipmentId || data.classroomEqId} (SL: ${data.quantity || 1}, TT: ${data.status})`
+    })
     
     revalidatePath("/dashboard/inventory")
     return { success: true }
@@ -139,6 +168,13 @@ export async function deleteInventoryRecord(id: string) {
   try {
     await prisma.inventoryRecord.delete({
       where: { id }
+    })
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "inventory_record",
+      entityId: id,
+      detail: `Xóa bản ghi kiểm kê: ${id}`
     })
     revalidatePath("/dashboard/inventory")
     return { success: true }

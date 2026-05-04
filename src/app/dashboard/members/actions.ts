@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { writeLog } from "@/lib/system-log"
 
 export async function updateMember(formData: FormData) {
   const session = await auth()
@@ -26,6 +27,13 @@ export async function updateMember(formData: FormData) {
       positionId: positionId || null,
     }
   })
+  await writeLog({
+    userId: session.user.id,
+    action: "UPDATE",
+    entity: "member",
+    entityId: userId,
+    detail: `Cập nhật thông tin thành viên: ${name || userId}`
+  })
   
   revalidatePath("/dashboard/members")
 }
@@ -38,6 +46,13 @@ export async function deleteMember(formData: FormData) {
   if (userId) {
     await prisma.user.delete({
       where: { id: userId }
+    })
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "member",
+      entityId: userId,
+      detail: `Xóa thành viên: ${userId}`
     })
     revalidatePath("/dashboard/members")
   }
@@ -74,6 +89,13 @@ export async function createMember(formData: FormData) {
       unitId: unitId || null,
       positionId: positionId || null,
     }
+  })
+  await writeLog({
+    userId: session.user.id,
+    action: "CREATE",
+    entity: "member",
+    entityId: null,
+    detail: `Thêm thành viên mới: ${email}`
   })
   
   revalidatePath("/dashboard/members")
