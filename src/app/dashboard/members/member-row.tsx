@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { updateMember, deleteMember } from "./actions"
 import { Trash2, Edit2, Check, X } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function MemberRow({ member, units, positions }: { member: any, units: any[], positions: any[] }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -21,9 +22,9 @@ export default function MemberRow({ member, units, positions }: { member: any, u
       formData.append("userId", member.id)
       const res = await deleteMember(formData)
       if (res?.error) {
-        alert(res.error)
+        toast.error(res.error)
       } else {
-        alert("Xóa thành công!")
+        toast.success("Xóa thành công!")
         window.location.reload()
       }
     }

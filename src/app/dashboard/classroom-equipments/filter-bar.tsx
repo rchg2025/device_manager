@@ -15,6 +15,9 @@ export default function FilterBar({ areas, rooms, categories }: { areas: any[], 
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "")
 
   useEffect(() => {
+    const currentQueryParam = searchParams.get("query") || ""
+    if (query === currentQueryParam) return
+
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString())
       if (query) params.set("query", query)
@@ -114,19 +117,39 @@ export default function FilterBar({ areas, rooms, categories }: { areas: any[], 
           />
         </div>
 
-        <select
-          value={categoryFilter}
-          onChange={(e) => {
-            setCategoryFilter(e.target.value)
-            handleFilterChange('category', e.target.value)
-          }}
-          className="py-2 px-3 border border-gray-300 bg-white rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Tất cả danh mục</option>
-          {categories.map((c: any) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
+        <div className="w-48">
+          <Select
+            value={categoryFilter ? { value: categoryFilter, label: categories.find(c => c.id === categoryFilter)?.name || 'Tất cả danh mục' } : null}
+            onChange={(selectedOption: any) => {
+              const val = selectedOption?.value || ""
+              setCategoryFilter(val)
+              handleFilterChange('category', val)
+            }}
+            options={[{ value: "", label: "Tất cả danh mục" }, ...categories.map((c: any) => ({ value: c.id, label: c.name }))]}
+            placeholder="Tất cả danh mục"
+            noOptionsMessage={() => "Không tìm thấy"}
+            className="text-sm"
+            isClearable
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderColor: '#d1d5db',
+                borderRadius: '0.375rem',
+                minHeight: '38px',
+                boxShadow: 'none',
+                '&:hover': {
+                  borderColor: '#3b82f6'
+                }
+              }),
+              option: (base, state) => ({
+                ...base,
+                backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+                color: state.isSelected ? 'white' : '#1f2937',
+                cursor: 'pointer'
+              })
+            }}
+          />
+        </div>
       </div>
     </div>
   )

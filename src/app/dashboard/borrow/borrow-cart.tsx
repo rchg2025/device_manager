@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ShoppingCart, Plus, Trash2, Send } from "lucide-react"
 import { createMultipleBorrowRequests } from "./actions"
 import QrScannerModal from "./qr-scanner-modal"
+import toast from "react-hot-toast"
 
 type CartItem = {
   id: string; // Temporary unique ID for the cart
@@ -126,7 +127,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
     if (res?.error) {
       if (res.failedEquipmentId) {
         // Show specific alert and remove item
-        alert(res.error)
+        toast.error(res.error)
         setCartItems(cartItems.filter(item => item.equipmentId !== res.failedEquipmentId))
       } else {
         setError(res.error)
@@ -135,7 +136,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
     } else {
       setCartItems([])
       setIsLoading(false)
-      alert("Đã gửi yêu cầu mượn thành công!")
+      toast.success("Đã gửi yêu cầu mượn thành công!")
     }
   }
 

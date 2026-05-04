@@ -5,6 +5,7 @@ import { Trash2, Edit2, Check, X } from "lucide-react"
 import { updateEquipment, deleteEquipment } from "./actions"
 import QrModal from "./qr-modal"
 import MaintenanceModal from "./maintenance-modal"
+import toast from "react-hot-toast"
 
 export default function EquipmentRow({ eq, categories }: { eq: any, categories: any[] }) {
   const router = useRouter()
@@ -27,13 +28,13 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
       try {
         const res = await deleteEquipment(eq.id)
         if (res?.error) {
-          alert(res.error)
+          toast.error(res.error)
         } else {
-          alert("Xóa thành công!")
+          toast.success("Xóa thành công!")
           window.location.reload()
         }
       } catch (err: any) {
-        alert("Lỗi kết nối hoặc máy chủ: " + err.message)
+        toast.error("Lỗi kết nối hoặc máy chủ: " + err.message)
       } finally {
         setIsLoading(false)
       }

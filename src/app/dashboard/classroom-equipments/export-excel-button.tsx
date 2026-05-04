@@ -1,12 +1,13 @@
-﻿"use client"
+"use client"
 
 import { Download } from "lucide-react"
 import * as XLSX from "xlsx"
+import toast from "react-hot-toast"
 
 export default function ExportExcelButton({ data }: { data: any[] }) {
   const handleExport = () => {
     if (data.length === 0) {
-      alert("Không có dữ liệu để xuất!")
+      toast.error("Không có dữ liệu để xuất!")
       return
     }
 

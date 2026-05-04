@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { createEquipment } from "./actions"
+import toast from "react-hot-toast"
 
 export default function CreateEquipmentForm({
   categories
@@ -15,9 +16,9 @@ export default function CreateEquipmentForm({
     setIsLoading(false)
 
     if (res?.error) {
-      alert(res.error)
+      toast.error(res.error)
     } else {
-      alert("Thêm thiết bị thành công!")
+      toast.success("Thêm thiết bị thành công!")
       window.location.reload()
     }
   }

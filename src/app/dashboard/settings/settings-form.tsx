@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { updateSmtpSettings, updateDriveSettings, testDriveConnectionAction } from "../profile/actions"
 import { Mail, Check, Settings, Cloud, Server, Activity } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function SettingsForm({ settings }: { settings: Record<string, string> }) {
   const [activeTab, setActiveTab] = useState<'drive' | 'smtp'>('drive')
@@ -13,16 +14,16 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
     setIsLoadingSmtp(true)
     const res = await updateSmtpSettings(formData)
     setIsLoadingSmtp(false)
-    if (res?.error) alert(res.error)
-    else alert("Cập nhật cấu hình SMTP thành công!")
+    if (res?.error) toast.error(res.error)
+    else toast.success("Cập nhật cấu hình SMTP thành công!")
   }
 
   async function handleDrive(formData: FormData) {
     setIsLoadingDrive(true)
     const res = await updateDriveSettings(formData)
     setIsLoadingDrive(false)
-    if (res?.error) alert(res.error)
-    else alert("Cập nhật cấu hình Google Drive thành công!")
+    if (res?.error) toast.error(res.error)
+    else toast.success("Cập nhật cấu hình Google Drive thành công!")
   }
 
   async function handleTestDrive() {
@@ -31,7 +32,7 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
     const folderId = (document.querySelector('input[name="folderId"]') as HTMLInputElement)?.value
 
     if (!email || !privateKey || !folderId) {
-      alert("Vui lòng điền đầy đủ Email, Private Key và Folder ID để kiểm tra!")
+      toast.error("Vui lòng điền đầy đủ Email, Private Key và Folder ID để kiểm tra!")
       return
     }
 
@@ -45,9 +46,9 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
     setIsTestingDrive(false)
 
     if (res.success) {
-      alert("✅ " + res.message)
+      toast.success(res.message)
     } else {
-      alert("❌ " + res.message)
+      toast.error(res.message)
     }
   }
 

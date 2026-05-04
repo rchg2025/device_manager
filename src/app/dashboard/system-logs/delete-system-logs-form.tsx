@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Trash2 } from "lucide-react"
 import { deleteLogsByAge } from "./actions"
 import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 export default function DeleteSystemLogsForm() {
   const [age, setAge] = useState("15")
@@ -25,13 +26,13 @@ export default function DeleteSystemLogsForm() {
       const parsedAge = age === 'all' ? 'all' : parseInt(age)
       const res = await deleteLogsByAge(parsedAge)
       if (res.error) {
-        alert(res.error)
+        toast.error(res.error)
       } else {
-        alert("Xóa thành công!")
+        toast.success("Xóa thành công!")
         router.refresh()
       }
     } catch (err: any) {
-      alert("Lỗi máy chủ: " + err.message)
+      toast.error("Lỗi máy chủ: " + err.message)
     } finally {
       setIsDeleting(false)
     }

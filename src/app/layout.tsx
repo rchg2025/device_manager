@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import NextTopLoader from 'nextjs-toploader';
+import ToastProvider from '@/components/toast-provider';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700', '900'],
@@ -36,6 +37,7 @@ export default function RootLayout({
           speed={200} 
           shadow="0 0 10px #3b82f6,0 0 5px #3b82f6" 
         />
+        <ToastProvider />
         {children}
       </body>
     </html>

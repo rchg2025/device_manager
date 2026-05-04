@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Wrench, X, Check } from "lucide-react"
 import { createMaintenance } from "../maintenance/actions"
+import toast from "react-hot-toast"
 
 export default function MaintenanceModal({ equipmentId, equipmentName, availableQty }: { equipmentId: string, equipmentName: string, availableQty: number }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -13,9 +14,9 @@ export default function MaintenanceModal({ equipmentId, equipmentName, available
     const res = await createMaintenance(formData)
     setIsLoading(false)
     if (res?.error) {
-      alert(res.error)
+      toast.error(res.error)
     } else {
-      alert("Đã ghi nhận bảo trì thành công!")
+      toast.success("Đã ghi nhận bảo trì thành công!")
       setIsOpen(false)
     }
   }

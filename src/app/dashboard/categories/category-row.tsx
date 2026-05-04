@@ -5,6 +5,7 @@ import {
   updateCategory, deleteCategory, updateUnit, deleteUnit, updatePosition, deletePosition,
   updateArea, deleteArea, updateRoom, deleteRoom, updateClassroomEqCategory, deleteClassroomEqCategory, updateDeviceConfig, deleteDeviceConfig
 } from "./actions"
+import toast from "react-hot-toast"
 
 type ItemType = "category" | "unit" | "position" | "area" | "room" | "classroomEqCategory" | "deviceConfig"
 
@@ -56,9 +57,9 @@ export default function CategoryRow({
       if (type === "deviceConfig") res = await deleteDeviceConfig(item.id)
 
       if (res?.error) {
-        alert(res.error)
+        toast.error(res.error)
       } else {
-        alert("Xóa thành công!")
+        toast.success("Xóa thành công!")
         window.location.reload()
       }
     }

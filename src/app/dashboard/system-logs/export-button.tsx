@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Download, Loader2 } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function ExportSystemLogsButton({ 
   action, entity, q, userId 
@@ -31,7 +32,7 @@ export default function ExportSystemLogsButton({
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (err) {
-      alert("Không thể xuất file Excel. Vui lòng thử lại.")
+      toast.error("Không thể xuất file Excel. Vui lòng thử lại.")
     } finally {
       setLoading(false)
     }

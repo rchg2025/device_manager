@@ -2,6 +2,7 @@
 import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
 import { deleteHistoryRecord } from "./actions"
+import toast from "react-hot-toast"
 
 export default function DeleteHistoryButton({ requestId }: { requestId: string }) {
   const router = useRouter()
@@ -13,13 +14,13 @@ export default function DeleteHistoryButton({ requestId }: { requestId: string }
       try {
         const res = await deleteHistoryRecord(requestId)
         if (res?.error) {
-          alert(res.error)
+          toast.error(res.error)
         } else {
-          alert("Xóa thành công!")
+          toast.success("Xóa thành công!")
           window.location.reload()
         }
       } catch (err: any) {
-        alert("Lỗi kết nối hoặc máy chủ: " + err.message)
+        toast.error("Lỗi kết nối hoặc máy chủ: " + err.message)
       } finally {
         setIsLoading(false)
       }

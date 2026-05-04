@@ -4,6 +4,8 @@ import { MoreVertical, Edit, Trash2, ShieldAlert, MonitorPlay, QrCode } from "lu
 import { updateClassroomEquipment, deleteClassroomEquipment } from "./actions"
 import MaintenanceModal from "./maintenance-modal"
 import QrModal from "./qr-modal"
+import toast from "react-hot-toast"
+import Select from "react-select"
 
 export default function ClassroomEqRow({ 
   item, 
@@ -23,7 +25,8 @@ export default function ClassroomEqRow({
   async function handleDelete() {
     if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
       const res = await deleteClassroomEquipment(item.id)
-      if (res?.error) alert(res.error)
+      if (res?.error) toast.error(res.error)
+      else toast.success("Đã xoá!")
     }
   }
 
@@ -33,8 +36,11 @@ export default function ClassroomEqRow({
         <td colSpan={4} className="px-6 py-4">
           <form action={async (formData) => {
             const res = await updateClassroomEquipment(formData)
-            if (res?.error) alert(res.error)
-            else setIsEditing(false)
+            if (res?.error) toast.error(res.error)
+            else {
+              toast.success("Cập nhật thành công!")
+              setIsEditing(false)
+            }
           }} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <input type="hidden" name="id" value={item.id} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -54,11 +60,44 @@ export default function ClassroomEqRow({
                   {rooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </div>
-              <div>
+              <div className="relative z-50">
                 <label className="block text-xs font-medium text-gray-700 mb-1">Danh mục</label>
-                <select name="categoryId" defaultValue={item.categoryId} required className="w-full text-sm border-gray-300 rounded border px-2 py-1 bg-white">
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <Select
+                  name="categoryId"
+                  required
+                  defaultValue={{ value: item.categoryId, label: categories.find(c => c.id === item.categoryId)?.name }}
+                  options={categories.map((c: any) => ({ value: c.id, label: c.name }))}
+                  placeholder="-- Chọn danh mục --"
+                  noOptionsMessage={() => "Không tìm thấy danh mục"}
+                  className="text-sm"
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      borderColor: '#d1d5db',
+                      borderRadius: '0.25rem',
+                      minHeight: '30px',
+                      height: '30px',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        borderColor: '#3b82f6'
+                      }
+                    }),
+                    valueContainer: (base) => ({
+                      ...base,
+                      padding: '0 8px',
+                    }),
+                    indicatorsContainer: (base) => ({
+                      ...base,
+                      height: '28px',
+                    }),
+                    option: (base, state) => ({
+                      ...base,
+                      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+                      color: state.isSelected ? 'white' : '#1f2937',
+                      cursor: 'pointer'
+                    })
+                  }}
+                />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Số lượng</label>

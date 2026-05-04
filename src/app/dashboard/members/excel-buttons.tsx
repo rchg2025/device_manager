@@ -3,6 +3,7 @@ import { useState, useRef } from "react"
 import { Download, Upload, FileSpreadsheet } from "lucide-react"
 import * as XLSX from "xlsx"
 import { importMembersExcel } from "./actions"
+import toast from "react-hot-toast"
 
 export default function ExcelButtons() {
   const [isImporting, setIsImporting] = useState(false)
@@ -41,15 +42,15 @@ export default function ExcelButtons() {
         const data = XLSX.utils.sheet_to_json(ws)
         
         if (data.length === 0) {
-          alert("File trống!")
+          toast.error("File trống!")
           return
         }
 
         const res = await importMembersExcel(data)
-        alert(`Nhập thành công ${res.successCount} thành viên. Bỏ qua ${res.skipCount} thành viên do trùng Email. Mật khẩu mặc định là 123456.`)
+        toast.success(`Nhập thành công ${res.successCount} thành viên. Bỏ qua ${res.skipCount} thành viên.`)
       } catch (err) {
         console.error(err)
-        alert("Có lỗi xảy ra khi đọc file Excel.")
+        toast.error("Có lỗi xảy ra khi đọc file Excel.")
       } finally {
         setIsImporting(false)
         if (fileInputRef.current) fileInputRef.current.value = ""

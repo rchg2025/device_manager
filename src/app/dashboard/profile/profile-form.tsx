@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { updateProfile } from "./actions"
 import { User, Shield, Check, Briefcase, Building2, Tag } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function ProfileForm({ user }: { user: any }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -10,8 +11,8 @@ export default function ProfileForm({ user }: { user: any }) {
     setIsLoading(true)
     const res = await updateProfile(formData)
     setIsLoading(false)
-    if (res?.error) alert(res.error)
-    else alert("Cập nhật thông tin thành công!")
+    if (res?.error) toast.error(res.error)
+    else toast.success("Cập nhật thông tin thành công!")
   }
 
   return (

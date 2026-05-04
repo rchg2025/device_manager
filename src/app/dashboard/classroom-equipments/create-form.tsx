@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Upload } from "lucide-react"
 import { createClassroomEquipment } from "./actions"
 import Select from "react-select"
+import toast from "react-hot-toast"
 
 export default function CreateClassroomEqForm({
   areas,
@@ -23,9 +24,9 @@ export default function CreateClassroomEqForm({
     setIsLoading(false)
     
     if (res?.error) {
-      alert(res.error)
+      toast.error(res.error)
     } else {
-      alert("Thêm thiết bị thành công!")
+      toast.success("Thêm thiết bị thành công!")
       // Reset form if needed by forcing a reload or using a ref
       window.location.reload()
     }
@@ -94,10 +95,33 @@ export default function CreateClassroomEqForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Danh mục thiết bị</label>
-        <select name="categoryId" required className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500 bg-white">
-          <option value="">-- Chọn danh mục --</option>
-          {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+        <Select
+          name="categoryId"
+          required
+          placeholder="-- Chọn danh mục --"
+          noOptionsMessage={() => "Không tìm thấy danh mục"}
+          options={categories.map((c: any) => ({ value: c.id, label: c.name }))}
+          className="text-sm"
+          styles={{
+            control: (base) => ({
+              ...base,
+              borderColor: '#d1d5db',
+              borderRadius: '0.375rem',
+              padding: '1px 0',
+              minHeight: '38px',
+              boxShadow: 'none',
+              '&:hover': {
+                borderColor: '#3b82f6'
+              }
+            }),
+            option: (base, state) => ({
+              ...base,
+              backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+              color: state.isSelected ? 'white' : '#1f2937',
+              cursor: 'pointer'
+            })
+          }}
+        />
       </div>
 
       <div>

@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Download, Loader2 } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function ExportInventoryButton({ sessionId }: { sessionId?: string }) {
   const [loading, setLoading] = useState(false)
@@ -21,7 +22,7 @@ export default function ExportInventoryButton({ sessionId }: { sessionId?: strin
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (err) {
-      alert("Không thể xuất file Excel. Vui lòng thử lại.")
+      toast.error("Không thể xuất file Excel. Vui lòng thử lại.")
     } finally {
       setLoading(false)
     }
