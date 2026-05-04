@@ -53,6 +53,7 @@ export async function GET(request: Request) {
           : rec.equipment?.category?.name || "",
         "NV Phụ trách DM": isClassroom ? "" : (rec.equipment?.category?.manager?.name || "Chưa có"),
         "Vị trí ghi nhận": rec.location || "",
+        "Số lượng": rec.quantity || 1,
         "Tình trạng": statusLabel(rec.status),
         "Ghi chú": rec.note || "",
         "Người quét": rec.scanner?.name || rec.scanner?.email || "",
@@ -63,20 +64,21 @@ export async function GET(request: Request) {
     // ── Sheet 2: Thống kê theo Phòng ─────────────────────────────
     const byRoom: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
     for (const rec of records) {
+      const q = rec.quantity || 1
       const isClassroom = !!rec.classroomEq
       const roomKey = isClassroom
         ? `${rec.classroomEq?.room?.name || "?"} (${rec.classroomEq?.area?.name || "?"})`
         : `Kho chung (${(rec as any).equipment?.category?.name || "?"})`
       if (!byRoom[roomKey]) byRoom[roomKey] = { total: 0, present: 0, damaged: 0, missing: 0 }
-      byRoom[roomKey].total++
-      if (rec.status === "PRESENT") byRoom[roomKey].present++
-      else if (rec.status === "DAMAGED") byRoom[roomKey].damaged++
-      else byRoom[roomKey].missing++
+      byRoom[roomKey].total += q
+      if (rec.status === "PRESENT") byRoom[roomKey].present += q
+      else if (rec.status === "DAMAGED") byRoom[roomKey].damaged += q
+      else byRoom[roomKey].missing += q
     }
     const byRoomData = Object.entries(byRoom).map(([room, stats], i) => ({
       "STT": i + 1,
       "Phòng / Khu vực": room,
-      "Tổng số lần quét": stats.total,
+      "Tổng số lượng": stats.total,
       "Bình thường": stats.present,
       "Hư hỏng": stats.damaged,
       "Không tìm thấy": stats.missing
@@ -85,19 +87,20 @@ export async function GET(request: Request) {
     // ── Sheet 3: Thống kê theo Thiết bị ──────────────────────────
     const byDevice: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
     for (const rec of records) {
+      const q = rec.quantity || 1
       const name = (rec as any).equipment?.name || (rec as any).classroomEq?.name || "Không rõ"
       if (!byDevice[name]) byDevice[name] = { total: 0, present: 0, damaged: 0, missing: 0 }
-      byDevice[name].total++
-      if (rec.status === "PRESENT") byDevice[name].present++
-      else if (rec.status === "DAMAGED") byDevice[name].damaged++
-      else byDevice[name].missing++
+      byDevice[name].total += q
+      if (rec.status === "PRESENT") byDevice[name].present += q
+      else if (rec.status === "DAMAGED") byDevice[name].damaged += q
+      else byDevice[name].missing += q
     }
     const byDeviceData = Object.entries(byDevice)
       .sort((a, b) => b[1].total - a[1].total)
       .map(([device, stats], i) => ({
         "STT": i + 1,
         "Tên thiết bị": device,
-        "Tổng số lần quét": stats.total,
+        "Tổng số lượng": stats.total,
         "Bình thường": stats.present,
         "Hư hỏng": stats.damaged,
         "Không tìm thấy": stats.missing
@@ -106,19 +109,20 @@ export async function GET(request: Request) {
     // ── Sheet 4: Thống kê theo Nhân viên quét ────────────────────
     const byScanner: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
     for (const rec of records) {
+      const q = rec.quantity || 1
       const name = (rec as any).scanner?.name || (rec as any).scanner?.email || "Không rõ"
       if (!byScanner[name]) byScanner[name] = { total: 0, present: 0, damaged: 0, missing: 0 }
-      byScanner[name].total++
-      if (rec.status === "PRESENT") byScanner[name].present++
-      else if (rec.status === "DAMAGED") byScanner[name].damaged++
-      else byScanner[name].missing++
+      byScanner[name].total += q
+      if (rec.status === "PRESENT") byScanner[name].present += q
+      else if (rec.status === "DAMAGED") byScanner[name].damaged += q
+      else byScanner[name].missing += q
     }
     const byScannerData = Object.entries(byScanner)
       .sort((a, b) => b[1].total - a[1].total)
       .map(([person, stats], i) => ({
         "STT": i + 1,
         "Nhân viên quét": person,
-        "Tổng số lần quét": stats.total,
+        "Tổng số lượng": stats.total,
         "Bình thường": stats.present,
         "Hư hỏng": stats.damaged,
         "Không tìm thấy": stats.missing
@@ -127,21 +131,22 @@ export async function GET(request: Request) {
     // ── Sheet 5: Thống kê theo NV phụ trách danh mục ─────────────
     const byManager: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
     for (const rec of records) {
+      const q = rec.quantity || 1
       const isClassroom = !!(rec as any).classroomEq
       if (isClassroom) continue
       const mgr = (rec as any).equipment?.category?.manager?.name || "Chưa phân công"
       if (!byManager[mgr]) byManager[mgr] = { total: 0, present: 0, damaged: 0, missing: 0 }
-      byManager[mgr].total++
-      if (rec.status === "PRESENT") byManager[mgr].present++
-      else if (rec.status === "DAMAGED") byManager[mgr].damaged++
-      else byManager[mgr].missing++
+      byManager[mgr].total += q
+      if (rec.status === "PRESENT") byManager[mgr].present += q
+      else if (rec.status === "DAMAGED") byManager[mgr].damaged += q
+      else byManager[mgr].missing += q
     }
     const byManagerData = Object.entries(byManager)
       .sort((a, b) => b[1].total - a[1].total)
       .map(([mgr, stats], i) => ({
         "STT": i + 1,
         "Nhân viên phụ trách DM": mgr,
-        "Tổng số lần quét": stats.total,
+        "Tổng số lượng": stats.total,
         "Bình thường": stats.present,
         "Hư hỏng": stats.damaged,
         "Không tìm thấy": stats.missing
@@ -153,7 +158,7 @@ export async function GET(request: Request) {
     const ws1 = XLSX.utils.json_to_sheet(detailData)
     ws1["!cols"] = [
       { wch: 5 }, { wch: 25 }, { wch: 18 }, { wch: 30 }, { wch: 28 },
-      { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 24 }, { wch: 20 }, { wch: 20 }
+      { wch: 22 }, { wch: 22 }, { wch: 10 }, { wch: 14 }, { wch: 24 }, { wch: 20 }, { wch: 20 }
     ]
     XLSX.utils.book_append_sheet(wb, ws1, "Chi tiết kiểm kê")
 
