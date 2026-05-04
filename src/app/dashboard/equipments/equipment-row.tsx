@@ -118,7 +118,7 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex items-center justify-end gap-3">
           <MaintenanceModal equipmentId={eq.id} equipmentName={eq.name} availableQty={eq.availableQty} />
-          <QrModal barcode={eq.barcode} equipmentName={eq.name} />
+          <QrModal barcode={eq.barcode || eq.id} equipmentName={eq.name} />
           <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
             <Edit2 className="w-4 h-4" />
           </button>

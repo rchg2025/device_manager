@@ -10,8 +10,13 @@ export async function getEquipmentByBarcode(barcode: string) {
   if (!session?.user?.id) return { error: "Vui lòng đăng nhập" }
 
   // Search in Equipment
-  const equipment = await prisma.equipment.findUnique({
-    where: { id: barcode },
+  const equipment = await prisma.equipment.findFirst({
+    where: {
+      OR: [
+        { id: barcode },
+        { barcode: barcode }
+      ]
+    },
     select: { id: true, name: true, category: { select: { name: true } }, image: true }
   })
   if (equipment) return { type: 'equipment', data: equipment }
