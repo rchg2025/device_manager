@@ -79,12 +79,14 @@ model Department {
 
 model Position {
   id    String @id @default(cuid())
-  name  String @unique
+  name  String
   
   unitId String?
   unit   Unit?   @relation(fields: [unitId], references: [id])
   
   users User[]
+
+  @@unique([name, unitId])
 }
 
 model User {
@@ -127,7 +129,7 @@ model VerificationToken {
 
 model Category {
   id          String   @id @default(cuid())
-  name        String   @unique
+  name        String
   managerId   String?
   manager     User?    @relation(fields: [managerId], references: [id])
   equipments  Equipment[]
@@ -135,6 +137,7 @@ model Category {
   unitId      String?
   unit        Unit?    @relation(fields: [unitId], references: [id])
 
+  @@unique([name, unitId])
   @@index([managerId])
   @@index([unitId])
 }
@@ -246,13 +249,14 @@ model Maintenance {
 
 model Area {
   id   String @id @default(cuid())
-  name String @unique
+  name String
   rooms Room[]
   classroomEquipments ClassroomEquipment[]
 
   unitId String?
   unit   Unit?   @relation(fields: [unitId], references: [id])
   
+  @@unique([name, unitId])
   @@index([unitId])
 }
 
@@ -274,23 +278,25 @@ model Room {
 
 model ClassroomEqCategory {
   id   String @id @default(cuid())
-  name String @unique
+  name String
   equipments ClassroomEquipment[]
 
   unitId String?
   unit   Unit?   @relation(fields: [unitId], references: [id])
   
+  @@unique([name, unitId])
   @@index([unitId])
 }
 
 model DeviceConfig {
   id   String @id @default(cuid())
-  name String @unique
+  name String
   equipments ClassroomEquipment[]
 
   unitId String?
   unit   Unit?   @relation(fields: [unitId], references: [id])
   
+  @@unique([name, unitId])
   @@index([unitId])
 }
 
