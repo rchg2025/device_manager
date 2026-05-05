@@ -49,7 +49,7 @@ export async function createUnit(formData: FormData) {
   if (!name) return { error: "Tên đơn vị không được trống" }
 
   try {
-    await prisma.unit.create({
+    await prisma.department.create({
       data: { name }
     })
     revalidatePath("/dashboard/categories")
@@ -64,7 +64,7 @@ export async function deleteUnit(id: string) {
   if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
 
   try {
-    await prisma.unit.delete({
+    await prisma.department.delete({
       where: { id }
     })
     revalidatePath("/dashboard/categories")
@@ -140,7 +140,7 @@ export async function updateUnit(formData: FormData) {
   if (!id || !name) return { error: "Dữ liệu không hợp lệ" }
 
   try {
-    await prisma.unit.update({ where: { id }, data: { name } })
+    await prisma.department.update({ where: { id }, data: { name } })
     revalidatePath("/dashboard/categories")
     return { success: true }
   } catch (error) {

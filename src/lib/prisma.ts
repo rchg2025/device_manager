@@ -25,7 +25,7 @@ export const prisma = basePrisma.$extends({
           'Category', 'Equipment', 'BorrowRequest', 'Notification',
           'Setting', 'Maintenance', 'Area', 'Room',
           'ClassroomEqCategory', 'DeviceConfig', 'ClassroomEquipment',
-          'InventorySession', 'InventoryRecord', 'SystemLog', 'Position'
+          'InventorySession', 'InventoryRecord', 'SystemLog', 'Position', 'Department'
         ]
 
         if (modelsWithTenant.includes(model as string)) {

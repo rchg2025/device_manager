@@ -37,7 +37,7 @@ export default async function CategoriesPage({
         <nav className="-mb-px flex space-x-6 min-w-max">
           {[
             { id: 'equipment', label: 'DM Thiết bị' },
-            { id: 'unit', label: 'DM Đơn vị' },
+            { id: 'unit', label: 'DM Đơn vị nội bộ' },
             { id: 'position', label: 'DM Chức vụ' },
             { id: 'area', label: 'DM Khu vực' },
             { id: 'room', label: 'DM Phòng học' },
@@ -112,8 +112,8 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
       break;
     case 'unit':
       [totalItems, items] = await Promise.all([
-        prisma.unit.count({ where: searchFilter }),
-        prisma.unit.findMany({ where: searchFilter, select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
+        prisma.department.count({ where: searchFilter }),
+        prisma.department.findMany({ where: searchFilter, select: { id: true, name: true, _count: { select: { users: true } } }, orderBy: { name: 'asc' }, skip, take: limit })
       ]);
       break;
     case 'position':

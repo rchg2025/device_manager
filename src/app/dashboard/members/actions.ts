@@ -15,6 +15,7 @@ export async function updateMember(formData: FormData) {
   const role = formData.get("role") as any
   const phone = formData.get("phone") as string
   const unitId = formData.get("unitId") as string
+  const departmentId = formData.get("departmentId") as string
   const positionId = formData.get("positionId") as string
 
   await prisma.user.update({
@@ -24,6 +25,7 @@ export async function updateMember(formData: FormData) {
       role,
       phone,
       unitId: unitId || null,
+      departmentId: departmentId || null,
       positionId: positionId || null,
     }
   })
@@ -70,6 +72,7 @@ export async function createMember(formData: FormData) {
   const role = formData.get("role") as any
   const phone = formData.get("phone") as string
   const unitId = formData.get("unitId") as string
+  const departmentId = formData.get("departmentId") as string
   const positionId = formData.get("positionId") as string
 
   if (!email || !password) return { error: "Email và Mật khẩu là bắt buộc" }
@@ -87,6 +90,7 @@ export async function createMember(formData: FormData) {
       role,
       phone,
       unitId: unitId || null,
+      departmentId: departmentId || null,
       positionId: positionId || null,
     }
   })

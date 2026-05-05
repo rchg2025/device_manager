@@ -40,7 +40,7 @@ export default async function MembersPage({
     whereClause.role = roleFilter
   }
 
-  const [totalMembers, members, units, positions] = await Promise.all([
+  const [totalMembers, members, units, departments, positions] = await Promise.all([
     prisma.user.count({ where: whereClause }),
     prisma.user.findMany({
       where: whereClause,
@@ -51,8 +51,10 @@ export default async function MembersPage({
         role: true,
         phone: true,
         unitId: true,
+        departmentId: true,
         positionId: true,
         unit: { select: { id: true, name: true } },
+        department: { select: { id: true, name: true } },
         position: { select: { id: true, name: true } }
       },
       orderBy: { createdAt: 'desc' },
@@ -60,6 +62,7 @@ export default async function MembersPage({
       take: limit
     }),
     prisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    prisma.department.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     prisma.position.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
   ])
 
@@ -93,10 +96,17 @@ export default async function MembersPage({
             <input type="text" name="phone" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border" placeholder="0123456789" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Đơn vị</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Chi nhánh (Tenant)</label>
             <select name="unitId" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
-              <option value="">-- Chọn đơn vị --</option>
+              <option value="">-- Chọn chi nhánh --</option>
               {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Đơn vị nội bộ</label>
+            <select name="departmentId" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border">
+              <option value="">-- Chọn tổ/phòng ban --</option>
+              {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           </div>
           <div>
@@ -130,7 +140,8 @@ export default async function MembersPage({
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Họ và Tên</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn vị</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi nhánh</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn vị nội bộ</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chức vụ</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số điện thoại</th>
@@ -144,6 +155,7 @@ export default async function MembersPage({
                   key={member.id} 
                   member={member} 
                   units={units} 
+                  departments={departments}
                   positions={positions} 
                 />
               ))}

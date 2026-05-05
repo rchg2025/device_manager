@@ -4,7 +4,7 @@ import { updateMember, deleteMember } from "./actions"
 import { Trash2, Edit2, Check, X } from "lucide-react"
 import toast from "react-hot-toast"
 
-export default function MemberRow({ member, units, positions }: { member: any, units: any[], positions: any[] }) {
+export default function MemberRow({ member, units, departments, positions }: { member: any, units: any[], departments: any[], positions: any[] }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -40,10 +40,17 @@ export default function MemberRow({ member, units, positions }: { member: any, u
               <input type="text" name="name" defaultValue={member.name || ''} className="w-full border-gray-300 rounded text-sm py-1 px-2 border" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Đơn vị</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Chi nhánh</label>
               <select name="unitId" defaultValue={member.unitId || ''} className="w-full border-gray-300 rounded text-sm py-1 px-2 border">
                 <option value="">-- Chọn --</option>
                 {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Đơn vị nội bộ</label>
+              <select name="departmentId" defaultValue={member.departmentId || ''} className="w-full border-gray-300 rounded text-sm py-1 px-2 border">
+                <option value="">-- Chọn --</option>
+                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
             </div>
             <div>
@@ -83,6 +90,7 @@ export default function MemberRow({ member, units, positions }: { member: any, u
     <tr>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{member.name || 'N/A'}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">{member.unit?.name || '-'}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm">{member.department?.name || '-'}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">{member.position?.name || '-'}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">{member.email}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">{member.phone || '-'}</td>
