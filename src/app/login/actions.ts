@@ -84,3 +84,10 @@ export async function resetPassword(email: string, otp: string, newPassword: str
     return { error: "Lỗi khi đổi mật khẩu" }
   }
 }
+
+export async function getUnits() {
+  return await prisma.unit.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
+  })
+}

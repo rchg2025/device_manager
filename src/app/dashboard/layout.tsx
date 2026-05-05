@@ -1,12 +1,14 @@
 import Link from "next/link"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck, ShieldAlert } from "lucide-react"
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck, ShieldAlert, Building } from "lucide-react"
 import OverdueAlert from "./overdue-alert"
 import NotificationDropdown from "./notification-dropdown"
 import AutoRefreshBadge from "./auto-refresh-badge"
 import MobileMenu from "./mobile-menu"
 import DesktopSidebarWrapper from "./desktop-sidebar"
+import { cookies } from "next/headers"
+import TenantSwitcher from "./tenant-switcher"
 
 export default async function DashboardLayout({
   children,
@@ -20,6 +22,15 @@ export default async function DashboardLayout({
   let pendingRequestsCount = 0
   let overdueItems: any[] = []
   let notifications: any[] = []
+  let units: any[] = []
+  let currentTenantId: string | null = null
+
+  if (role === "SUPERADMIN") {
+    const { basePrisma } = await import("@/lib/prisma")
+    units = await basePrisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+    const c = await cookies()
+    currentTenantId = c.get('tenantId')?.value || ""
+  }
 
   if (session?.user?.id) {
     // Determine queries to run based on role
@@ -105,6 +116,17 @@ export default async function DashboardLayout({
             </Link>
           )}
 
+          {role === "SUPERADMIN" && (
+            <>
+              <Link href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
+              </Link>
+              <Link href="/dashboard/superadmin/units" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50">
+                <Building className="w-5 h-5 shrink-0" /> Quản lý đơn vị (SA)
+              </Link>
+            </>
+          )}
+
           <Link href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
             <Package className="w-5 h-5 shrink-0" /> Đăng ký mượn thiết bị
           </Link>
@@ -144,12 +166,12 @@ export default async function DashboardLayout({
               <Link href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
-              {role === "ADMIN" && (
+              {(role === "ADMIN" || role === "SUPERADMIN") && (
                 <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
                   <Settings className="w-5 h-5 shrink-0" /> Cấu hình hệ thống
                 </Link>
               )}
-              {role === "ADMIN" && (
+              {(role === "ADMIN" || role === "SUPERADMIN") && (
                 <Link href="/dashboard/system-logs" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-600 whitespace-nowrap">
                   <ShieldAlert className="w-5 h-5 shrink-0" /> Nhật ký hệ thống
                 </Link>
@@ -192,7 +214,11 @@ export default async function DashboardLayout({
               <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
             </Link>
           </div>
-          <div className="hidden xl:block"></div> {/* Spacer */}
+          <div className="hidden xl:flex items-center gap-4">
+            {role === "SUPERADMIN" && (
+              <TenantSwitcher units={[{ id: "", name: "Tất cả đơn vị" }, ...units]} currentTenantId={currentTenantId} />
+            )}
+          </div>
           
           <div className="flex items-center gap-4">
             <NotificationDropdown unreadCount={unreadCount} notifications={notifications} />

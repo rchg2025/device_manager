@@ -45,6 +45,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         
         const isMatch = await bcrypt.compare(credentials.password as string, user.password)
         if (!isMatch) return null
+
+        // Check if unit is valid
+        if (user.role !== 'SUPERADMIN') {
+          const requestedUnitId = credentials.unitId as string;
+          if (!requestedUnitId) throw new Error("Vui lòng chọn Đơn vị trước khi đăng nhập.");
+          if (user.unitId !== requestedUnitId) throw new Error("Tài khoản của bạn không thuộc Đơn vị này.");
+        }
         
         return user
       }
@@ -87,17 +94,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
         token.role = (user as any).role
+        token.unitId = (user as any).unitId
       }
+      
+      // Cho phép update session (vd: khi SUPERADMIN switch unit)
+      if (trigger === "update" && session?.unitId) {
+        token.unitId = session.unitId
+      }
+      
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = (token.id as string) || (token.sub as string)
         session.user.role = token.role as any
+        ;(session.user as any).unitId = token.unitId as string | null | undefined
       }
       return session
     }

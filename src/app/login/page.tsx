@@ -3,7 +3,7 @@ import { signIn } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Lock, Mail, KeyRound, ArrowLeft } from "lucide-react"
-import { sendOtpToEmail, verifyOtp, resetPassword } from "./actions"
+import { sendOtpToEmail, verifyOtp, resetPassword, getUnits } from "./actions"
 import { Suspense } from "react"
 
 function LoginForm() {
@@ -12,6 +12,8 @@ function LoginForm() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
+  const [unitId, setUnitId] = useState("")
+  const [units, setUnits] = useState<{id: string, name: string}[]>([])
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -22,6 +24,11 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    getUnits().then(data => {
+      setUnits(data)
+      if (data.length > 0) setUnitId(data[0].id)
+    })
+
     const savedEmail = localStorage.getItem("rememberedEmail")
     const savedPassword = localStorage.getItem("rememberedPassword")
     if (savedEmail) {
@@ -53,9 +60,12 @@ function LoginForm() {
       localStorage.removeItem("rememberedPassword")
     }
 
+    document.cookie = `tenantId=${unitId}; path=/; max-age=86400` // Lưu vào cookie cho SSR
+
     const res = await signIn("credentials", {
       email,
       password,
+      unitId,
       redirect: false
     })
     
@@ -149,6 +159,20 @@ function LoginForm() {
             <>
               <form className="space-y-6" onSubmit={handleLogin}>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Đơn vị</label>
+                  <select
+                    required
+                    value={unitId}
+                    onChange={e => setUnitId(e.target.value)}
+                    className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
+                  >
+                    {units.map(u => (
+                      <option key={u.id} value={u.id}>{u.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Tên đăng nhập hoặc Email</label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -226,7 +250,11 @@ function LoginForm() {
 
                 <div className="mt-6">
                   <button
-                    onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                    onClick={() => {
+                      document.cookie = `tenantId=${unitId}; path=/; max-age=86400`;
+                      signIn("google", { callbackUrl: "/dashboard" });
+                    }}
+                    type="button"
                     className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />

@@ -36,6 +36,7 @@ model Session {
 }
 
 enum Role {
+  SUPERADMIN
   ADMIN
   MANAGER
   MEMBER
@@ -44,12 +45,32 @@ enum Role {
 model Unit {
   id    String @id @default(cuid())
   name  String @unique
-  users User[]
+  
+  users                 User[]
+  categories            Category[]
+  equipments            Equipment[]
+  borrowRequests        BorrowRequest[]
+  notifications         Notification[]
+  settings              Setting[]
+  maintenances          Maintenance[]
+  areas                 Area[]
+  rooms                 Room[]
+  classroomEqCategories ClassroomEqCategory[]
+  deviceConfigs         DeviceConfig[]
+  classroomEquipments   ClassroomEquipment[]
+  inventorySessions     InventorySession[]
+  inventoryRecords      InventoryRecord[]
+  systemLogs            SystemLog[]
+  positions             Position[]
 }
 
 model Position {
   id    String @id @default(cuid())
   name  String @unique
+  
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+  
   users User[]
 }
 
@@ -96,7 +117,11 @@ model Category {
   manager     User?    @relation(fields: [managerId], references: [id])
   equipments  Equipment[]
 
+  unitId      String?
+  unit        Unit?    @relation(fields: [unitId], references: [id])
+
   @@index([managerId])
+  @@index([unitId])
 }
 
 model Equipment {
@@ -110,12 +135,17 @@ model Equipment {
   availableQty Int     @default(0)
   createdAt   DateTime @default(now())
   creatorName String?
+  
+  unitId      String?
+  unit        Unit?    @relation(fields: [unitId], references: [id])
+  
   requests    BorrowRequest[]
   maintenances Maintenance[]
   inventoryRecords InventoryRecord[] @relation("InventoryEquip")
 
   @@index([categoryId])
   @@index([name])
+  @@index([unitId])
 }
 
 model BorrowRequest {
@@ -136,11 +166,15 @@ model BorrowRequest {
   returnCondition  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
+  
+  unitId      String?
+  unit        Unit?    @relation(fields: [unitId], references: [id])
 
   @@index([userId])
   @@index([status])
   @@index([equipmentId])
   @@index([createdAt])
+  @@index([unitId])
 }
 
 model Notification {
@@ -152,13 +186,22 @@ model Notification {
   link      String?
   createdAt DateTime @default(now())
 
+  unitId    String?
+  unit      Unit?    @relation(fields: [unitId], references: [id])
+
   @@index([userId, isRead])
+  @@index([unitId])
 }
 
 model Setting {
   id    String @id @default(cuid())
   key   String @unique
   value String
+
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId])
 }
 
 model Maintenance {
@@ -178,6 +221,11 @@ model Maintenance {
   handlerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
+
+  unitId      String?
+  unit        Unit?    @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId])
 }
 
 model Area {
@@ -185,6 +233,11 @@ model Area {
   name String @unique
   rooms Room[]
   classroomEquipments ClassroomEquipment[]
+
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId])
 }
 
 model Room {
@@ -196,19 +249,33 @@ model Room {
   manager   User?  @relation(fields: [managerId], references: [id])
   classroomEquipments ClassroomEquipment[]
 
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+
   @@unique([areaId, name])
+  @@index([unitId])
 }
 
 model ClassroomEqCategory {
   id   String @id @default(cuid())
   name String @unique
   equipments ClassroomEquipment[]
+
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId])
 }
 
 model DeviceConfig {
   id   String @id @default(cuid())
   name String @unique
   equipments ClassroomEquipment[]
+
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId])
 }
 
 model ClassroomEquipment {
@@ -238,9 +305,13 @@ model ClassroomEquipment {
   maintenances Maintenance[]
   inventoryRecords InventoryRecord[] @relation("InventoryClassroomEquip")
 
+  unitId     String?
+  unit       Unit?   @relation(fields: [unitId], references: [id])
+
   @@index([areaId])
   @@index([roomId])
   @@index([categoryId])
+  @@index([unitId])
 }
 
 model InventorySession {
@@ -251,6 +322,11 @@ model InventorySession {
   creator     User     @relation(fields: [creatorId], references: [id])
   records     InventoryRecord[]
   createdAt   DateTime @default(now())
+
+  unitId      String?
+  unit        Unit?    @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId])
 }
 
 model InventoryRecord {
@@ -275,10 +351,14 @@ model InventoryRecord {
 
   createdAt     DateTime @default(now())
 
+  unitId        String?
+  unit          Unit?    @relation(fields: [unitId], references: [id])
+
   @@index([sessionId])
   @@index([equipmentId])
   @@index([classroomEqId])
   @@index([scannerId])
+  @@index([unitId])
 }
 
 model SystemLog {
@@ -291,8 +371,12 @@ model SystemLog {
   detail    String   @db.Text
   createdAt DateTime @default(now())
 
+  unitId    String?
+  unit      Unit?    @relation(fields: [unitId], references: [id])
+
   @@index([userId])
   @@index([action])
   @@index([entity])
   @@index([createdAt])
+  @@index([unitId])
 }
