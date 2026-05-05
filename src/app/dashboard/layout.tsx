@@ -124,6 +124,9 @@ export default async function DashboardLayout({
               <Link href="/dashboard/superadmin/units" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50">
                 <Building className="w-5 h-5 shrink-0" /> Quản lý đơn vị (SA)
               </Link>
+              <Link href="/dashboard/superadmin/transfer-data" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
+                <Tags className="w-5 h-5 shrink-0" /> Chuyển dữ liệu (SA)
+              </Link>
             </>
           )}
 
