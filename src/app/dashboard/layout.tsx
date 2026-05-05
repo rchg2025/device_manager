@@ -27,10 +27,18 @@ export default async function DashboardLayout({
   let currentTenantId: string | null = null
 
   if (role === "SUPERADMIN") {
-    const { basePrisma } = await import("@/lib/prisma")
-    units = await basePrisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
-    const c = await cookies()
-    currentTenantId = c.get('tenantId')?.value || ""
+    const { unstable_cache } = await import("next/cache");
+    const getCachedUnits = unstable_cache(
+      async () => {
+        const { basePrisma } = await import("@/lib/prisma");
+        return await basePrisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } });
+      },
+      ['dashboard-layout-units'],
+      { revalidate: 3600, tags: ['units'] }
+    );
+    units = await getCachedUnits();
+    const c = await cookies();
+    currentTenantId = c.get('tenantId')?.value || "";
   }
 
   if (session?.user?.id) {

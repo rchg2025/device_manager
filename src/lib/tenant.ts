@@ -1,6 +1,7 @@
 import { cookies } from "next/headers"
+import { cache } from "react"
 
-export async function getTenantId() {
+export const getTenantId = cache(async () => {
   try {
     // Sử dụng dynamic import để tránh circular dependency: prisma.ts -> tenant.ts -> auth.ts -> prisma.ts
     const { auth } = await import("@/auth")
@@ -19,4 +20,4 @@ export async function getTenantId() {
   } catch (e) {
     return null
   }
-}
+})

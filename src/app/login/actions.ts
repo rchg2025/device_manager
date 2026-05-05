@@ -85,12 +85,22 @@ export async function resetPassword(email: string, otp: string, newPassword: str
   }
 }
 
-export async function getUnits() {
-  try {
-    const units = await basePrisma.unit.findMany({
+import { unstable_cache } from "next/cache"
+
+const getCachedUnits = unstable_cache(
+  async () => {
+    return await basePrisma.unit.findMany({
       select: { id: true, name: true },
       orderBy: { name: 'asc' }
     })
+  },
+  ['login-units'],
+  { revalidate: 3600, tags: ['units'] }
+)
+
+export async function getUnits() {
+  try {
+    const units = await getCachedUnits()
     return units
   } catch (error) {
     console.error("Lỗi khi lấy danh sách chi nhánh:", error)
