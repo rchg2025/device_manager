@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
+import { basePrisma } from "@/lib/prisma"
 import Credentials from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
@@ -13,7 +13,7 @@ if (!process.env.AUTH_SECRET) {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   trustHost: true,
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(basePrisma),
   session: { strategy: "jwt" },
   pages: {
     signIn: '/login',
@@ -28,11 +28,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email/Username", type: "text" },
         password: { label: "Password", type: "password" },
+        unitId: { label: "Unit ID", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
         
-        const user = await prisma.user.findFirst({
+        const user = await basePrisma.user.findFirst({
           where: {
             OR: [
               { email: credentials.email as string },
@@ -62,7 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "google") {
         try {
           if (user.email) {
-            const existingUser = await prisma.user.findUnique({
+            const existingUser = await basePrisma.user.findUnique({
               where: { email: user.email },
               include: { accounts: true }
             })
@@ -70,7 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             if (existingUser) {
               const isLinked = existingUser.accounts.some(acc => acc.provider === account.provider)
               if (!isLinked) {
-                await prisma.account.create({
+                await basePrisma.account.create({
                   data: {
                     userId: existingUser.id,
                     type: account.type,
