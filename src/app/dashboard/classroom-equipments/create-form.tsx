@@ -17,6 +17,17 @@ export default function CreateClassroomEqForm({
   configs: any[]
 }) {
   const [isLoading, setIsLoading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
+    } else {
+      setPreviewUrl(null)
+    }
+  }
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -41,16 +52,23 @@ export default function CreateClassroomEqForm({
       
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện (Tùy chọn)</label>
-        <div className="mt-1 flex justify-center px-6 pt-4 pb-4 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors bg-gray-50">
-          <div className="space-y-1 text-center">
-            <Upload className="mx-auto h-8 w-8 text-gray-400" />
-            <div className="flex justify-center text-sm text-gray-600">
-              <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none px-2 py-1 border border-blue-100 shadow-sm">
-                <span>Chọn File</span>
-                <input name="image" type="file" className="sr-only" accept="image/*" />
-              </label>
+        <div className="mt-1 flex justify-center px-6 pt-4 pb-4 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors bg-gray-50 relative overflow-hidden">
+          {previewUrl ? (
+            <div className="relative w-full h-24 flex justify-center">
+              <img src={previewUrl} alt="Preview" className="h-full object-contain rounded-md" />
+              <input name="image" type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onChange={handleImageChange} />
             </div>
-          </div>
+          ) : (
+            <div className="space-y-1 text-center">
+              <Upload className="mx-auto h-8 w-8 text-gray-400" />
+              <div className="flex justify-center text-sm text-gray-600">
+                <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none px-2 py-1 border border-blue-100 shadow-sm">
+                  <span>Chọn File</span>
+                  <input name="image" type="file" className="sr-only" accept="image/*" onChange={handleImageChange} />
+                </label>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

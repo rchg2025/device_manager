@@ -9,6 +9,17 @@ export default function CreateEquipmentForm({
   categories: any[]
 }) {
   const [isLoading, setIsLoading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
+    } else {
+      setPreviewUrl(null)
+    }
+  }
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -46,11 +57,15 @@ export default function CreateEquipmentForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện (Tùy chọn)</label>
         <div className="flex items-center justify-center w-full">
-          <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 relative">
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <p className="text-xs text-gray-500">Bấm để tải ảnh lên (tối đa 5MB)</p>
-            </div>
-            <input name="image" type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+          <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 relative overflow-hidden">
+            {previewUrl ? (
+              <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
+            ) : (
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <p className="text-xs text-gray-500">Bấm để tải ảnh lên (tối đa 5MB)</p>
+              </div>
+            )}
+            <input name="image" type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onChange={handleImageChange} />
           </label>
         </div>
       </div>
