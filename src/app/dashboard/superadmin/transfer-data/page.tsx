@@ -19,7 +19,7 @@ export default async function TransferDataPage() {
           categories: true,
           equipments: true,
           borrowRequests: true,
-          inventorySession: true
+          inventorySessions: true
         }
       }
     }
