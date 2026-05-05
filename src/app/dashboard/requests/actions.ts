@@ -11,7 +11,8 @@ export async function updateRequestStatus(
   returnCondition?: string
 ) {
   const session = await auth()
-  if (session?.user?.role === "MEMBER") throw new Error("Unauthorized")
+  if (!session?.user) return { error: "Unauthorized" }
+  if (session.user.role === "MEMBER") return { error: "Unauthorized" }
 
   try {
     const request = await prisma.borrowRequest.findUnique({ 

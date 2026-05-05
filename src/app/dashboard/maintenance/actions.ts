@@ -28,9 +28,7 @@ export async function createMaintenance(formData: FormData) {
       }
     } else if (classroomEqId) {
       const eq = await prisma.classroomEquipment.findUnique({ where: { id: classroomEqId }, include: { category: true } })
-      if (eq?.category?.managerId && eq.category.managerId !== session.user.id) {
-        return { error: "Bạn không có quyền bảo trì thiết bị này" }
-      }
+      // ClassroomEqCategory doesn't have managerId
     }
   }
 
@@ -103,9 +101,7 @@ export async function updateMaintenanceStatus(id: string, status: string) {
     if (existing.equipment?.category?.managerId && existing.equipment.category.managerId !== session.user.id) {
       throw new Error("Bạn không có quyền cập nhật bảo trì này")
     }
-    if (existing.classroomEq?.category?.managerId && existing.classroomEq.category.managerId !== session.user.id) {
-      throw new Error("Bạn không có quyền cập nhật bảo trì này")
-    }
+    // ClassroomEqCategory doesn't have managerId
   }
 
   await prisma.$transaction(async (tx) => {

@@ -36,7 +36,7 @@ export const prisma = basePrisma.$extends({
             // Tạm thời bỏ qua findUnique, update, delete (chỉ áp dụng cho các hàm đọc nhiều)
             if (['findFirst', 'findMany', 'count', 'updateMany', 'deleteMany', 'aggregate', 'groupBy'].includes(operation)) {
               if (args) {
-                 args.where = { ...args.where, unitId: tenantId }
+                 (args as any).where = { ...(args as any).where, unitId: tenantId }
               } else {
                  args = { where: { unitId: tenantId } } as any
               }
@@ -44,12 +44,12 @@ export const prisma = basePrisma.$extends({
           }
           if (['create', 'createMany'].includes(operation)) {
             if (operation === 'create') {
-              if (args) args.data = { ...args.data as any, unitId: tenantId }
+              if (args) (args as any).data = { ...(args as any).data, unitId: tenantId }
             } else if (operation === 'createMany') {
-              if (args && Array.isArray(args.data)) {
-                args.data = args.data.map((d: any) => ({ ...d, unitId: tenantId }))
+              if (args && Array.isArray((args as any).data)) {
+                (args as any).data = (args as any).data.map((d: any) => ({ ...d, unitId: tenantId }))
               } else if (args) {
-                args.data = { ...args.data as any, unitId: tenantId }
+                (args as any).data = { ...(args as any).data, unitId: tenantId }
               }
             }
           }

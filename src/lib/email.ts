@@ -25,8 +25,8 @@ async function getTransporter() {
 }
 
 async function getFromAddress() {
-  const fromSetting = await prisma.setting.findUnique({ where: { key: "SMTP_FROM" } })
-  const userSetting = await prisma.setting.findUnique({ where: { key: "SMTP_USER" } })
+  const fromSetting = await prisma.setting.findFirst({ where: { key: "SMTP_FROM" } })
+  const userSetting = await prisma.setting.findFirst({ where: { key: "SMTP_USER" } })
   
   let fromValue = fromSetting?.value?.trim()
   

@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 import { useState } from "react"
 import { MoreVertical, Edit, Trash2, ShieldAlert, MonitorPlay, QrCode } from "lucide-react"

@@ -135,7 +135,7 @@ export default async function MaintenancePage({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {['ADMIN', 'MANAGER'].includes(session?.user?.role as string) ? (
-                    <MaintenanceActions maintenance={mt} role={session.user.role} />
+                    <MaintenanceActions maintenance={mt} role={session?.user?.role as any} />
                   ) : (
                     <span className="text-gray-400 text-xs italic">Không có quyền</span>
                   )}

@@ -59,7 +59,7 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
         setResult(res as EquipmentResult)
         // Pre-fill location from classroom equipment
         if (res.type === 'classroom-equipment') {
-          const d = res.data
+          const d = res.data as any
           setLocation(`${d.room?.name || ''} - ${d.area?.name || ''}`.trim().replace(/^-\s*|-\s*$/g, '').trim())
         }
         setStep('confirm')
@@ -191,7 +191,7 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
                     </div>
                   )}
                   <div className="w-full rounded-xl overflow-hidden border border-gray-200 bg-black shadow-inner">
-                    {scanning && <Scanner onScan={handleScan} onError={() => setError("Không thể mở camera.")} components={{ audio: false, finder: true }} />}
+                    {scanning && <Scanner onScan={handleScan} onError={() => setError("Không thể mở camera.")} components={{ finder: true }} />}
                   </div>
                   <p className="text-sm text-gray-500 text-center">Đưa mã QR của thiết bị vào khung ngắm</p>
                   <div className="w-full border-t pt-3 flex flex-col items-center gap-2">
@@ -222,8 +222,8 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
                           <p className="font-semibold text-gray-800">{result.data.name}</p>
                           <p className="text-xs text-blue-600 mt-0.5">
                             {result.type === 'equipment'
-                              ? `Danh mục: ${result.data.category?.name || 'N/A'}`
-                              : `${result.data.room?.name} - ${result.data.area?.name}`}
+                              ? `Danh mục: ${(result.data as any).category?.name || 'N/A'}`
+                              : `${(result.data as any).room?.name} - ${(result.data as any).area?.name}`}
                           </p>
                         </div>
                       </div>
@@ -262,12 +262,12 @@ export default function ScanModal({ activeSessionId }: ScanModalProps) {
                           onChange={e => setQuantity(parseInt(e.target.value) || 1)}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        {(quantity + (result.data.scannedQty || 0)) > (result.type === 'equipment' ? result.data.totalQty : result.data.quantity) && (
+                        {(quantity + ((result.data as any).scannedQty || 0)) > (result.type === 'equipment' ? (result.data as any).totalQty : (result.data as any).quantity) && (
                           <p className="text-xs text-orange-600 mt-1.5 flex items-center gap-1 bg-orange-50 p-2 rounded border border-orange-100">
                             <AlertTriangle className="w-4 h-4 shrink-0" />
                             <span>
-                              Cảnh báo: Tổng số lượng kiểm kê ({quantity + (result.data.scannedQty || 0)}) vượt quá số lượng trên hệ thống ({result.type === 'equipment' ? result.data.totalQty : result.data.quantity}).
-                              {result.data.scannedQty > 0 && ` (Đã quét trước đó: ${result.data.scannedQty})`}
+                              Cảnh báo: Tổng số lượng kiểm kê ({quantity + ((result.data as any).scannedQty || 0)}) vượt quá số lượng trên hệ thống ({result.type === 'equipment' ? (result.data as any).totalQty : (result.data as any).quantity}).
+                              {(result.data as any).scannedQty > 0 && ` (Đã quét trước đó: ${(result.data as any).scannedQty})`}
                             </span>
                           </p>
                         )}

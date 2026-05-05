@@ -6,10 +6,10 @@ import { writeLog } from "@/lib/system-log"
 
 export async function updateMember(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Unauthorized" }
 
   const userId = formData.get("userId") as string
-  if (!userId) return
+  if (!userId) return { error: "Missing ID" }
 
   const name = formData.get("name") as string
   const role = formData.get("role") as any
@@ -40,11 +40,12 @@ export async function updateMember(formData: FormData) {
   })
   
   revalidatePath("/dashboard/members")
+  return { success: true }
 }
 
 export async function deleteMember(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Unauthorized" }
 
   const userId = formData.get("userId") as string
   if (userId) {
@@ -59,7 +60,9 @@ export async function deleteMember(formData: FormData) {
       detail: `Xóa thành viên: ${userId}`
     })
     revalidatePath("/dashboard/members")
+    return { success: true }
   }
+  return { error: "Missing ID" }
 }
 
 import bcrypt from "bcryptjs"

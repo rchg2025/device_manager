@@ -1,6 +1,6 @@
 "use server"
 
-import { prisma } from "@/lib/prisma"
+import { prisma, basePrisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { sendOtpEmail } from "@/lib/email"
 
@@ -86,8 +86,14 @@ export async function resetPassword(email: string, otp: string, newPassword: str
 }
 
 export async function getUnits() {
-  return await prisma.unit.findMany({
-    select: { id: true, name: true },
-    orderBy: { name: 'asc' }
-  })
+  try {
+    const units = await basePrisma.unit.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' }
+    })
+    return units
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách chi nhánh:", error)
+    return []
+  }
 }

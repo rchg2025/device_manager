@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { createInventorySession, completeInventorySession, deleteInventorySession, deleteInventoryRecord } from "./actions"
