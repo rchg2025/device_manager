@@ -14,10 +14,13 @@ export default function TransferClient({ units }: { units: any[] }) {
   const DATA_TYPES = [
     { id: "categories", label: "Danh mục thiết bị", icon: "📑" },
     { id: "equipments", label: "Kho Thiết bị", icon: "📦" },
-    { id: "users", label: "Người dùng (Trừ SuperAdmin)", icon: "👥" },
+    { id: "users", label: "Người dùng (Trừ SA)", icon: "👥" },
     { id: "borrowRequests", label: "Phiếu mượn / trả", icon: "📋" },
     { id: "inventory", label: "Phiếu kiểm kê", icon: "✅" },
-    { id: "maintenance", label: "Phiếu bảo trì", icon: "🔧" }
+    { id: "maintenance", label: "Phiếu bảo trì", icon: "🔧" },
+    { id: "areasRooms", label: "Khu vực & Phòng", icon: "🏢" },
+    { id: "classroomEquipments", label: "Thiết bị phòng học", icon: "🖥️" },
+    { id: "configs", label: "Cấu hình & Nhật ký", icon: "⚙️" }
   ]
 
   const handleToggleType = (id: string) => {
@@ -25,6 +28,14 @@ export default function TransferClient({ units }: { units: any[] }) {
       setDataTypes(dataTypes.filter(t => t !== id))
     } else {
       setDataTypes([...dataTypes, id])
+    }
+  }
+
+  const handleSelectAll = () => {
+    if (dataTypes.length === DATA_TYPES.length) {
+      setDataTypes([]) // Bỏ chọn tất cả
+    } else {
+      setDataTypes(DATA_TYPES.map(t => t.id)) // Chọn tất cả
     }
   }
 
@@ -92,7 +103,16 @@ export default function TransferClient({ units }: { units: any[] }) {
 
         {/* Chọn loại dữ liệu */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">CHỌN LOẠI DỮ LIỆU CẦN CHUYỂN</label>
+          <div className="flex justify-between items-center mb-3">
+            <label className="block text-sm font-semibold text-gray-700">CHỌN LOẠI DỮ LIỆU CẦN CHUYỂN</label>
+            <button 
+              type="button" 
+              onClick={handleSelectAll}
+              className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            >
+              {dataTypes.length === DATA_TYPES.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+            </button>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {DATA_TYPES.map(type => (
               <label 

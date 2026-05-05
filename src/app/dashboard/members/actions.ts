@@ -6,7 +6,7 @@ import { writeLog } from "@/lib/system-log"
 
 export async function updateMember(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") throw new Error("Unauthorized")
 
   const userId = formData.get("userId") as string
   if (!userId) return
@@ -40,7 +40,7 @@ export async function updateMember(formData: FormData) {
 
 export async function deleteMember(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") throw new Error("Unauthorized")
 
   const userId = formData.get("userId") as string
   if (userId) {
@@ -62,7 +62,7 @@ import bcrypt from "bcryptjs"
 
 export async function createMember(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") throw new Error("Unauthorized")
 
   const email = formData.get("email") as string
   const password = formData.get("password") as string
@@ -104,7 +104,7 @@ export async function createMember(formData: FormData) {
 
 export async function importMembersExcel(users: any[]) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") throw new Error("Unauthorized")
 
   let successCount = 0
   let skipCount = 0

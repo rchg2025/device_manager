@@ -39,11 +39,29 @@ export async function transferData(fromUnitId: string, toUnitId: string, dataTyp
           break;
         case "inventory":
           count = (await basePrisma.inventorySession.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
-          results["Kiểm kê"] = count;
+          let recordCount = (await basePrisma.inventoryRecord.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          results["Phiếu kiểm kê"] = count + recordCount;
           break;
         case "maintenance":
           count = (await basePrisma.maintenance.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
           results["Bảo trì"] = count;
+          break;
+        case "areasRooms":
+          let areaCount = (await basePrisma.area.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          let roomCount = (await basePrisma.room.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          results["Khu vực & Phòng"] = areaCount + roomCount;
+          break;
+        case "classroomEquipments":
+          let catCount = (await basePrisma.classroomEqCategory.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          count = (await basePrisma.classroomEquipment.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          results["Thiết bị phòng học"] = count + catCount;
+          break;
+        case "configs":
+          let configCount = (await basePrisma.deviceConfig.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          let logCount = (await basePrisma.systemLog.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          let posCount = (await basePrisma.position.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          let settingCount = (await basePrisma.setting.updateMany({ where: { unitId: fromUnitId }, data: { unitId: toUnitId } })).count;
+          results["Cấu hình & Nhật ký"] = configCount + logCount + posCount + settingCount;
           break;
       }
     }

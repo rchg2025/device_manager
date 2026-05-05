@@ -19,7 +19,10 @@ export default async function TransferDataPage() {
           categories: true,
           equipments: true,
           borrowRequests: true,
-          inventorySessions: true
+          inventorySessions: true,
+          classroomEquipments: true,
+          rooms: true,
+          areas: true
         }
       }
     }

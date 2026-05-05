@@ -29,12 +29,12 @@ export const prisma = basePrisma.$extends({
         ]
 
         if (modelsWithTenant.includes(model as string)) {
-          if (['findUnique', 'findFirst', 'findMany', 'count', 'update', 'updateMany', 'delete', 'deleteMany'].includes(operation)) {
+          if (['findUnique', 'findFirst', 'findMany', 'count', 'update', 'updateMany', 'delete', 'deleteMany', 'aggregate', 'groupBy'].includes(operation)) {
             // Cảnh báo: với findUnique, nếu thêm unitId sẽ bị lỗi Prisma nếu unitId không phải field unique
             // Nên với findUnique/update/delete (những hàm yêu cầu unique where), 
             // ta chỉ có thể áp dụng nếu ta đổi Schema (Composite Unique).
             // Tạm thời bỏ qua findUnique, update, delete (chỉ áp dụng cho các hàm đọc nhiều)
-            if (['findFirst', 'findMany', 'count', 'updateMany', 'deleteMany'].includes(operation)) {
+            if (['findFirst', 'findMany', 'count', 'updateMany', 'deleteMany', 'aggregate', 'groupBy'].includes(operation)) {
               if (args) {
                  args.where = { ...args.where, unitId: tenantId }
               } else {
