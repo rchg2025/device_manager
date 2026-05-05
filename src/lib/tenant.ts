@@ -1,8 +1,9 @@
 import { cookies } from "next/headers"
-import { auth } from "@/auth"
 
 export async function getTenantId() {
   try {
+    // Sử dụng dynamic import để tránh circular dependency: prisma.ts -> tenant.ts -> auth.ts -> prisma.ts
+    const { auth } = await import("@/auth")
     const session = await auth()
     const role = session?.user?.role
     
