@@ -48,7 +48,7 @@ export default async function SystemLogsPage({
   searchParams: Promise<{ page?: string; action?: string; entity?: string; q?: string; userId?: string }>
 }) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") redirect("/dashboard")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") redirect("/dashboard")
 
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))

@@ -5,7 +5,7 @@ import SettingsForm from "./settings-form"
 
 export default async function SettingsPage() {
   const session = await auth()
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN")) {
     redirect("/dashboard")
   }
 

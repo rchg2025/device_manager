@@ -43,7 +43,7 @@ export async function updateProfile(formData: FormData) {
 
 export async function updateSmtpSettings(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") return { error: "Không có quyền thực hiện thao tác này" }
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Không có quyền thực hiện thao tác này" }
 
   const host = formData.get("host") as string
   const port = formData.get("port") as string
@@ -61,11 +61,19 @@ export async function updateSmtpSettings(formData: FormData) {
     ]
 
     for (const setting of settings) {
-      await prisma.setting.upsert({
-        where: { key: setting.key },
-        update: { value: setting.value },
-        create: { key: setting.key, value: setting.value }
+      const existing = await prisma.setting.findFirst({
+        where: { key: setting.key }
       })
+      if (existing) {
+        await prisma.setting.updateMany({
+          where: { key: setting.key },
+          data: { value: setting.value }
+        })
+      } else {
+        await prisma.setting.create({
+          data: { key: setting.key, value: setting.value }
+        })
+      }
     }
     await writeLog({
       userId: session.user.id,
@@ -84,7 +92,7 @@ export async function updateSmtpSettings(formData: FormData) {
 
 export async function updateDriveSettings(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") return { error: "Không có quyền thực hiện thao tác này" }
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Không có quyền thực hiện thao tác này" }
 
   const email = formData.get("email") as string
   const privateKey = formData.get("privateKey") as string
@@ -98,11 +106,19 @@ export async function updateDriveSettings(formData: FormData) {
     ]
 
     for (const setting of settings) {
-      await prisma.setting.upsert({
-        where: { key: setting.key },
-        update: { value: setting.value },
-        create: { key: setting.key, value: setting.value }
+      const existing = await prisma.setting.findFirst({
+        where: { key: setting.key }
       })
+      if (existing) {
+        await prisma.setting.updateMany({
+          where: { key: setting.key },
+          data: { value: setting.value }
+        })
+      } else {
+        await prisma.setting.create({
+          data: { key: setting.key, value: setting.value }
+        })
+      }
     }
 
     await writeLog({
@@ -121,7 +137,7 @@ export async function updateDriveSettings(formData: FormData) {
 
 export async function testDriveConnectionAction(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") return { success: false, message: "Không có quyền thực hiện thao tác này" }
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { success: false, message: "Không có quyền thực hiện thao tác này" }
 
   const email = formData.get("email") as string
   const privateKey = formData.get("privateKey") as string

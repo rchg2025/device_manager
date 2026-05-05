@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 
 export async function deleteLogsByAge(daysAgo: number | 'all') {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") return { error: "Chỉ Quản trị viên mới có quyền xóa nhật ký" }
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Chỉ Quản trị viên mới có quyền xóa nhật ký" }
 
   try {
     let result

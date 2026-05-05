@@ -18,13 +18,15 @@ export async function updateMember(formData: FormData) {
   const departmentId = formData.get("departmentId") as string
   const positionId = formData.get("positionId") as string
 
+  const finalUnitId = session?.user?.role === "SUPERADMIN" ? (unitId || null) : session.user.unitId
+
   await prisma.user.update({
     where: { id: userId },
     data: {
       name,
       role,
       phone,
-      unitId: unitId || null,
+      unitId: finalUnitId,
       departmentId: departmentId || null,
       positionId: positionId || null,
     }
@@ -82,6 +84,8 @@ export async function createMember(formData: FormData) {
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
+  const finalUnitId = session?.user?.role === "SUPERADMIN" ? (unitId || null) : session.user.unitId
+
   await prisma.user.create({
     data: {
       email,
@@ -89,7 +93,7 @@ export async function createMember(formData: FormData) {
       name,
       role,
       phone,
-      unitId: unitId || null,
+      unitId: finalUnitId,
       departmentId: departmentId || null,
       positionId: positionId || null,
     }

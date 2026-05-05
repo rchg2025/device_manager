@@ -210,12 +210,13 @@ model Notification {
 
 model Setting {
   id    String @id @default(cuid())
-  key   String @unique
+  key   String
   value String
 
   unitId String?
   unit   Unit?   @relation(fields: [unitId], references: [id])
   
+  @@unique([key, unitId])
   @@index([unitId])
 }
 
