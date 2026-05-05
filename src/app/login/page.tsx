@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { Lock, Mail, KeyRound, ArrowLeft } from "lucide-react"
 import { sendOtpToEmail, verifyOtp, resetPassword, getUnits } from "./actions"
 import { Suspense } from "react"
+import Image from "next/image"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -131,13 +132,13 @@ function LoginForm() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <img src="/logo.png" alt="NSG Logo" className="w-32 h-32 object-contain" />
+          <Image src="/logo.png" alt="NSG Logo" width={600} height={150} className="w-auto h-20 object-contain" priority />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 animate-gradient-x font-sans tracking-tight">
           Hệ thống Quản lý Thiết bị
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600 font-medium">
-          Khoa Công nghệ thông tin - Kỹ thuật điện
+          Trường Cao đẳng Bách khoa Nam Sài Gòn
         </p>
       </div>
 

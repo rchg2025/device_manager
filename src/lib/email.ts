@@ -31,11 +31,11 @@ async function getFromAddress() {
   let fromValue = fromSetting?.value?.trim()
   
   if (!fromValue) {
-    return `"Device Manager ITE" <${userSetting?.value || "noreply@nsg.edu.vn"}>`
+    return `"Device Manager" <${userSetting?.value || "noreply@nsg.edu.vn"}>`
   }
   
   if (fromValue.includes('@') && !fromValue.includes('<')) {
-    return `"Device Manager ITE" <${fromValue}>`
+    return `"Device Manager" <${fromValue}>`
   }
   
   if (!fromValue.includes('@') && !fromValue.includes('<')) {
@@ -70,8 +70,9 @@ const emailWrapper = (title: string, content: string) => `
       ${content}
     </div>
     <div class="footer">
-      Email tự động từ hệ thống Device Manager ITE.<br>
-      Khoa CNTT - KTĐ.
+      Email tự động từ hệ thống Device Manager.<br>
+      Trân trọng,<br>
+      Nam Sai Gon Polytechnic College.
     </div>
   </div>
 </body>
@@ -143,7 +144,7 @@ export async function sendBorrowRequestEmailToAdmins(
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[Device Manager ITE] Yêu cầu mượn thiết bị mới từ ${memberName}`,
+    subject: `[Device Manager] Yêu cầu mượn thiết bị mới từ ${memberName}`,
     html: emailWrapper("Yêu Cầu Mượn Thiết Bị Mới", content)
   })
 }
@@ -167,7 +168,7 @@ export async function sendReturnRequestEmailToAdmins(adminEmails: string[], memb
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[Device Manager ITE] Yêu cầu trả thiết bị từ ${memberName}`,
+    subject: `[Device Manager] Yêu cầu trả thiết bị từ ${memberName}`,
     html: emailWrapper("Yêu Cầu Trả Thiết Bị", content)
   })
 }
@@ -301,7 +302,7 @@ export async function sendStatusUpdateEmailToMember(
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager ITE] Trạng thái thiết bị: ${statusText}`,
+    subject: `[Device Manager] Trạng thái thiết bị: ${statusText}`,
     html: emailWrapper(title, content)
   })
 }
@@ -370,7 +371,7 @@ export async function sendBorrowRequestEmailToMember(
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager ITE] Xác nhận gửi yêu cầu mượn thiết bị`,
+    subject: `[Device Manager] Xác nhận gửi yêu cầu mượn thiết bị`,
     html: emailWrapper("Yêu Cầu Mượn Thiết Bị Đã Gửi", content)
   })
 }
@@ -394,7 +395,7 @@ export async function sendReturnRequestEmailToMember(memberEmail: string, member
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager ITE] Xác nhận gửi yêu cầu trả thiết bị`,
+    subject: `[Device Manager] Xác nhận gửi yêu cầu trả thiết bị`,
     html: emailWrapper("Yêu Cầu Trả Thiết Bị Đã Gửi", content)
   })
 }

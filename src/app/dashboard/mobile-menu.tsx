@@ -29,48 +29,48 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
             </div>
             
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-              <Link onClick={closeMenu} href="/dashboard" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+              <Link prefetch={false} onClick={closeMenu} href="/dashboard" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                 <LayoutDashboard className="w-5 h-5" /> Tổng quan
               </Link>
               {role !== "MEMBER" && (
                 <>
-                  <Link onClick={closeMenu} href="/dashboard/categories" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/categories' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/categories" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/categories' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Tags className="w-5 h-5" /> Quản lý danh mục
                   </Link>
-                  <Link onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Package className="w-5 h-5" /> Quản lý thiết bị
                   </Link>
-                  <Link onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Wrench className="w-5 h-5" /> Bảo trì thiết bị
                   </Link>
                 </>
               )}
 
               {role === "ADMIN" && (
-                <Link onClick={closeMenu} href="/dashboard/members" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/members' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                <Link prefetch={false} onClick={closeMenu} href="/dashboard/members" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/members' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                   <Users className="w-5 h-5" /> Quản lý thành viên
                 </Link>
               )}
 
-              <Link onClick={closeMenu} href="/dashboard/borrow" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/borrow' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+              <Link prefetch={false} onClick={closeMenu} href="/dashboard/borrow" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/borrow' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                 <Package className="w-5 h-5" /> Đăng ký mượn thiết bị
               </Link>
               
               {role !== "MEMBER" ? (
                 <>
-                  <Link onClick={closeMenu} href="/dashboard/requests?filter=action_required" className={`flex items-center justify-between px-3 py-3 rounded-md ${pathname === '/dashboard/requests' && typeof window !== 'undefined' && window.location.search.includes('action_required') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/requests?filter=action_required" className={`flex items-center justify-between px-3 py-3 rounded-md ${pathname === '/dashboard/requests' && typeof window !== 'undefined' && window.location.search.includes('action_required') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <div className="flex items-center gap-3">
                       <ClipboardList className="w-5 h-5" /> Yêu cầu mượn/trả
                     </div>
                     <AutoRefreshBadge initialCount={unreadCount} />
                   </Link>
-                  <Link onClick={closeMenu} href="/dashboard/requests" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/requests' && typeof window !== 'undefined' && !window.location.search.includes('action_required') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/requests" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/requests' && typeof window !== 'undefined' && !window.location.search.includes('action_required') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <History className="w-5 h-5" /> Lịch sử mượn trả
                   </Link>
 
                 </>
               ) : (
-                <Link onClick={closeMenu} href="/dashboard/requests" className={`flex items-center justify-between px-3 py-3 rounded-md ${pathname === '/dashboard/requests' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                <Link prefetch={false} onClick={closeMenu} href="/dashboard/requests" className={`flex items-center justify-between px-3 py-3 rounded-md ${pathname === '/dashboard/requests' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                   <div className="flex items-center gap-3">
                     <ClipboardList className="w-5 h-5" /> Lịch sử mượn trả
                   </div>
@@ -80,23 +80,23 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
               {role !== "MEMBER" && (
                 <>
                   <hr className="my-2 border-gray-200" />
-                  <Link onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-equipments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-equipments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <MonitorPlay className="w-5 h-5" /> QL thiết bị phòng học
                   </Link>
-                  <Link onClick={closeMenu} href="/dashboard/classroom-maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-maintenance') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-maintenance') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Wrench className="w-5 h-5" /> Lịch sử bảo trì TB phòng
                   </Link>
                   <hr className="my-2 border-gray-200" />
-                  <Link onClick={closeMenu} href="/dashboard/inventory" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/inventory') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/inventory" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/inventory') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <ClipboardCheck className="w-5 h-5" /> Kiểm kê thiết bị
                   </Link>
                   {role === "ADMIN" && (
-                    <Link onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                       <Settings className="w-5 h-5" /> Cấu hình hệ thống
                     </Link>
                   )}
                   {role === "ADMIN" && (
-                    <Link onClick={closeMenu} href="/dashboard/system-logs" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/system-logs' ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-700'}`}>
+                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/system-logs" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/system-logs' ? 'bg-red-50 text-red-600 font-medium' : 'text-gray-700'}`}>
                       <ShieldAlert className="w-5 h-5" /> Nhật ký hệ thống
                     </Link>
                   )}

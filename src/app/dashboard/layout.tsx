@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Users, History, Settings, Wrench, MonitorPlay, ClipboardCheck, ShieldAlert, Building } from "lucide-react"
@@ -85,56 +86,56 @@ export default async function DashboardLayout({
       {/* Sidebar Wrapper */}
       <DesktopSidebarWrapper>
         <div className="p-4 border-b flex flex-col items-center">
-          <Link href="/dashboard" className="flex flex-col items-center hover:opacity-80 transition-opacity">
-            <img src="/logo.png" alt="NSG Logo" className="h-16 w-auto object-contain mb-2" />
-            <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
-            <p className="text-xs text-gray-500">Khoa CNTT - KTĐ</p>
+          <Link prefetch={false} href="/dashboard" className="flex flex-col items-center hover:opacity-80 transition-opacity">
+            <Image src="/logo.png" alt="NSG Logo" width={200} height={64} className="h-16 w-auto object-contain mb-2" priority />
+            <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">Device Manager</h1>
+            <p className="text-xs text-gray-500">Nam Sai Gon Polytechnic College</p>
           </Link>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+          <Link prefetch={false} href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
             <LayoutDashboard className="w-5 h-5 shrink-0" /> Tổng quan
           </Link>
           {role !== "MEMBER" && (
             <>
-              <Link href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Tags className="w-5 h-5 shrink-0" /> Quản lý danh mục
               </Link>
-              <Link href="/dashboard/equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Package className="w-5 h-5 shrink-0" /> Quản lý thiết bị
               </Link>
-              <Link href="/dashboard/maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Wrench className="w-5 h-5 shrink-0" /> Bảo trì thiết bị
               </Link>
             </>
           )}
 
           {(role === "ADMIN" || role === "SUPERADMIN") && (
-            <Link href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+            <Link prefetch={false} href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
               <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
             </Link>
           )}
 
-          <Link href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+          <Link prefetch={false} href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
             <Package className="w-5 h-5 shrink-0" /> Đăng ký mượn thiết bị
           </Link>
           
           {role !== "MEMBER" ? (
             <>
-              <Link href="/dashboard/requests?filter=action_required" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/requests?filter=action_required" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <div className="flex items-center gap-3">
                   <ClipboardList className="w-5 h-5 shrink-0" /> Yêu cầu mượn/trả
                 </div>
                 <AutoRefreshBadge initialCount={pendingRequestsCount} />
               </Link>
-              <Link href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <History className="w-5 h-5 shrink-0" /> Lịch sử mượn trả
               </Link>
 
             </>
           ) : (
-            <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+            <Link prefetch={false} href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
               <div className="flex items-center gap-3">
                 <ClipboardList className="w-5 h-5 shrink-0" /> Lịch sử mượn trả
               </div>
@@ -145,33 +146,33 @@ export default async function DashboardLayout({
           {role !== "MEMBER" && (
             <>
               <hr className="my-2 border-gray-200" />
-              <Link href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <MonitorPlay className="w-5 h-5 shrink-0" /> QL thiết bị phòng học
               </Link>
-              <Link href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Wrench className="w-5 h-5 shrink-0" /> Lịch sử bảo trì TB phòng
               </Link>
               <hr className="my-2 border-gray-200" />
-              <Link href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Link prefetch={false} href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
               {(role === "ADMIN" || role === "SUPERADMIN") && (
-                <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
+                <Link prefetch={false} href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
                   <Settings className="w-5 h-5 shrink-0" /> Cấu hình hệ thống
                 </Link>
               )}
               {(role === "ADMIN" || role === "SUPERADMIN") && (
-                <Link href="/dashboard/system-logs" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-600 whitespace-nowrap">
+                <Link prefetch={false} href="/dashboard/system-logs" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-red-50 hover:text-red-600 whitespace-nowrap">
                   <ShieldAlert className="w-5 h-5 shrink-0" /> Nhật ký hệ thống
                 </Link>
               )}
               {role === "SUPERADMIN" && (
                 <>
                   <hr className="my-2 border-gray-200" />
-                  <Link href="/dashboard/superadmin/units" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50">
+                  <Link prefetch={false} href="/dashboard/superadmin/units" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50">
                     <Building className="w-5 h-5 shrink-0" /> Quản lý đơn vị (SA)
                   </Link>
-                  <Link href="/dashboard/superadmin/transfer-data" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
+                  <Link prefetch={false} href="/dashboard/superadmin/transfer-data" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
                     <Tags className="w-5 h-5 shrink-0" /> Chuyển dữ liệu (SA)
                   </Link>
                 </>
@@ -181,7 +182,7 @@ export default async function DashboardLayout({
         </nav>
 
         <div className="p-4 border-t">
-          <Link href="/dashboard/profile" className="flex items-center gap-3 mb-4 p-2 -mx-2 rounded-md hover:bg-gray-50 transition-colors">
+          <Link prefetch={false} href="/dashboard/profile" className="flex items-center gap-3 mb-4 p-2 -mx-2 rounded-md hover:bg-gray-50 transition-colors">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
               {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
@@ -210,8 +211,8 @@ export default async function DashboardLayout({
         <header className="bg-white shadow-sm border-b px-6 py-3 flex justify-between items-center shrink-0">
           <div className="xl:hidden flex items-center gap-2">
             <MobileMenu role={role} unreadCount={pendingRequestsCount} />
-            <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
-              <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager ITE</h1>
+            <Link prefetch={false} href="/dashboard" className="hover:opacity-80 transition-opacity">
+              <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager</h1>
             </Link>
           </div>
           <div className="hidden xl:flex items-center gap-4">
@@ -224,7 +225,7 @@ export default async function DashboardLayout({
             <NotificationDropdown unreadCount={unreadCount} notifications={notifications} />
             
             <div className="xl:hidden flex items-center gap-2">
-              <Link href="/dashboard/profile" title="Quản lý tài khoản" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+              <Link prefetch={false} href="/dashboard/profile" title="Quản lý tài khoản" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
                   {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
