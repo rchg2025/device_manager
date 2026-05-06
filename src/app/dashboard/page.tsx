@@ -22,7 +22,7 @@ export default async function DashboardPage() {
       pendingRequestsCount,
       overdueRequestsCount,
       requests
-    ] = await Promise.all([
+    ] = await prisma.$transaction([
       prisma.borrowRequest.count({ where: { userId: session?.user?.id, status: 'APPROVED' } }),
       prisma.borrowRequest.count({ where: { userId: session?.user?.id, status: { in: ['PENDING', 'RETURN_REQUESTED'] } } }),
       prisma.borrowRequest.count({ where: { userId: session?.user?.id, status: 'APPROVED', returnDate: { lt: today } } }),
@@ -181,7 +181,7 @@ export default async function DashboardPage() {
     classroomEqStats,
     totalRooms,
     totalAreas
-  ] = await Promise.all([
+  ] = await prisma.$transaction([
     prisma.equipment.aggregate({ _sum: { totalQty: true, availableQty: true } }),
     prisma.borrowRequest.count({ where: { status: { in: ['PENDING', 'RETURN_REQUESTED'] } } }),
     prisma.borrowRequest.count({ where: { status: 'APPROVED' } }),

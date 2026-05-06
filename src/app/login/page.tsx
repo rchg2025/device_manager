@@ -74,7 +74,6 @@ function LoginForm() {
       setError("Sai thông tin đăng nhập!")
     } else {
       router.push("/dashboard")
-      router.refresh()
     }
   }
 

@@ -85,7 +85,7 @@ export default async function DashboardLayout({
       }));
     }
 
-    const results = await Promise.all(queries);
+    const results = await prisma.$transaction(queries as any);
 
     unreadCount = results[0] as number;
     notifications = results[1] as any[];
