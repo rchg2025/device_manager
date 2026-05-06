@@ -68,6 +68,8 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
     // --- TẠO SHEET THỐNG KÊ ---
     const eqStats: Record<string, number> = {}
     let totalDevices = 0;
+    let maxQty = 0;
+    
     data.forEach(room => {
       room.classroomEquipments.forEach((eq: any) => {
         eqStats[eq.name] = (eqStats[eq.name] || 0) + eq.quantity
@@ -75,17 +77,30 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
       })
     })
     
+    // Tìm số lượng lớn nhất để vẽ biểu đồ tương đối
+    maxQty = Math.max(...Object.values(eqStats), 1)
+    
+    const createBarChart = (qty: number, max: number) => {
+      const maxBars = 30; // Số lượng block tối đa
+      const barsCount = Math.round((qty / max) * maxBars);
+      return "█".repeat(barsCount) + "░".repeat(maxBars - barsCount) + ` (${((qty/totalDevices)*100).toFixed(1)}%)`;
+    }
+    
     const statsData = Object.entries(eqStats)
-      .map(([name, qty]) => ({ "Tên thiết bị": name, "Tổng số lượng": qty }))
+      .map(([name, qty]) => ({ 
+        "Tên thiết bị": name, 
+        "Tổng số lượng": qty,
+        "Biểu đồ tỷ lệ": createBarChart(qty, maxQty)
+      }))
       .sort((a, b) => (b["Tổng số lượng"] as number) - (a["Tổng số lượng"] as number))
       
     // Thêm dòng tổng cộng
-    statsData.push({ "Tên thiết bị": "TỔNG CỘNG", "Tổng số lượng": totalDevices })
+    statsData.push({ "Tên thiết bị": "TỔNG CỘNG", "Tổng số lượng": totalDevices, "Biểu đồ tỷ lệ": "" })
       
     const statsWorksheet = XLSX.utils.json_to_sheet(statsData)
-    const statsRange = XLSX.utils.decode_range(statsWorksheet['!ref'] || "A1:B1")
+    const statsRange = XLSX.utils.decode_range(statsWorksheet['!ref'] || "A1:C1")
     statsWorksheet['!autofilter'] = { ref: XLSX.utils.encode_range(statsRange) }
-    statsWorksheet['!cols'] = [ { wch: 40 }, { wch: 15 } ]
+    statsWorksheet['!cols'] = [ { wch: 40 }, { wch: 15 }, { wch: 45 } ]
 
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachThietBi")

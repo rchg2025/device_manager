@@ -8,8 +8,8 @@ export const getTenantId = cache(async () => {
     const session = await auth()
     const role = session?.user?.role
     
-    // Nếu là SUPERADMIN, ưu tiên lấy từ cookie (Tenant Switcher)
-    if (role === "SUPERADMIN") {
+    // Nếu là SUPERADMIN hoặc SUPERVISOR, ưu tiên lấy từ cookie (Tenant Switcher)
+    if (role === "SUPERADMIN" || role === "SUPERVISOR") {
       const c = await cookies()
       const tenantId = c.get('tenantId')?.value
       return tenantId || null // Nếu rỗng là đang xem "Tất cả"
