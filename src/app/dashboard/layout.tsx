@@ -124,14 +124,14 @@ export default async function DashboardLayout({
                 <Package className="w-5 h-5 shrink-0" /> Quản lý thiết bị
               </Link>
               <Link prefetch={false} href="/dashboard/maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-                <Wrench className="w-5 h-5 shrink-0" /> Bảo trì thiết bị
+                <Wrench className="w-5 h-5 shrink-0" /> Lịch sử Bảo trì TB
               </Link>
             </>
           )}
 
           {role === "SUPERVISOR" && (
             <Link prefetch={false} href="/dashboard/maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-              <Wrench className="w-5 h-5 shrink-0" /> Bảo trì thiết bị
+              <Wrench className="w-5 h-5 shrink-0" /> Lịch sử Bảo trì TB
             </Link>
           )}
 

@@ -42,13 +42,13 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                     <Package className="w-5 h-5" /> Quản lý thiết bị
                   </Link>
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                    <Wrench className="w-5 h-5" /> Bảo trì thiết bị
+                    <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
                   </Link>
                 </>
               )}
               {role === "SUPERVISOR" && (
                 <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                  <Wrench className="w-5 h-5" /> Bảo trì thiết bị
+                  <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
                 </Link>
               )}
 
