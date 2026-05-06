@@ -388,6 +388,16 @@ function LoginForm() {
 
         </div>
       </div>
+      
+      {/* Footer */}
+      <div className="mt-12 text-center text-xs text-gray-500 max-w-lg mx-auto pb-4">
+        <p>
+          Bản quyền thuộc về <a href="https://rongcon.net" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Rồng Con HG</a>
+        </p>
+        <p className="mt-1">
+          Số điện thoại hỗ trợ: <a href="tel:0917919522" className="text-blue-600 hover:underline">0917919522</a> - Email: <a href="mailto:nguyenluyen@nsg.edu.vn" className="text-blue-600 hover:underline">nguyenluyen@nsg.edu.vn</a>
+        </p>
+      </div>
     </div>
   )
 }
