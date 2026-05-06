@@ -6,16 +6,27 @@ import * as XLSX from "xlsx"
 export default function ExportExcelButton({ data }: { data: any[] }) {
   const handleExport = () => {
     // Transform data for Excel
-    const excelData = data.map(room => {
-      const equipmentSummary = room.classroomEquipments.map((eq: any) => `${eq.name} x${eq.quantity}`).join(", ")
-      const totalEquipments = room.classroomEquipments.reduce((sum: number, eq: any) => sum + eq.quantity, 0)
-      
-      return {
-        "Tên phòng": room.name,
-        "Khu vực": room.area?.name || "Chưa có",
-        "Người quản lý": room.manager?.name || "Chưa có",
-        "Tổng số thiết bị": totalEquipments,
-        "Chi tiết thiết bị": equipmentSummary
+    const excelData: any[] = []
+    
+    data.forEach(room => {
+      if (room.classroomEquipments.length === 0) {
+        excelData.push({
+          "Tên phòng": room.name,
+          "Khu vực": room.area?.name || "Chưa có",
+          "Người quản lý": room.manager?.name || "Chưa có",
+          "Tên thiết bị": "Không có thiết bị",
+          "Số lượng": 0
+        })
+      } else {
+        room.classroomEquipments.forEach((eq: any) => {
+          excelData.push({
+            "Tên phòng": room.name,
+            "Khu vực": room.area?.name || "Chưa có",
+            "Người quản lý": room.manager?.name || "Chưa có",
+            "Tên thiết bị": eq.name,
+            "Số lượng": eq.quantity
+          })
+        })
       }
     })
 

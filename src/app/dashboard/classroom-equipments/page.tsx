@@ -61,7 +61,7 @@ export default async function ClassroomEquipmentsPage({
       rooms,
       categories,
       configs
-    ] = await Promise.all([
+    ] = await prisma.$transaction([
       prisma.classroomEquipment.count({ where: whereClause }),
       prisma.classroomEquipment.findMany({
         where: whereClause,
