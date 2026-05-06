@@ -19,11 +19,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || "placeholder",
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || "placeholder",
+    {
+      ...Google({
+        clientId: process.env.AUTH_GOOGLE_ID || "placeholder",
+        clientSecret: process.env.AUTH_GOOGLE_SECRET || "placeholder",
+      }),
       allowDangerousEmailAccountLinking: true,
-    }),
+    },
     Credentials({
       credentials: {
         email: { label: "Email/Username", type: "text" },
@@ -87,6 +89,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   }
                 })
               }
+            } else {
+              // User doesn't exist, this is a NEW registration via Google
+              const { cookies } = await import("next/headers")
+              const c = await cookies()
+              const selectedUnitId = c.get('tenantId')?.value
+              
+              if (!selectedUnitId || selectedUnitId === 'null') {
+                // Must select a unit to register!
+                return "/login?error=GoogleUnitRequired"
+              }
             }
           }
         } catch (error) {
@@ -119,6 +131,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   },
   events: {
+    async createUser({ user }) {
+      if (user && user.id) {
+        try {
+          const { cookies } = await import("next/headers")
+          const c = await cookies()
+          const selectedUnitId = c.get('tenantId')?.value
+          
+          if (selectedUnitId && selectedUnitId !== 'null') {
+            await basePrisma.user.update({
+              where: { id: user.id },
+              data: { unitId: selectedUnitId }
+            })
+          }
+        } catch (error) {
+          console.error("Error setting unitId for new user:", error)
+        }
+      }
+    },
     async signIn({ user }) {
       if (user && user.id) {
         await writeLog({

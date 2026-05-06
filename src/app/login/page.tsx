@@ -42,6 +42,8 @@ function LoginForm() {
     const urlError = searchParams.get("error")
     if (urlError === "OAuthAccountNotLinked") {
       setError("Email này đã được sử dụng. Vui lòng đăng nhập bằng mật khẩu hoặc sử dụng Quên mật khẩu.")
+    } else if (urlError === "GoogleUnitRequired") {
+      setError("Vui lòng chọn 'Đơn vị sử dụng' ở phía trên trước khi Đăng nhập bằng Google (để tạo tài khoản mới cho đơn vị đó).")
     } else if (urlError) {
       setError("Đã xảy ra lỗi đăng nhập: " + urlError)
     }
