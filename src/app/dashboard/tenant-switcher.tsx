@@ -1,23 +1,40 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Building } from "lucide-react"
+import { useState, useTransition } from "react"
+import { Building, Loader2 } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function TenantSwitcher({ 
   units, 
-  currentTenantId 
+  currentTenantId,
+  role
 }: { 
   units: { id: string, name: string }[], 
-  currentTenantId: string | null 
+  currentTenantId: string | null,
+  role?: string
 }) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const handleSwitch = (unitId: string) => {
     document.cookie = `tenantId=${unitId}; path=/; max-age=86400`;
     setIsOpen(false)
-    router.refresh()
+    
+    const toastId = toast.loading("Đang chuyển đổi dữ liệu...")
+    startTransition(() => {
+      router.refresh()
+      // Toast sẽ được dismiss thông qua useEffect hoặc timeout nếu cần,
+      // nhưng với router.refresh, ta có thể dùng timeout hoặc theo dõi isPending
+    })
+    
+    // Một mẹo nhỏ: Next.js router.refresh() không trả về promise, 
+    // ta dùng setTimeout kết hợp hoặc effect để tắt toast
+    setTimeout(() => {
+      toast.dismiss(toastId)
+      toast.success("Đã chuyển đổi thành công!")
+    }, 1500)
   }
 
   const currentUnit = units.find(u => u.id === currentTenantId) || units[0]
@@ -25,12 +42,13 @@ export default function TenantSwitcher({
   return (
     <div className="relative">
       <button 
+        disabled={isPending}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium border border-blue-200 shadow-sm"
+        className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium border border-blue-200 shadow-sm disabled:opacity-70"
       >
-        <Building className="w-4 h-4" />
+        {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Building className="w-4 h-4" />}
         <span className="hidden sm:inline">
-          {currentUnit ? currentUnit.name : "Đang tải..."}
+          {isPending ? "Đang xử lý..." : (currentUnit ? currentUnit.name : "Đang tải...")}
         </span>
       </button>
 
