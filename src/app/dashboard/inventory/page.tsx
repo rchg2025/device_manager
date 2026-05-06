@@ -106,7 +106,7 @@ export default async function InventoryPage({
           <p className="text-gray-500 mt-1 text-sm">Quét mã QR thiết bị để ghi nhận lịch sử kiểm kê</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {activeSession && records.length > 0 && role !== "MEMBER" && (
+          {activeSession && records.length > 0 && role !== "MEMBER" && role !== "SUPERVISOR" && (
             <ExportInventoryButton sessionId={activeSession.id} />
           )}
           {activeSession && <ScanModal activeSessionId={activeSession.id} />}
@@ -114,7 +114,7 @@ export default async function InventoryPage({
       </div>
 
       {/* Create new session (when active exists) */}
-      {activeSession && role !== "MEMBER" && (
+      {activeSession && role !== "MEMBER" && role !== "SUPERVISOR" && (
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h4 className="text-sm font-semibold text-gray-600 mb-2">Tạo đợt kiểm kê mới</h4>
           <form action={createInventorySession} className="flex gap-2">
@@ -140,7 +140,7 @@ export default async function InventoryPage({
                 </p>
               </div>
             </div>
-            {role !== "MEMBER" && (
+            {role !== "MEMBER" && role !== "SUPERVISOR" && (
               <form action={completeInventorySession.bind(null, activeSession.id)}>
                 <button type="submit" className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
                   <CheckCircle2 className="w-4 h-4" /> Hoàn tất đợt này
@@ -233,7 +233,7 @@ export default async function InventoryPage({
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tình trạng</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Người quét</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Thời gian</th>
-                      {role !== "MEMBER" && <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider"></th>}
+                      {role !== "MEMBER" && role !== "SUPERVISOR" && <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider"></th>}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-50">
@@ -281,7 +281,7 @@ export default async function InventoryPage({
                           <td className="px-4 py-3 text-xs text-gray-500">
                             {new Date(rec.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
                           </td>
-                          {role !== "MEMBER" && (
+                          {role !== "MEMBER" && role !== "SUPERVISOR" && (
                             <td className="px-4 py-3 text-right">
                               <DeleteInventoryButton id={rec.id} type="record" />
                             </td>
@@ -300,7 +300,7 @@ export default async function InventoryPage({
           <ClipboardCheck className="w-14 h-14 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-700 mb-1">Chưa có đợt kiểm kê nào đang hoạt động</h3>
           <p className="text-sm text-gray-500 mb-6">Tạo một đợt kiểm kê mới để bắt đầu quét mã QR thiết bị</p>
-          {role !== "MEMBER" && (
+          {role !== "MEMBER" && role !== "SUPERVISOR" && (
             <form action={createInventorySession} className="flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
               <input type="text" name="name" required placeholder="VD: Kiểm kê tháng 5/2026" className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               <button type="submit" className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shrink-0">
@@ -318,7 +318,7 @@ export default async function InventoryPage({
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-400" /> Lịch sử các đợt đã hoàn tất
             </h3>
-            {role !== "MEMBER" && (
+            {role !== "MEMBER" && role !== "SUPERVISOR" && (
               <ExportInventoryButton />
             )}
           </div>
@@ -331,7 +331,7 @@ export default async function InventoryPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Hoàn tất</span>
-                  {role !== "MEMBER" && (
+                  {role !== "MEMBER" && role !== "SUPERVISOR" && (
                     <ExportInventoryButton sessionId={s.id} />
                   )}
                   {role === "ADMIN" && (

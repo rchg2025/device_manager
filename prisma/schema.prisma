@@ -39,6 +39,7 @@ enum Role {
   SUPERADMIN
   ADMIN
   MANAGER
+  SUPERVISOR
   MEMBER
 }
 
@@ -47,6 +48,7 @@ model Unit {
   name  String @unique
   
   users                 User[]
+  supervisors           User[] @relation("SupervisedUnits")
   categories            Category[]
   equipments            Equipment[]
   borrowRequests        BorrowRequest[]
@@ -101,6 +103,7 @@ model User {
   
   unitId        String?
   unit          Unit?       @relation(fields: [unitId], references: [id])
+  supervisedUnits Unit[]    @relation("SupervisedUnits")
   positionId    String?
   position      Position?   @relation(fields: [positionId], references: [id])
   departmentId  String?

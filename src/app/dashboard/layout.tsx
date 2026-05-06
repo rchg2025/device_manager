@@ -26,17 +26,25 @@ export default async function DashboardLayout({
   let units: any[] = []
   let currentTenantId: string | null = null
 
-  if (role === "SUPERADMIN") {
-    const { unstable_cache } = await import("next/cache");
-    const getCachedUnits = unstable_cache(
-      async () => {
-        const { basePrisma } = await import("@/lib/prisma");
-        return await basePrisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } });
-      },
-      ['dashboard-layout-units'],
-      { revalidate: 3600, tags: ['units'] }
-    );
-    units = await getCachedUnits();
+  if (role === "SUPERADMIN" || role === "SUPERVISOR") {
+    if (role === "SUPERADMIN") {
+      const { unstable_cache } = await import("next/cache");
+      const getCachedUnits = unstable_cache(
+        async () => {
+          const { basePrisma } = await import("@/lib/prisma");
+          return await basePrisma.unit.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } });
+        },
+        ['dashboard-layout-units'],
+        { revalidate: 3600, tags: ['units'] }
+      );
+      units = await getCachedUnits();
+    } else {
+      const userWithUnits = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { supervisedUnits: { select: { id: true, name: true }, orderBy: { name: 'asc' } } }
+      });
+      units = userWithUnits?.supervisedUnits || [];
+    }
     const c = await cookies();
     currentTenantId = c.get('tenantId')?.value || "";
   }
@@ -105,7 +113,9 @@ export default async function DashboardLayout({
           <Link prefetch={false} href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
             <LayoutDashboard className="w-5 h-5 shrink-0" /> Tổng quan
           </Link>
-          {role !== "MEMBER" && (
+          
+          {/* Menu cho Quản trị viên/Quản lý */}
+          {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
             <>
               <Link prefetch={false} href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Tags className="w-5 h-5 shrink-0" /> Quản lý danh mục
@@ -119,24 +129,34 @@ export default async function DashboardLayout({
             </>
           )}
 
+          {role === "SUPERVISOR" && (
+            <Link prefetch={false} href="/dashboard/maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Wrench className="w-5 h-5 shrink-0" /> Bảo trì thiết bị
+            </Link>
+          )}
+
           {(role === "ADMIN" || role === "SUPERADMIN") && (
             <Link prefetch={false} href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
               <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
             </Link>
           )}
 
-          <Link prefetch={false} href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-            <Package className="w-5 h-5 shrink-0" /> Đăng ký mượn thiết bị
-          </Link>
+          {role !== "SUPERVISOR" && (
+            <Link prefetch={false} href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+              <Package className="w-5 h-5 shrink-0" /> Đăng ký mượn thiết bị
+            </Link>
+          )}
           
           {role !== "MEMBER" ? (
             <>
-              <Link prefetch={false} href="/dashboard/requests?filter=action_required" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-                <div className="flex items-center gap-3">
-                  <ClipboardList className="w-5 h-5 shrink-0" /> Yêu cầu mượn/trả
-                </div>
-                <AutoRefreshBadge initialCount={pendingRequestsCount} />
-              </Link>
+              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+                <Link prefetch={false} href="/dashboard/requests?filter=action_required" className="flex items-center justify-between px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                  <div className="flex items-center gap-3">
+                    <ClipboardList className="w-5 h-5 shrink-0" /> Yêu cầu mượn/trả
+                  </div>
+                  <AutoRefreshBadge initialCount={pendingRequestsCount} />
+                </Link>
+              )}
               <Link prefetch={false} href="/dashboard/requests" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <History className="w-5 h-5 shrink-0" /> Lịch sử mượn trả
               </Link>
@@ -154,9 +174,11 @@ export default async function DashboardLayout({
           {role !== "MEMBER" && (
             <>
               <hr className="my-2 border-gray-200" />
-              <Link prefetch={false} href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-                <MonitorPlay className="w-5 h-5 shrink-0" /> QL thiết bị phòng học
-              </Link>
+              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+                <Link prefetch={false} href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                  <MonitorPlay className="w-5 h-5 shrink-0" /> QL thiết bị phòng học
+                </Link>
+              )}
               <Link prefetch={false} href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Wrench className="w-5 h-5 shrink-0" /> Lịch sử bảo trì TB phòng
               </Link>
@@ -177,7 +199,10 @@ export default async function DashboardLayout({
               {role === "SUPERADMIN" && (
                 <>
                   <hr className="my-2 border-gray-200" />
-                  <Link prefetch={false} href="/dashboard/superadmin/units" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50">
+                  <Link prefetch={false} href="/dashboard/superadmin/accounts" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
+                    <Users className="w-5 h-5 shrink-0" /> Tài khoản cấp cao
+                  </Link>
+                  <Link prefetch={false} href="/dashboard/superadmin/units" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
                     <Building className="w-5 h-5 shrink-0" /> Quản lý đơn vị (SA)
                   </Link>
                   <Link prefetch={false} href="/dashboard/superadmin/transfer-data" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
@@ -224,7 +249,7 @@ export default async function DashboardLayout({
             </Link>
           </div>
           <div className="hidden xl:flex items-center gap-4">
-            {role === "SUPERADMIN" && (
+            {(role === "SUPERADMIN" || role === "SUPERVISOR") && (
               <TenantSwitcher units={[{ id: "", name: "Tất cả đơn vị" }, ...units]} currentTenantId={currentTenantId} />
             )}
           </div>

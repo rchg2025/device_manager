@@ -75,6 +75,11 @@ export async function createMaintenance(formData: FormData) {
           where: { id: equipmentId },
           data: { availableQty: { decrement: quantity } }
         })
+      } else if (classroomEqId) {
+        await tx.classroomEquipment.update({
+          where: { id: classroomEqId },
+          data: { quantity: { decrement: quantity } }
+        })
       }
     }
   })
@@ -135,6 +140,18 @@ export async function updateMaintenanceStatus(id: string, status: string) {
           data: { availableQty: { decrement: existing.quantity } }
         })
       }
+    } else if (existing.classroomEqId) {
+      if (existing.status !== "COMPLETED" && status === "COMPLETED") {
+        await tx.classroomEquipment.update({
+          where: { id: existing.classroomEqId },
+          data: { quantity: { increment: existing.quantity } }
+        })
+      } else if (existing.status === "COMPLETED" && status !== "COMPLETED") {
+        await tx.classroomEquipment.update({
+          where: { id: existing.classroomEqId },
+          data: { quantity: { decrement: existing.quantity } }
+        })
+      }
     }
   })
 
@@ -161,11 +178,18 @@ export async function deleteMaintenance(id: string) {
     })
 
     // Nếu xoá bản ghi bảo trì đang không ở trạng thái COMPLETED, trả lại số lượng
-    if (existing.status !== "COMPLETED" && existing.equipmentId) {
-      await tx.equipment.update({
-        where: { id: existing.equipmentId },
-        data: { availableQty: { increment: existing.quantity } }
-      })
+    if (existing.status !== "COMPLETED") {
+      if (existing.equipmentId) {
+        await tx.equipment.update({
+          where: { id: existing.equipmentId },
+          data: { availableQty: { increment: existing.quantity } }
+        })
+      } else if (existing.classroomEqId) {
+        await tx.classroomEquipment.update({
+          where: { id: existing.classroomEqId },
+          data: { quantity: { increment: existing.quantity } }
+        })
+      }
     }
   })
 
