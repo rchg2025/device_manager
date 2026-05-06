@@ -160,10 +160,9 @@ export async function updateMaintenanceStatus(id: string, status: string) {
 
 export async function deleteMaintenance(id: string) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN") {
-    throw new Error("Unauthorized")
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") {
+    return { error: "Chỉ Quản trị viên mới có quyền xóa lịch sử bảo trì." }
   }
-
   const existing = await prisma.maintenance.findUnique({ where: { id } })
   if (!existing) return
 

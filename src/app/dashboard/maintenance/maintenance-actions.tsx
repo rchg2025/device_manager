@@ -42,7 +42,7 @@ export default function MaintenanceActions({ maintenance, role }: { maintenance:
         </select>
       )}
 
-      {role === "ADMIN" && (
+      {(role === "ADMIN" || role === "SUPERADMIN") && (
         <button 
           onClick={handleDelete}
           disabled={isLoading}

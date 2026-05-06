@@ -144,7 +144,8 @@ export async function requestReturn(requestId: string) {
 
     const notifyWhere: any = {
       OR: [
-        { role: "ADMIN" }
+        { role: "ADMIN" },
+        { role: "SUPERADMIN" }
       ]
     }
     if (!targetManagerId) {
@@ -211,7 +212,7 @@ export async function requestReturn(requestId: string) {
 export async function deleteHistoryRecord(requestId: string) {
   try {
     const session = await auth()
-    if (session?.user?.role !== "ADMIN") return { error: "Không có quyền xóa lịch sử" }
+    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Không có quyền xóa lịch sử" }
 
     const request = await prisma.borrowRequest.findUnique({ where: { id: requestId } })
     if (!request) return { error: "Không tìm thấy yêu cầu" }

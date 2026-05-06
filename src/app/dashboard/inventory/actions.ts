@@ -108,7 +108,7 @@ export async function completeInventorySession(id: string) {
 export async function deleteInventorySession(id: string) {
   const session = await auth()
   if (!session?.user?.id) return { error: "Vui lòng đăng nhập" }
-  if (session.user.role !== "ADMIN") return { error: "Chỉ Quản trị viên mới được xóa đợt kiểm kê" }
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") return { error: "Chỉ Quản trị viên mới được xóa đợt kiểm kê" }
 
   try {
     await prisma.inventorySession.delete({

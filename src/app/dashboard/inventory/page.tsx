@@ -334,7 +334,7 @@ export default async function InventoryPage({
                   {role !== "MEMBER" && role !== "SUPERVISOR" && (
                     <ExportInventoryButton sessionId={s.id} />
                   )}
-                  {role === "ADMIN" && (
+                  {(role === "ADMIN" || role === "SUPERADMIN") && (
                     <DeleteInventoryButton id={s.id} type="session" />
                   )}
                 </div>

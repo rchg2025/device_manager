@@ -256,7 +256,7 @@ export default async function RequestsPage({
                           </ReturnModal>
                         </div>
                       )}
-                      {role === "ADMIN" && req.status !== "APPROVED" && req.status !== "RETURN_REQUESTED" && (
+                      {(role === "ADMIN" || role === "SUPERADMIN") && req.status !== "APPROVED" && req.status !== "RETURN_REQUESTED" && (
                         <div className="flex justify-end gap-2 mt-2">
                           <DeleteHistoryButton requestId={req.id} />
                         </div>

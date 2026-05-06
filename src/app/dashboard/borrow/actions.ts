@@ -76,7 +76,8 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
 
       const notifyWhere: any = {
         OR: [
-          { role: "ADMIN" }
+          { role: "ADMIN" },
+          { role: "SUPERADMIN" }
         ]
       }
       
