@@ -161,7 +161,6 @@ function LoginForm() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Đơn vị</label>
                   <select
-                    required
                     value={unitId}
                     onChange={e => setUnitId(e.target.value)}
                     className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"

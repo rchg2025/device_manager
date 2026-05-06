@@ -48,7 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isMatch) return null
 
         // Check if unit is valid
-        if (user.role !== 'SUPERADMIN') {
+        if (user.role !== 'SUPERADMIN' && user.role !== 'SUPERVISOR') {
           const requestedUnitId = credentials.unitId as string;
           if (!requestedUnitId) throw new Error("Vui lòng chọn Đơn vị trước khi đăng nhập.");
           if (user.unitId !== requestedUnitId) throw new Error("Tài khoản của bạn không thuộc Đơn vị này.");
