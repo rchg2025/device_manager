@@ -27,7 +27,6 @@ function LoginForm() {
   useEffect(() => {
     getUnits().then(data => {
       setUnits(data)
-      if (data.length > 0) setUnitId(data[0].id)
     })
 
     const savedEmail = localStorage.getItem("rememberedEmail")
@@ -167,6 +166,7 @@ function LoginForm() {
                     onChange={e => setUnitId(e.target.value)}
                     className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
                   >
+                    <option value="" disabled>Chọn đơn vị sử dụng để bắt đầu</option>
                     {units.map(u => (
                       <option key={u.id} value={u.id}>{u.name}</option>
                     ))}
