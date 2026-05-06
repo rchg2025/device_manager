@@ -104,7 +104,7 @@ export default async function DashboardLayout({
         <div className="p-4 border-b flex flex-col items-center">
           <Link prefetch={false} href="/dashboard" className="flex flex-col items-center hover:opacity-80 transition-opacity">
             <Image src="/logo.png" alt="NSG Logo" width={200} height={64} className="h-16 w-auto object-contain mb-2" priority />
-            <h1 className="text-sm font-bold text-blue-600 whitespace-nowrap">Device Manager</h1>
+            <h1 className="text-sm font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-blue-600 bg-clip-text text-transparent animate-gradient-x whitespace-nowrap">Device Manager</h1>
             <p className="text-xs text-gray-500">Nam Sai Gon Polytechnic College</p>
           </Link>
         </div>
@@ -255,7 +255,7 @@ export default async function DashboardLayout({
           <div className="xl:hidden flex items-center gap-2">
             <MobileMenu role={role} unreadCount={pendingRequestsCount} />
             <Link prefetch={false} href="/dashboard" className="hover:opacity-80 transition-opacity">
-              <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">Device Manager</h1>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-blue-600 bg-clip-text text-transparent animate-gradient-x whitespace-nowrap">Device Manager</h1>
             </Link>
           </div>
           <div className="hidden xl:flex items-center gap-4">
