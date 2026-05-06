@@ -175,8 +175,18 @@ export default async function DashboardLayout({
             <>
               <hr className="my-2 border-gray-200" />
               {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
-                <Link prefetch={false} href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-                  <MonitorPlay className="w-5 h-5 shrink-0" /> QL thiết bị phòng học
+                <>
+                  <Link prefetch={false} href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                    <MonitorPlay className="w-5 h-5 shrink-0" /> QL thiết bị phòng học
+                  </Link>
+                  <Link prefetch={false} href="/dashboard/classroom-equipments/list" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                    <ClipboardList className="w-5 h-5 shrink-0" /> Danh sách thiết bị
+                  </Link>
+                </>
+              )}
+              {role === "SUPERVISOR" && (
+                <Link prefetch={false} href="/dashboard/classroom-equipments/list" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                  <ClipboardList className="w-5 h-5 shrink-0" /> Danh sách thiết bị
                 </Link>
               )}
               <Link prefetch={false} href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">

@@ -91,8 +91,18 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                 <>
                   <hr className="my-2 border-gray-200" />
                   {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
-                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-equipments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                      <MonitorPlay className="w-5 h-5" /> QL thiết bị phòng học
+                    <>
+                      <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/classroom-equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                        <MonitorPlay className="w-5 h-5" /> QL thiết bị phòng học
+                      </Link>
+                      <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-equipments/list" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/classroom-equipments/list' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                        <ClipboardList className="w-5 h-5" /> Danh sách thiết bị
+                      </Link>
+                    </>
+                  )}
+                  {role === "SUPERVISOR" && (
+                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-equipments/list" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/classroom-equipments/list' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                      <ClipboardList className="w-5 h-5" /> Danh sách thiết bị
                     </Link>
                   )}
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-maintenance') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
