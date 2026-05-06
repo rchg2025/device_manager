@@ -7,8 +7,11 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
   const handleExport = () => {
     // Transform data for Excel
     const excelData: any[] = []
+    const merges: any[] = []
+    let currentRow = 1 // Row 0 is header
     
     data.forEach(room => {
+      const startRow = currentRow;
       if (room.classroomEquipments.length === 0) {
         excelData.push({
           "Tên phòng": room.name,
@@ -17,6 +20,7 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
           "Tên thiết bị": "Không có thiết bị",
           "Số lượng": 0
         })
+        currentRow++;
       } else {
         room.classroomEquipments.forEach((eq: any) => {
           excelData.push({
@@ -26,13 +30,66 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
             "Tên thiết bị": eq.name,
             "Số lượng": eq.quantity
           })
+          currentRow++;
         })
+      }
+      
+      const endRow = currentRow - 1;
+      if (endRow > startRow) {
+        // Merge "Tên phòng" (col 0, which is A)
+        merges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } })
+        // Merge "Khu vực" (col 1, which is B)
+        merges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } })
+        // Merge "Người quản lý" (col 2, which is C)
+        merges.push({ s: { r: startRow, c: 2 }, e: { r: endRow, c: 2 } })
       }
     })
 
     const worksheet = XLSX.utils.json_to_sheet(excelData)
+    
+    // Áp dụng gộp ô (merges)
+    if (merges.length > 0) {
+      worksheet['!merges'] = merges;
+    }
+    
+    // Thêm bộ lọc (AutoFilter)
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || "A1:E1")
+    worksheet['!autofilter'] = { ref: XLSX.utils.encode_range(range) }
+    
+    // Căn chỉnh độ rộng cột
+    worksheet['!cols'] = [
+      { wch: 15 }, // Tên phòng
+      { wch: 20 }, // Khu vực
+      { wch: 25 }, // Người quản lý
+      { wch: 35 }, // Tên thiết bị
+      { wch: 10 }  // Số lượng
+    ]
+
+    // --- TẠO SHEET THỐNG KÊ ---
+    const eqStats: Record<string, number> = {}
+    let totalDevices = 0;
+    data.forEach(room => {
+      room.classroomEquipments.forEach((eq: any) => {
+        eqStats[eq.name] = (eqStats[eq.name] || 0) + eq.quantity
+        totalDevices += eq.quantity
+      })
+    })
+    
+    const statsData = Object.entries(eqStats)
+      .map(([name, qty]) => ({ "Tên thiết bị": name, "Tổng số lượng": qty }))
+      .sort((a, b) => (b["Tổng số lượng"] as number) - (a["Tổng số lượng"] as number))
+      
+    // Thêm dòng tổng cộng
+    statsData.push({ "Tên thiết bị": "TỔNG CỘNG", "Tổng số lượng": totalDevices })
+      
+    const statsWorksheet = XLSX.utils.json_to_sheet(statsData)
+    const statsRange = XLSX.utils.decode_range(statsWorksheet['!ref'] || "A1:B1")
+    statsWorksheet['!autofilter'] = { ref: XLSX.utils.encode_range(statsRange) }
+    statsWorksheet['!cols'] = [ { wch: 40 }, { wch: 15 } ]
+
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachThietBi")
+    XLSX.utils.book_append_sheet(workbook, statsWorksheet, "ThongKe")
 
     // Generate buffer and save
     XLSX.writeFile(workbook, "Danh_Sach_Thiet_Bi_Theo_Phong.xlsx")
