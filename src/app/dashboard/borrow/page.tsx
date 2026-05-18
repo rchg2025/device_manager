@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma"
 import BorrowCart from "./borrow-cart"
 import { auth } from "@/auth"
+import { Suspense } from "react"
+import { Loader2 } from "lucide-react"
 
-export default async function BorrowPage() {
+async function BorrowFormLoader() {
   const session = await auth()
   const role = session?.user?.role || "MEMBER"
 
@@ -26,10 +28,17 @@ export default async function BorrowPage() {
     orderBy: { name: 'asc' }
   })
 
+  return <BorrowCart equipments={equipments} role={role} members={members} />
+}
+
+export default function BorrowPage() {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Đăng ký mượn thiết bị</h2>
-      <BorrowCart equipments={equipments} role={role} members={members} />
+      <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>}>
+        <BorrowFormLoader />
+      </Suspense>
     </div>
   )
 }
+

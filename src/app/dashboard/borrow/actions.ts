@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 import { writeLog } from "@/lib/system-log"
+import { after } from "next/server"
 
 
 
@@ -130,19 +131,23 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     // User: "fix lại chỉ gửi email thông báo cho tài khoản email của Nhân viên quản lý thiết bị đó thôi"
     if (emailNotifyWhere.OR.length > 0) {
       // Gửi email bất đồng bộ cho Quản lý
-      const targetUserWithEmails = await prisma.user.findMany({
-        where: emailNotifyWhere,
-        select: { email: true }
+      after(async () => {
+        const targetUserWithEmails = await prisma.user.findMany({
+          where: emailNotifyWhere,
+          select: { email: true }
+        })
+        const emails = targetUserWithEmails.map(a => a.email as string).filter(e => e)
+        if (emails.length > 0) {
+          import("@/lib/email").then(m => m.sendBorrowRequestEmailToAdmins(emails, userName, detailedItems)).catch(console.error)
+        }
       })
-      const emails = targetUserWithEmails.map(a => a.email as string).filter(e => e)
-      if (emails.length > 0) {
-        import("@/lib/email").then(m => m.sendBorrowRequestEmailToAdmins(emails, userName, detailedItems)).catch(console.error)
-      }
     }
 
     // Gửi email cho người mượn
     if (userEmail) {
-      import("@/lib/email").then(m => m.sendBorrowRequestEmailToMember(userEmail as string, userName, detailedItems)).catch(console.error)
+      after(async () => {
+        import("@/lib/email").then(m => m.sendBorrowRequestEmailToMember(userEmail as string, userName, detailedItems)).catch(console.error)
+      })
     }
 
     revalidatePath("/dashboard")
