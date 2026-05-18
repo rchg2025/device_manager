@@ -16,7 +16,9 @@ type CartItem = {
   returnDate: string;
 }
 
-export default function BorrowCart({ equipments }: { equipments: any[] }) {
+type Member = { id: string, name: string | null, email: string | null }
+
+export default function BorrowCart({ equipments, role = "MEMBER", members = [] }: { equipments: any[], role?: string, members?: Member[] }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -29,15 +31,16 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
   const [borrowDate, setBorrowDate] = useState("")
   const [returnDate, setReturnDate] = useState("")
   const [minDate, setMinDate] = useState("")
+  const [forUserId, setForUserId] = useState("")
 
   useEffect(() => {
     const today = new Date()
     const tzoffset = today.getTimezoneOffset() * 60000
-    const localToday = new Date(Date.now() - tzoffset).toISOString().slice(0, 10)
+    const localToday = new Date(Date.now() - tzoffset).toISOString().slice(0, 16)
     
     const retDate = new Date()
     retDate.setDate(retDate.getDate() + 3)
-    const localRetDate = new Date(retDate.getTime() - retDate.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+    const localRetDate = new Date(retDate.getTime() - retDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
     
     setBorrowDate(localToday)
     setReturnDate(localRetDate)
@@ -123,7 +126,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
       returnDate: item.returnDate
     }))
 
-    const res = await createMultipleBorrowRequests(payload)
+    const res = await createMultipleBorrowRequests(payload, forUserId)
     if (res?.error) {
       if (res.failedEquipmentId) {
         // Show specific alert and remove item
@@ -153,6 +156,22 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
           {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
 
           <div className="space-y-4">
+            {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Chọn tài khoản mượn (Mượn hộ)</label>
+                <select 
+                  value={forUserId} 
+                  onChange={(e) => setForUserId(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white"
+                >
+                  <option value="">-- Mượn cho bản thân --</option>
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>{m.name} {m.email ? `(${m.email})` : ''}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div>
               <div className="flex justify-between items-end mb-1">
                 <label className="block text-sm font-medium text-gray-700">Chọn thiết bị</label>
@@ -224,7 +243,7 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
             <div>
               <label className="block text-sm font-medium text-gray-700">Ngày mượn</label>
               <input 
-                type="date" 
+                type="datetime-local" 
                 min={minDate}
                 value={borrowDate}
                 onChange={(e) => setBorrowDate(e.target.value)}
@@ -235,7 +254,8 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
             <div>
               <label className="block text-sm font-medium text-gray-700">Ngày trả dự kiến</label>
               <input 
-                type="date" 
+                type="datetime-local" 
+                min={borrowDate || minDate}
                 value={returnDate}
                 onChange={(e) => setReturnDate(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" 
@@ -282,8 +302,8 @@ export default function BorrowCart({ equipments }: { equipments: any[] }) {
                       <div className="text-xs text-gray-500">{item.categoryName}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.borrowDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.returnDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.borrowDate).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.returnDate).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button onClick={() => handleRemoveFromCart(item.id)} className="text-red-600 hover:text-red-900" title="Xóa khỏi danh sách">
                         <Trash2 className="w-5 h-5" />

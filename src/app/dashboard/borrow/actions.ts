@@ -6,7 +6,7 @@ import { writeLog } from "@/lib/system-log"
 
 
 
-export async function createMultipleBorrowRequests(items: Array<{ equipmentId: string, quantity: number, borrowDate: string, returnDate: string }>) {
+export async function createMultipleBorrowRequests(items: Array<{ equipmentId: string, quantity: number, borrowDate: string, returnDate: string }>, forUserId?: string) {
   const session = await auth()
   if (!session?.user?.id) throw new Error("Unauthorized")
 
@@ -15,8 +15,19 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
   }
 
   try {
-    const userId = session.user.id
-    const userName = session.user.name || "Một thành viên"
+    let userId = session.user.id
+    let userName = session.user.name || "Một thành viên"
+    let userEmail = session.user.email
+    const userRole = session.user.role || "MEMBER"
+
+    if (forUserId && (userRole === "ADMIN" || userRole === "MANAGER" || userRole === "SUPERADMIN")) {
+      const targetUser = await prisma.user.findUnique({ where: { id: forUserId } })
+      if (targetUser) {
+        userId = targetUser.id
+        userName = targetUser.name || "Một thành viên"
+        userEmail = targetUser.email || userEmail
+      }
+    }
 
     // Prepare detailed items and target managers
     const equipmentIds = items.map(i => i.equipmentId)
@@ -130,8 +141,8 @@ export async function createMultipleBorrowRequests(items: Array<{ equipmentId: s
     }
 
     // Gửi email cho người mượn
-    if (session.user.email) {
-      import("@/lib/email").then(m => m.sendBorrowRequestEmailToMember(session.user.email as string, userName, detailedItems)).catch(console.error)
+    if (userEmail) {
+      import("@/lib/email").then(m => m.sendBorrowRequestEmailToMember(userEmail as string, userName, detailedItems)).catch(console.error)
     }
 
     revalidatePath("/dashboard")
