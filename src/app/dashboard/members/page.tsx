@@ -13,7 +13,7 @@ export default async function MembersPage({
   searchParams: { [key: string]: string | undefined }
 }) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") {
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN" && session?.user?.role !== "MANAGER") {
     redirect("/dashboard")
   }
 
@@ -27,6 +27,10 @@ export default async function MembersPage({
 
   const whereClause: any = {
     email: { not: "nguyenluyen@nsg.edu.vn" }
+  }
+
+  if (session?.user?.role === "MANAGER") {
+    whereClause.unitId = session.user.unitId
   }
 
   if (query) {
@@ -77,6 +81,7 @@ export default async function MembersPage({
       </div>
       
       {/* Thêm thành viên mới */}
+      {(session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN") && (
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold mb-4 border-b pb-2">Thêm thành viên mới</h3>
         <form action={async (formData) => { "use server"; await createMember(formData) }} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -134,6 +139,7 @@ export default async function MembersPage({
           </div>
         </form>
       </div>
+      )}
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <MemberFilterBar />

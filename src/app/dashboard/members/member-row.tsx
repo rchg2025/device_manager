@@ -54,7 +54,7 @@ export default function MemberRow({ member, units, departments, positions, curre
               <label className="block text-xs font-medium text-gray-500 mb-1">Họ tên</label>
               <input type="text" name="name" defaultValue={member.name || ''} className="w-full border-gray-300 rounded text-sm py-1 px-2 border" />
             </div>
-            {currentUserRole === "SUPERADMIN" && (
+            {(currentUserRole === "SUPERADMIN" || currentUserRole === "ADMIN") && (
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Chi nhánh</label>
                 <select name="unitId" defaultValue={member.unitId || ''} className="w-full border-gray-300 rounded text-sm py-1 px-2 border">
@@ -83,11 +83,15 @@ export default function MemberRow({ member, units, departments, positions, curre
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Quyền</label>
-              <select name="role" defaultValue={member.role} className="w-full border-gray-300 rounded text-sm py-1 px-2 border">
-                <option value="MEMBER">Thành viên</option>
-                <option value="MANAGER">Quản lý</option>
-                <option value="ADMIN">Admin</option>
-              </select>
+              {currentUserRole === "MANAGER" ? (
+                <div className="w-full border-gray-100 bg-gray-50 rounded text-sm py-1 px-2 border text-gray-500">{member.role}</div>
+              ) : (
+                <select name="role" defaultValue={member.role} className="w-full border-gray-300 rounded text-sm py-1 px-2 border">
+                  <option value="MEMBER">Thành viên</option>
+                  <option value="MANAGER">Quản lý</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              )}
             </div>
             <div className="flex items-end gap-2 h-full pb-1">
               <button type="submit" disabled={isLoading} className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-green-700">
@@ -132,9 +136,11 @@ export default function MemberRow({ member, units, departments, positions, curre
           <button onClick={handleToggleStatus} disabled={isLoading} className={`${member.isActive ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`} title={member.isActive ? "Vô hiệu hóa" : "Kích hoạt"}>
             {member.isActive ? <Ban className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </button>
-          <button onClick={handleDelete} disabled={isLoading} className="text-red-600 hover:text-red-900" title="Xóa">
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {currentUserRole !== "MANAGER" && (
+            <button onClick={handleDelete} disabled={isLoading} className="text-red-600 hover:text-red-900" title="Xóa">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </td>
     </tr>

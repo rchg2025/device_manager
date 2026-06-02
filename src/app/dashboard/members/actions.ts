@@ -6,7 +6,7 @@ import { writeLog } from "@/lib/system-log"
 
 export async function updateMember(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Unauthorized" }
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN" && session?.user?.role !== "MANAGER") return { error: "Unauthorized" }
 
   const userId = formData.get("userId") as string
   if (!userId) return { error: "Missing ID" }
@@ -20,16 +20,26 @@ export async function updateMember(formData: FormData) {
 
   const finalUnitId = session?.user?.role === "SUPERADMIN" ? (unitId || null) : session.user.unitId
 
+  if (session?.user?.role === "MANAGER") {
+    const userToUpdate = await prisma.user.findUnique({ where: { id: userId }, select: { unitId: true } })
+    if (userToUpdate?.unitId !== session.user.unitId) return { error: "Unauthorized" }
+  }
+
+  let updateData: any = {
+    name,
+    phone,
+    departmentId: departmentId || null,
+    positionId: positionId || null,
+  }
+
+  if (session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN") {
+    updateData.role = role
+    updateData.unitId = finalUnitId
+  }
+
   await prisma.user.update({
     where: { id: userId },
-    data: {
-      name,
-      role,
-      phone,
-      unitId: finalUnitId,
-      departmentId: departmentId || null,
-      positionId: positionId || null,
-    }
+    data: updateData
   })
   await writeLog({
     userId: session.user.id,
@@ -69,7 +79,7 @@ import { sendStatusToggleEmailToMember } from "@/lib/email"
 
 export async function toggleMemberStatus(userId: string, currentStatus: boolean) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Unauthorized" }
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN" && session?.user?.role !== "MANAGER") return { error: "Unauthorized" }
 
   if (!userId) return { error: "Missing ID" }
 
@@ -78,8 +88,12 @@ export async function toggleMemberStatus(userId: string, currentStatus: boolean)
   // Get user info to send email
   const userToUpdate = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, name: true }
+    select: { email: true, name: true, unitId: true }
   })
+
+  if (session?.user?.role === "MANAGER" && userToUpdate?.unitId !== session.user.unitId) {
+    return { error: "Unauthorized" }
+  }
 
   await prisma.user.update({
     where: { id: userId },
