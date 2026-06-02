@@ -431,3 +431,35 @@ export async function sendNewRegistrationEmailToAdmins(adminEmails: string[], me
     html: emailWrapper("Đăng Ký Tài Khoản Mới", content)
   })
 }
+
+export async function sendStatusToggleEmailToMember(memberEmail: string, memberName: string, isActive: boolean) {
+  const transporter = await getTransporter()
+  if (!transporter || !memberEmail) return
+
+  const from = await getFromAddress()
+  const domain = process.env.NEXT_PUBLIC_APP_URL || "https://qltb.ite.id.vn"
+  
+  const statusText = isActive ? "KÍCH HOẠT" : "VÔ HIỆU HÓA"
+  const color = isActive ? "#16a34a" : "#dc2626"
+  
+  const content = `
+    <p>Xin chào <span class="highlight">${memberName}</span>,</p>
+    <p>Tài khoản của bạn trên hệ thống Quản lý Thiết bị ITE vừa được cập nhật trạng thái thành: <strong style="color: ${color};">${statusText}</strong>.</p>
+    
+    ${isActive 
+      ? `<p>Bây giờ bạn đã có thể đăng nhập và sử dụng các tính năng của hệ thống.</p>
+         <div style="text-align: center; margin-top: 24px;">
+           <a href="${domain}/login" class="button">Đăng nhập ngay</a>
+         </div>`
+      : `<p>Tài khoản của bạn hiện đang bị vô hiệu hóa. Bạn sẽ không thể đăng nhập vào hệ thống.</p>
+         <p>Nếu bạn có thắc mắc, vui lòng liên hệ với Quản trị viên hệ thống để biết thêm chi tiết.</p>`
+    }
+  `
+
+  await transporter.sendMail({
+    from,
+    to: memberEmail,
+    subject: `[Device Manager] Trạng thái tài khoản: ${statusText}`,
+    html: emailWrapper("Cập Nhật Trạng Thái Tài Khoản", content)
+  })
+}

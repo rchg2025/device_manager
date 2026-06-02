@@ -65,6 +65,8 @@ export async function deleteMember(formData: FormData) {
   return { error: "Missing ID" }
 }
 
+import { sendStatusToggleEmailToMember } from "@/lib/email"
+
 export async function toggleMemberStatus(userId: string, currentStatus: boolean) {
   const session = await auth()
   if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Unauthorized" }
@@ -72,6 +74,12 @@ export async function toggleMemberStatus(userId: string, currentStatus: boolean)
   if (!userId) return { error: "Missing ID" }
 
   const newStatus = !currentStatus
+
+  // Get user info to send email
+  const userToUpdate = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, name: true }
+  })
 
   await prisma.user.update({
     where: { id: userId },
@@ -86,6 +94,10 @@ export async function toggleMemberStatus(userId: string, currentStatus: boolean)
     detail: `${newStatus ? 'Kích hoạt' : 'Vô hiệu hóa'} thành viên: ${userId}`
   })
   
+  if (userToUpdate?.email) {
+    await sendStatusToggleEmailToMember(userToUpdate.email, userToUpdate.name || 'Người dùng', newStatus)
+  }
+
   revalidatePath("/dashboard/members")
   return { success: true, isActive: newStatus }
 }
