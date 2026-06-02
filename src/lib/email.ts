@@ -31,11 +31,11 @@ async function getFromAddress() {
   let fromValue = fromSetting?.value?.trim()
   
   if (!fromValue) {
-    return `"Device Manager" <${userSetting?.value || "noreply@nsg.edu.vn"}>`
+    return `"Hệ thống quản lý phòng thực hành, xưởng" <${userSetting?.value || "noreply@nsg.edu.vn"}>`
   }
   
   if (fromValue.includes('@') && !fromValue.includes('<')) {
-    return `"Device Manager" <${fromValue}>`
+    return `"Hệ thống quản lý phòng thực hành, xưởng" <${fromValue}>`
   }
   
   if (!fromValue.includes('@') && !fromValue.includes('<')) {
@@ -70,7 +70,7 @@ const emailWrapper = (title: string, content: string) => `
       ${content}
     </div>
     <div class="footer">
-      Email tự động từ hệ thống Device Manager.<br>
+      Email tự động từ Hệ thống quản lý phòng thực hành, xưởng.<br>
       Trân trọng,<br>
       Nam Sai Gon Polytechnic College.
     </div>
@@ -144,7 +144,7 @@ export async function sendBorrowRequestEmailToAdmins(
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[Device Manager] Yêu cầu mượn thiết bị mới từ ${memberName}`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Yêu cầu mượn thiết bị mới từ ${memberName}`,
     html: emailWrapper("Yêu Cầu Mượn Thiết Bị Mới", content)
   })
 }
@@ -168,7 +168,7 @@ export async function sendReturnRequestEmailToAdmins(adminEmails: string[], memb
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[Device Manager] Yêu cầu trả thiết bị từ ${memberName}`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Yêu cầu trả thiết bị từ ${memberName}`,
     html: emailWrapper("Yêu Cầu Trả Thiết Bị", content)
   })
 }
@@ -178,7 +178,7 @@ export async function sendOtpEmail(email: string, userName: string, otp: string)
   
   const content = `
     <p>Xin chào ${userName},</p>
-    <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản trên hệ thống Quản lý Thiết bị ITE.</p>
+    <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản trên Hệ thống quản lý phòng thực hành, xưởng.</p>
     <p>Mã xác thực (OTP) của bạn là:</p>
     <div style="margin: 24px 0; text-align: center;">
       <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563eb; background: #eff6ff; padding: 12px 24px; border-radius: 8px; border: 1px dashed #bfdbfe;">
@@ -195,7 +195,7 @@ export async function sendOtpEmail(email: string, userName: string, otp: string)
     await transporter.sendMail({
       from: await getFromAddress(),
       to: email,
-      subject: `[Device Manager] Mã xác thực (OTP) đặt lại mật khẩu`,
+      subject: `[Hệ thống quản lý phòng thực hành, xưởng] Mã xác thực (OTP) đặt lại mật khẩu`,
       html: emailHtml
     })
   }
@@ -302,7 +302,7 @@ export async function sendStatusUpdateEmailToMember(
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager] Trạng thái thiết bị: ${statusText}`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Trạng thái thiết bị: ${statusText}`,
     html: emailWrapper(title, content)
   })
 }
@@ -371,7 +371,7 @@ export async function sendBorrowRequestEmailToMember(
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager] Xác nhận gửi yêu cầu mượn thiết bị`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Xác nhận gửi yêu cầu mượn thiết bị`,
     html: emailWrapper("Yêu Cầu Mượn Thiết Bị Đã Gửi", content)
   })
 }
@@ -395,7 +395,7 @@ export async function sendReturnRequestEmailToMember(memberEmail: string, member
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager] Xác nhận gửi yêu cầu trả thiết bị`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Xác nhận gửi yêu cầu trả thiết bị`,
     html: emailWrapper("Yêu Cầu Trả Thiết Bị Đã Gửi", content)
   })
 }
@@ -427,7 +427,7 @@ export async function sendNewRegistrationEmailToAdmins(adminEmails: string[], me
   await transporter.sendMail({
     from,
     to: adminEmails.join(", "),
-    subject: `[Device Manager] Đăng ký tài khoản mới cần phê duyệt: ${memberName}`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Đăng ký tài khoản mới cần phê duyệt: ${memberName}`,
     html: emailWrapper("Đăng Ký Tài Khoản Mới", content)
   })
 }
@@ -444,7 +444,7 @@ export async function sendStatusToggleEmailToMember(memberEmail: string, memberN
   
   const content = `
     <p>Xin chào <span class="highlight">${memberName}</span>,</p>
-    <p>Tài khoản của bạn trên hệ thống Quản lý Thiết bị ITE vừa được cập nhật trạng thái thành: <strong style="color: ${color};">${statusText}</strong>.</p>
+    <p>Tài khoản của bạn trên Hệ thống quản lý phòng thực hành, xưởng vừa được cập nhật trạng thái thành: <strong style="color: ${color};">${statusText}</strong>.</p>
     
     ${isActive 
       ? `<p>Bây giờ bạn đã có thể đăng nhập và sử dụng các tính năng của hệ thống.</p>
@@ -459,7 +459,7 @@ export async function sendStatusToggleEmailToMember(memberEmail: string, memberN
   await transporter.sendMail({
     from,
     to: memberEmail,
-    subject: `[Device Manager] Trạng thái tài khoản: ${statusText}`,
+    subject: `[Hệ thống quản lý phòng thực hành, xưởng] Trạng thái tài khoản: ${statusText}`,
     html: emailWrapper("Cập Nhật Trạng Thái Tài Khoản", content)
   })
 }
