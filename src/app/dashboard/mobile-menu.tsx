@@ -52,11 +52,7 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                 </Link>
               )}
 
-              {(role === "ADMIN" || role === "SUPERADMIN") && (
-                <Link prefetch={false} onClick={closeMenu} href="/dashboard/members" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/members' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                  <Users className="w-5 h-5" /> Quản lý thành viên
-                </Link>
-              )}
+
 
               {role !== "SUPERVISOR" && (
                 <Link prefetch={false} onClick={closeMenu} href="/dashboard/borrow" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/borrow' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
@@ -112,8 +108,13 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/inventory" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/inventory') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <ClipboardCheck className="w-5 h-5" /> Kiểm kê thiết bị
                   </Link>
+                  {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/members" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/members' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                      <Users className="w-5 h-5" /> Quản lý thành viên
+                    </Link>
+                  )}
                   {(role === "ADMIN" || role === "SUPERADMIN") && (
-                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-1 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                       <Settings className="w-5 h-5" /> Cấu hình hệ thống
                     </Link>
                   )}

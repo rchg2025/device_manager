@@ -142,11 +142,7 @@ export default async function DashboardLayout({
             </Link>
           )}
 
-          {(role === "ADMIN" || role === "SUPERADMIN") && (
-            <Link prefetch={false} href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-              <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
-            </Link>
-          )}
+
 
           {role !== "SUPERVISOR" && (
             <Link prefetch={false} href="/dashboard/borrow" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
@@ -203,8 +199,13 @@ export default async function DashboardLayout({
               <Link prefetch={false} href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
+              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+                <Link prefetch={false} href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
+                  <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
+                </Link>
+              )}
               {(role === "ADMIN" || role === "SUPERADMIN") && (
-                <Link prefetch={false} href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
+                <Link prefetch={false} href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-1 whitespace-nowrap">
                   <Settings className="w-5 h-5 shrink-0" /> Cấu hình hệ thống
                 </Link>
               )}
