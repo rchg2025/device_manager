@@ -25,6 +25,7 @@ export default async function DashboardLayout({
   let notifications: any[] = []
   let units: any[] = []
   let currentTenantId: string | null = null
+  let userImage: string | null = null
 
   if (role === "SUPERADMIN" || role === "SUPERVISOR") {
     if (role === "SUPERADMIN") {
@@ -50,6 +51,12 @@ export default async function DashboardLayout({
   }
 
   if (session?.user?.id) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { image: true }
+    });
+    userImage = dbUser?.image || null;
+
     // Determine queries to run based on role
     const queries = [];
     
@@ -226,8 +233,12 @@ export default async function DashboardLayout({
 
         <div className="p-4 border-t">
           <Link prefetch={false} href="/dashboard/profile" className="flex items-center gap-3 mb-4 p-2 -mx-2 rounded-md hover:bg-gray-50 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-              {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden border border-blue-200">
+              {userImage ? (
+                <img src={userImage} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                session?.user?.name?.charAt(0)?.toUpperCase() || "U"
+              )}
             </div>
             <div>
               <p className="text-sm font-medium">{session?.user?.name || "User"}</p>
@@ -269,8 +280,12 @@ export default async function DashboardLayout({
             
             <div className="xl:hidden flex items-center gap-2">
               <Link prefetch={false} href="/dashboard/profile" title="Quản lý tài khoản" className="flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
-                  {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs overflow-hidden border border-blue-200">
+                  {userImage ? (
+                    <img src={userImage} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    session?.user?.name?.charAt(0)?.toUpperCase() || "U"
+                  )}
                 </div>
               </Link>
               <form action={async () => {
