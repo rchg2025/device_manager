@@ -4,7 +4,7 @@ import { writeLog } from "@/lib/system-log"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { revalidatePath } from "next/cache"
-import { testDriveConnection } from "@/lib/gdrive"
+import { testDriveConnection, uploadImageToDrive } from "@/lib/gdrive"
 
 export async function updateProfile(formData: FormData) {
   const session = await auth()
@@ -23,6 +23,18 @@ export async function updateProfile(formData: FormData) {
   }
 
   try {
+    const avatar = formData.get("avatar") as File | null
+    if (avatar && avatar.size > 0) {
+      try {
+        const imageUrl = await uploadImageToDrive(avatar)
+        if (imageUrl) {
+          dataToUpdate.image = imageUrl
+        }
+      } catch (uploadError: any) {
+        return { error: uploadError.message || "Lỗi khi tải ảnh lên Google Drive" }
+      }
+    }
+
     await prisma.user.update({
       where: { id: session.user.id },
       data: dataToUpdate

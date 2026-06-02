@@ -13,6 +13,7 @@ export default async function ProfilePage() {
       email: true, 
       name: true, 
       role: true,
+      image: true,
       unit: { select: { name: true } },
       position: { select: { name: true } }
     }

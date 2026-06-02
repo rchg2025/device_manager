@@ -1,11 +1,23 @@
 "use client"
 import { useState } from "react"
 import { updateProfile } from "./actions"
-import { User, Shield, Check, Briefcase, Building2, Tag } from "lucide-react"
+import { User, Shield, Check, Briefcase, Building2, Tag, Camera } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function ProfileForm({ user }: { user: any }) {
   const [isLoading, setIsLoading] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image || null)
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   async function handleProfile(formData: FormData) {
     setIsLoading(true)
@@ -17,18 +29,27 @@ export default function ProfileForm({ user }: { user: any }) {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-6 md:p-8">
-      <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
-        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-2xl">
-          {user.name?.charAt(0)?.toUpperCase() || "U"}
+      <form action={handleProfile}>
+        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+          <label className="relative w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-3xl overflow-hidden cursor-pointer group border-2 border-blue-200 hover:border-blue-500 transition-colors">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              user.name?.charAt(0)?.toUpperCase() || "U"
+            )}
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Camera className="w-6 h-6 text-white" />
+            </div>
+            <input type="file" name="avatar" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+          </label>
+          <div>
+            <h3 className="text-xl font-bold text-gray-800">{user.name || "User"}</h3>
+            <p className="text-gray-500">{user.email}</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-xl font-bold text-gray-800">{user.name || "User"}</h3>
-          <p className="text-gray-500">{user.email}</p>
-        </div>
-      </div>
 
-      <form action={handleProfile} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Cột 1: Có thể chỉnh sửa */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Cột 1: Có thể chỉnh sửa */}
         <div className="space-y-6">
           <h4 className="font-semibold text-gray-700 flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-blue-600" /> Thông tin cá nhân
@@ -88,10 +109,11 @@ export default function ProfileForm({ user }: { user: any }) {
         </div>
 
         {/* Nút lưu nằm ở cuối cột 1 hoặc span cả 2 cột */}
-        <div className="md:col-span-2 pt-4 border-t border-gray-100">
-          <button type="submit" disabled={isLoading} className="flex items-center justify-center gap-2 w-full md:w-auto md:px-8 bg-blue-600 text-white py-2.5 rounded-md hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            <Check className="w-5 h-5" /> {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
-          </button>
+          <div className="md:col-span-2 pt-4 border-t border-gray-100">
+            <button type="submit" disabled={isLoading} className="flex items-center justify-center gap-2 w-full md:w-auto md:px-8 bg-blue-600 text-white py-2.5 rounded-md hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              <Check className="w-5 h-5" /> {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+          </div>
         </div>
       </form>
     </div>
