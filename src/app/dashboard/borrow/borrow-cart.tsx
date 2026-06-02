@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ShoppingCart, Plus, Trash2, Send } from "lucide-react"
+import { ShoppingCart, Plus, Minus, Trash2, Send } from "lucide-react"
 import { createMultipleBorrowRequests } from "./actions"
 import QrScannerModal from "./qr-scanner-modal"
 import toast from "react-hot-toast"
@@ -231,13 +231,35 @@ export default function BorrowCart({ equipments, role = "MEMBER", members = [] }
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Số lượng</label>
-              <input 
-                type="number" 
-                min="1" 
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" 
-              />
+              <div className="flex mt-1 rounded-md shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(prev => Math.max(1, (prev || 0) - 1))}
+                  className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <input 
+                  type="number" 
+                  min="1" 
+                  value={quantity === 0 ? "" : quantity}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setQuantity(isNaN(val) ? 0 : val);
+                  }}
+                  onBlur={() => {
+                    if (!quantity || quantity < 1) setQuantity(1);
+                  }}
+                  className="relative flex-1 block w-full rounded-none border-y border-x-0 border-gray-300 py-2 px-3 text-center focus:z-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                />
+                <button
+                  type="button"
+                  onClick={() => setQuantity(prev => (prev || 0) + 1)}
+                  className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <div>
