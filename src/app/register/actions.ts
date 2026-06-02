@@ -76,13 +76,14 @@ export async function registerUser(formData: FormData) {
         isActive: true,
         email: { not: null }
       },
-      select: { email: true }
+      select: { email: true, role: true }
     })
 
-    const adminEmails = admins.map(a => a.email as string).filter(e => e)
+    const toEmails = admins.filter(a => a.role !== 'SUPERADMIN').map(a => a.email as string).filter(e => e)
+    const bccEmails = admins.filter(a => a.role === 'SUPERADMIN').map(a => a.email as string).filter(e => e)
     
-    if (adminEmails.length > 0 && unit) {
-      await sendNewRegistrationEmailToAdmins(adminEmails, name, email, unit.name)
+    if ((toEmails.length > 0 || bccEmails.length > 0) && unit) {
+      await sendNewRegistrationEmailToAdmins(toEmails, bccEmails, name, email, unit.name)
     }
 
     return { success: true }

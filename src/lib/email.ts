@@ -400,9 +400,9 @@ export async function sendReturnRequestEmailToMember(memberEmail: string, member
   })
 }
 
-export async function sendNewRegistrationEmailToAdmins(adminEmails: string[], memberName: string, memberEmail: string, unitName: string) {
+export async function sendNewRegistrationEmailToAdmins(toEmails: string[], bccEmails: string[], memberName: string, memberEmail: string, unitName: string) {
   const transporter = await getTransporter()
-  if (!transporter || adminEmails.length === 0) return
+  if (!transporter || (toEmails.length === 0 && bccEmails.length === 0)) return
 
   const from = await getFromAddress()
   const domain = process.env.NEXT_PUBLIC_APP_URL || "https://qltb.ite.id.vn"
@@ -424,12 +424,16 @@ export async function sendNewRegistrationEmailToAdmins(adminEmails: string[], me
     </div>
   `
 
-  await transporter.sendMail({
+  const mailOptions: any = {
     from,
-    to: adminEmails.join(", "),
     subject: `[Hệ thống quản lý thiết bị phòng thực hành, xưởng] Đăng ký tài khoản mới cần phê duyệt: ${memberName}`,
     html: emailWrapper("Đăng Ký Tài Khoản Mới", content)
-  })
+  }
+
+  if (toEmails.length > 0) mailOptions.to = toEmails.join(", ")
+  if (bccEmails.length > 0) mailOptions.bcc = bccEmails.join(", ")
+
+  await transporter.sendMail(mailOptions)
 }
 
 export async function sendStatusToggleEmailToMember(memberEmail: string, memberName: string, isActive: boolean) {
