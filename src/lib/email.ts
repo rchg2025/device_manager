@@ -399,3 +399,35 @@ export async function sendReturnRequestEmailToMember(memberEmail: string, member
     html: emailWrapper("Yêu Cầu Trả Thiết Bị Đã Gửi", content)
   })
 }
+
+export async function sendNewRegistrationEmailToAdmins(adminEmails: string[], memberName: string, memberEmail: string, unitName: string) {
+  const transporter = await getTransporter()
+  if (!transporter || adminEmails.length === 0) return
+
+  const from = await getFromAddress()
+  const domain = process.env.NEXT_PUBLIC_APP_URL || "https://qltb.ite.id.vn"
+  
+  const content = `
+    <p>Xin chào Ban Quản Lý,</p>
+    <p>Hệ thống vừa nhận được một đăng ký tài khoản mới từ giảng viên <span class="highlight">${memberName}</span>.</p>
+    
+    <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0; margin: 24px 0; font-size: 14px; color: #475569;">
+      <p style="margin: 0 0 8px 0;"><strong>Họ và tên:</strong> ${memberName}</p>
+      <p style="margin: 0 0 8px 0;"><strong>Email:</strong> ${memberEmail}</p>
+      <p style="margin: 0;"><strong>Đơn vị:</strong> ${unitName}</p>
+    </div>
+
+    <p>Tài khoản hiện đang ở trạng thái <strong>Chờ duyệt</strong>. Vui lòng truy cập hệ thống Quản lý thành viên để kiểm tra và phê duyệt cho tài khoản này.</p>
+    
+    <div style="text-align: center; margin-top: 24px;">
+      <a href="${domain}/dashboard/members" class="button">Phê Duyệt Tài Khoản</a>
+    </div>
+  `
+
+  await transporter.sendMail({
+    from,
+    to: adminEmails.join(", "),
+    subject: `[Device Manager] Đăng ký tài khoản mới cần phê duyệt: ${memberName}`,
+    html: emailWrapper("Đăng Ký Tài Khoản Mới", content)
+  })
+}

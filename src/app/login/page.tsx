@@ -263,6 +263,15 @@ function LoginForm() {
                   </button>
                 </div>
               </div>
+
+              <div className="mt-8 text-center">
+                <p className="text-sm text-gray-600">
+                  Chưa có tài khoản?{" "}
+                  <a href="/register" className="font-medium text-blue-600 hover:text-blue-500 hover:underline">
+                    Đăng ký dành cho Giảng viên
+                  </a>
+                </p>
+              </div>
             </>
           )}
 
