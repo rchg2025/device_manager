@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Search } from "lucide-react"
 
-export default function MemberFilterBar() {
+export default function MemberFilterBar({ currentUserRole }: { currentUserRole?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -48,26 +48,28 @@ export default function MemberFilterBar() {
           className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 shadow-sm"
         />
       </div>
-      <div className="w-48">
-        <select 
-          value={roleFilter}
-          onChange={(e) => {
-            setRoleFilter(e.target.value);
-            // Bypass debounce for select changes
-            const params = new URLSearchParams(searchParams.toString());
-            if (e.target.value) params.set("role", e.target.value);
-            else params.delete("role");
-            params.delete("page");
-            router.push(`/dashboard/members?${params.toString()}`);
-          }}
-          className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        >
-          <option value="">Tất cả quyền hạn</option>
-          <option value="ADMIN">ADMIN</option>
-          <option value="MANAGER">MANAGER</option>
-          <option value="MEMBER">MEMBER</option>
-        </select>
-      </div>
+      {currentUserRole !== "MANAGER" && (
+        <div className="w-48">
+          <select 
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              // Bypass debounce for select changes
+              const params = new URLSearchParams(searchParams.toString());
+              if (e.target.value) params.set("role", e.target.value);
+              else params.delete("role");
+              params.delete("page");
+              router.push(`/dashboard/members?${params.toString()}`);
+            }}
+            className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="">Tất cả quyền hạn</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="MANAGER">MANAGER</option>
+            <option value="MEMBER">MEMBER</option>
+          </select>
+        </div>
+      )}
     </div>
   )
 }

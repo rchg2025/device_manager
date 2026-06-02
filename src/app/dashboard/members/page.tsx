@@ -31,6 +31,7 @@ export default async function MembersPage({
 
   if (session?.user?.role === "MANAGER") {
     whereClause.unitId = session.user.unitId
+    whereClause.role = "MEMBER"
   }
 
   if (query) {
@@ -40,7 +41,7 @@ export default async function MembersPage({
     ]
   }
 
-  if (roleFilter) {
+  if (roleFilter && session?.user?.role !== "MANAGER") {
     whereClause.role = roleFilter
   }
 
@@ -142,7 +143,7 @@ export default async function MembersPage({
       )}
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <MemberFilterBar />
+        <MemberFilterBar currentUserRole={session?.user?.role} />
         
         <div className="overflow-x-auto rounded-t-lg border border-gray-200 border-b-0">
           <table className="min-w-full divide-y divide-gray-200">
