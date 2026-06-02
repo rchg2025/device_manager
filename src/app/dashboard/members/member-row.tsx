@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
-import { updateMember, deleteMember } from "./actions"
-import { Trash2, Edit2, Check, X } from "lucide-react"
+import { updateMember, deleteMember, toggleMemberStatus } from "./actions"
+import { Trash2, Edit2, Check, X, Ban, Play } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function MemberRow({ member, units, departments, positions, currentUserRole }: { member: any, units: any[], departments: any[], positions: any[], currentUserRole?: string }) {
@@ -28,6 +28,21 @@ export default function MemberRow({ member, units, departments, positions, curre
         window.location.reload()
       }
     }
+  }
+
+  async function handleToggleStatus() {
+    setIsLoading(true)
+    const actionName = member.isActive ? "vô hiệu hóa" : "kích hoạt"
+    if (confirm(`Bạn có chắc chắn muốn ${actionName} thành viên này?`)) {
+      const res = await toggleMemberStatus(member.id, member.isActive)
+      if (res?.error) {
+        toast.error(res.error)
+      } else {
+        toast.success(`${member.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'} thành công!`)
+        window.location.reload()
+      }
+    }
+    setIsLoading(false)
   }
 
   if (isEditing) {
@@ -89,7 +104,7 @@ export default function MemberRow({ member, units, departments, positions, curre
   }
 
   return (
-    <tr>
+    <tr className={member.isActive === false ? 'opacity-60 bg-gray-50' : ''}>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{member.name || 'N/A'}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">{member.unit?.name || '-'}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">{member.department?.name || '-'}</td>
@@ -103,13 +118,21 @@ export default function MemberRow({ member, units, departments, positions, curre
         }`}>
           {member.role}
         </span>
+        {member.isActive === false && (
+          <span className="ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+            Vô hiệu hóa
+          </span>
+        )}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
+          <button onClick={() => setIsEditing(true)} disabled={isLoading} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
             <Edit2 className="w-4 h-4" />
           </button>
-          <button onClick={handleDelete} className="text-red-600 hover:text-red-900" title="Xóa">
+          <button onClick={handleToggleStatus} disabled={isLoading} className={`${member.isActive ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`} title={member.isActive ? "Vô hiệu hóa" : "Kích hoạt"}>
+            {member.isActive ? <Ban className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+          <button onClick={handleDelete} disabled={isLoading} className="text-red-600 hover:text-red-900" title="Xóa">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>

@@ -50,6 +50,7 @@ export default async function MembersPage({
         email: true,
         role: true,
         phone: true,
+        isActive: true,
         unitId: true,
         departmentId: true,
         positionId: true,

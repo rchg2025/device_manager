@@ -65,6 +65,31 @@ export async function deleteMember(formData: FormData) {
   return { error: "Missing ID" }
 }
 
+export async function toggleMemberStatus(userId: string, currentStatus: boolean) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Unauthorized" }
+
+  if (!userId) return { error: "Missing ID" }
+
+  const newStatus = !currentStatus
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isActive: newStatus }
+  })
+  
+  await writeLog({
+    userId: session.user.id,
+    action: "UPDATE",
+    entity: "member",
+    entityId: userId,
+    detail: `${newStatus ? 'Kích hoạt' : 'Vô hiệu hóa'} thành viên: ${userId}`
+  })
+  
+  revalidatePath("/dashboard/members")
+  return { success: true, isActive: newStatus }
+}
+
 import bcrypt from "bcryptjs"
 
 export async function createMember(formData: FormData) {

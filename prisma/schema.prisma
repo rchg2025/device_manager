@@ -100,6 +100,7 @@ model User {
   image         String?
   password      String?
   role          Role      @default(MEMBER)
+  isActive      Boolean   @default(true)
   
   unitId        String?
   unit          Unit?       @relation(fields: [unitId], references: [id])
@@ -201,7 +202,7 @@ model BorrowRequest {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   message   String
   isRead    Boolean  @default(false)
   link      String?

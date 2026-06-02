@@ -49,6 +49,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const isMatch = await bcrypt.compare(credentials.password as string, user.password)
         if (!isMatch) return null
 
+        if (user.isActive === false) throw new Error("Tài khoản của bạn đã bị vô hiệu hóa.")
+
         // Check if unit is valid
         if (user.role !== 'SUPERADMIN' && user.role !== 'SUPERVISOR') {
           const requestedUnitId = credentials.unitId as string;
@@ -71,6 +73,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             })
             
             if (existingUser) {
+              if (existingUser.isActive === false) return "/login?error=AccountDisabled"
+              
               const isLinked = existingUser.accounts.some(acc => acc.provider === account.provider)
               if (!isLinked) {
                 await basePrisma.account.create({
