@@ -90,6 +90,7 @@ import { unstable_cache } from "next/cache"
 const getCachedUnits = unstable_cache(
   async () => {
     return await basePrisma.unit.findMany({
+      where: { isActive: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' }
     })

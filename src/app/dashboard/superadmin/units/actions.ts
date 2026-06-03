@@ -2,7 +2,7 @@
 
 import { basePrisma } from "@/lib/prisma"
 import { auth } from "@/auth"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function createUnit(name: string) {
   const session = await auth()
@@ -60,6 +60,7 @@ export async function toggleUnitStatus(id: string, currentStatus: boolean) {
       data: { isActive: !currentStatus }
     })
     revalidatePath("/dashboard/superadmin/units")
+    revalidateTag("units")
     return { success: true }
   } catch (error) {
     return { error: "Không thể cập nhật trạng thái." }
