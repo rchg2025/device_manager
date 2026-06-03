@@ -5,7 +5,15 @@ import * as XLSX from "xlsx"
 import toast from "react-hot-toast"
 import { importClassroomEquipments } from "./actions"
 
-export default function ImportExcelModal() {
+export default function ImportExcelModal({ 
+  categories = [], 
+  areas = [], 
+  rooms = [] 
+}: { 
+  categories?: any[], 
+  areas?: any[], 
+  rooms?: any[] 
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -41,6 +49,26 @@ export default function ImportExcelModal() {
     
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, "Template")
+
+    // Add reference sheet for users to copy-paste exact names
+    const maxLength = Math.max(areas.length, rooms.length, categories.length)
+    const refData = []
+    for (let i = 0; i < maxLength; i++) {
+      refData.push({
+        "Khu vực có sẵn": areas[i]?.name || "",
+        "Phòng học có sẵn": rooms[i]?.name || "",
+        "Danh mục có sẵn": categories[i]?.name || ""
+      })
+    }
+    
+    if (refData.length > 0) {
+      const refWorksheet = XLSX.utils.json_to_sheet(refData)
+      refWorksheet["!cols"] = [
+        { wch: 25 }, { wch: 25 }, { wch: 35 }
+      ]
+      XLSX.utils.book_append_sheet(workbook, refWorksheet, "Danh mục tham khảo")
+    }
+
     XLSX.writeFile(workbook, "Template_Nhap_Thiet_Bi.xlsx")
   }
 
