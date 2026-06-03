@@ -49,3 +49,19 @@ export async function updateUnit(id: string, name: string) {
     return { error: "Không thể cập nhật. Tên có thể đã tồn tại." }
   }
 }
+
+export async function toggleUnitStatus(id: string, currentStatus: boolean) {
+  const session = await auth()
+  if (session?.user?.role !== "SUPERADMIN") return { error: "Không có quyền" }
+
+  try {
+    await basePrisma.unit.update({
+      where: { id },
+      data: { isActive: !currentStatus }
+    })
+    revalidatePath("/dashboard/superadmin/units")
+    return { success: true }
+  } catch (error) {
+    return { error: "Không thể cập nhật trạng thái." }
+  }
+}

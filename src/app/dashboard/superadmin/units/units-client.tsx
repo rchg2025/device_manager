@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { createUnit, updateUnit, deleteUnit } from "./actions"
-import { Building, Plus, Trash2, Edit2, Users, Package, ClipboardList } from "lucide-react"
+import { createUnit, updateUnit, deleteUnit, toggleUnitStatus } from "./actions"
+import { Building, Plus, Trash2, Edit2, Users, Package, ClipboardList, Power } from "lucide-react"
 
 export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
   const [units, setUnits] = useState(initialUnits)
@@ -42,6 +42,18 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
     if (!name || name === currentName) return
     setLoading(true)
     const res = await updateUnit(id, name)
+    setLoading(false)
+    if (res.error) {
+      alert(res.error)
+    } else {
+      window.location.reload()
+    }
+  }
+
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    if (!confirm(`Bạn có chắc muốn ${currentStatus ? 'tạm ngưng' : 'kích hoạt lại'} đơn vị này?`)) return
+    setLoading(true)
+    const res = await toggleUnitStatus(id, currentStatus)
     setLoading(false)
     if (res.error) {
       alert(res.error)
@@ -95,14 +107,28 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {units.map(unit => (
-          <div key={unit.id} className="border rounded-lg p-5 hover:shadow-md transition-shadow bg-gray-50/50">
+          <div key={unit.id} className={`border rounded-lg p-5 transition-shadow ${unit.isActive ? 'bg-gray-50/50 hover:shadow-md' : 'bg-gray-100 opacity-75'}`}>
             <div className="flex justify-between items-start mb-3">
-              <h3 className="font-bold text-gray-800 text-lg">{unit.name}</h3>
+              <div>
+                <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                  {unit.name}
+                  {!unit.isActive && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium border border-red-200">Đã khóa</span>
+                  )}
+                </h3>
+              </div>
               <div className="flex gap-1">
-                <button onClick={() => handleUpdate(unit.id, unit.name)} className="p-1.5 text-gray-500 hover:bg-white hover:text-blue-600 rounded-md bg-transparent">
+                <button 
+                  onClick={() => handleToggleStatus(unit.id, unit.isActive)} 
+                  className={`p-1.5 rounded-md bg-transparent ${unit.isActive ? 'text-green-600 hover:bg-green-50' : 'text-gray-500 hover:bg-white hover:text-green-600'}`}
+                  title={unit.isActive ? "Tạm ngưng đơn vị" : "Kích hoạt đơn vị"}
+                >
+                  <Power className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleUpdate(unit.id, unit.name)} className="p-1.5 text-gray-500 hover:bg-white hover:text-blue-600 rounded-md bg-transparent" title="Đổi tên">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(unit.id)} className="p-1.5 text-gray-500 hover:bg-white hover:text-red-600 rounded-md bg-transparent">
+                <button onClick={() => handleDelete(unit.id)} className="p-1.5 text-gray-500 hover:bg-white hover:text-red-600 rounded-md bg-transparent" title="Xóa">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

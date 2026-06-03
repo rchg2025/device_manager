@@ -46,6 +46,7 @@ enum Role {
 model Unit {
   id    String @id @default(cuid())
   name  String @unique
+  isActive Boolean @default(true)
   
   users                 User[]
   supervisors           User[] @relation("SupervisedUnits")
