@@ -39,6 +39,8 @@ export default function MaintenanceActions({ maintenance, role }: { maintenance:
           <option value="IN_PROGRESS">Đang sửa</option>
           <option value="COMPLETED">Đã xong</option>
           <option value="BROKEN">Hư hỏng</option>
+          <option value="PENDING_LIQUIDATION">Chờ thanh lý</option>
+          <option value="LIQUIDATED">Đã thanh lý</option>
         </select>
       )}
 

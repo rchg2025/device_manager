@@ -80,6 +80,8 @@ export default function MaintenanceModal({ equipmentId, equipmentName, available
                   <option value="IN_PROGRESS">Đang sửa chữa</option>
                   <option value="COMPLETED">Đã hoàn thành</option>
                   <option value="BROKEN">Hư hỏng (Không thể sửa)</option>
+                  <option value="PENDING_LIQUIDATION">Chờ thanh lý</option>
+                  <option value="LIQUIDATED">Đã thanh lý</option>
                 </select>
               </div>
 

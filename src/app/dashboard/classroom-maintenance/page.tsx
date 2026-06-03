@@ -22,9 +22,14 @@ export default async function ClassroomMaintenancePage({
 
   let baseWhereClause: any = { classroomEqId: { not: null } }
   
-  const whereClause = tab === 'broken' 
-    ? { ...baseWhereClause, status: 'BROKEN' }
-    : { ...baseWhereClause, status: { not: 'BROKEN' } }
+  let whereClause = baseWhereClause;
+  if (tab === 'broken') {
+    whereClause = { ...baseWhereClause, status: 'BROKEN' }
+  } else if (tab === 'liquidated') {
+    whereClause = { ...baseWhereClause, status: { in: ['PENDING_LIQUIDATION', 'LIQUIDATED'] } }
+  } else {
+    whereClause = { ...baseWhereClause, status: { notIn: ['BROKEN', 'PENDING_LIQUIDATION', 'LIQUIDATED'] } }
+  }
 
   let page = parseInt(sp?.page as string)
   if (isNaN(page) || page < 1) page = 1
@@ -73,6 +78,12 @@ export default async function ClassroomMaintenancePage({
           className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'broken' ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
         >
           Thiết bị hư hỏng
+        </Link>
+        <Link 
+          href="/dashboard/classroom-maintenance?tab=liquidated" 
+          className={`py-2 px-4 text-sm font-medium border-b-2 ${tab === 'liquidated' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+        >
+          Thanh lý
         </Link>
       </div>
 
@@ -138,6 +149,8 @@ export default async function ClassroomMaintenancePage({
                   {mt.status === 'IN_PROGRESS' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><Wrench className="w-3 h-3"/> Đang sửa</span>}
                   {mt.status === 'COMPLETED' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3"/> Hoàn thành</span>}
                   {mt.status === 'BROKEN' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3"/> Hư hỏng</span>}
+                  {mt.status === 'PENDING_LIQUIDATION' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"><Clock className="w-3 h-3"/> Chờ thanh lý</span>}
+                  {mt.status === 'LIQUIDATED' && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"><CheckCircle className="w-3 h-3"/> Đã thanh lý</span>}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="font-medium text-gray-900">{mt.handlerName || "-"}</div>
