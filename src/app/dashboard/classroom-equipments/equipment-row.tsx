@@ -13,7 +13,10 @@ export default function ClassroomEqRow({
   areas,
   rooms,
   categories,
-  configs 
+  configs,
+  isAdmin,
+  isSelected,
+  onSelect
 }: { 
   item: any,
   areas: any[],

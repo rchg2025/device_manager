@@ -16,7 +16,10 @@ export default function CategoryRow({
   countValue,
   subtitle,
   extraData,
-  managers
+  managers,
+  isAdmin,
+  isSelected,
+  onSelect
 }: { 
   item: any, 
   type: ItemType, 
