@@ -166,3 +166,88 @@ export async function deleteClassroomEquipment(id: string) {
     return { error: "Đã xảy ra lỗi khi xóa thiết bị" }
   }
 }
+
+export async function importClassroomEquipments(data: any[]) {
+  const session = await auth()
+  if (session?.user?.role === "MEMBER") return { error: "Unauthorized" }
+
+  let successCount = 0
+  const errors: string[] = []
+  
+  const areas = await prisma.area.findMany()
+  const rooms = await prisma.room.findMany({
+    where: session?.user?.role === "MANAGER" ? { managerId: session.user.id } : undefined
+  })
+  const categories = await prisma.classroomEqCategory.findMany()
+  const configs = await prisma.deviceConfig.findMany()
+
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i]
+    const rowNum = i + 2 // header is row 1
+    
+    const name = row["Tên thiết bị"]?.toString().trim()
+    const areaName = row["Khu vực"]?.toString().trim()
+    const roomName = row["Phòng học"]?.toString().trim()
+    const categoryName = row["Danh mục"]?.toString().trim()
+    const configNamesStr = row["Cấu hình"]?.toString() || ""
+    const quantity = parseInt(row["Số lượng"]) || 1
+
+    if (!name || !areaName || !roomName || !categoryName) {
+      errors.push(`Dòng ${rowNum}: Thiếu thông tin bắt buộc (Tên, Khu vực, Phòng, Danh mục)`)
+      continue
+    }
+
+    const area = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase())
+    if (!area) {
+      errors.push(`Dòng ${rowNum}: Khu vực "${areaName}" không tồn tại`)
+      continue
+    }
+
+    const room = rooms.find(r => r.name.toLowerCase() === roomName.toLowerCase() && r.areaId === area.id)
+    if (!room) {
+      errors.push(`Dòng ${rowNum}: Phòng "${roomName}" không tồn tại trong Khu vực "${areaName}" hoặc bạn không có quyền quản lý`)
+      continue
+    }
+
+    const category = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase())
+    if (!category) {
+      errors.push(`Dòng ${rowNum}: Danh mục "${categoryName}" không tồn tại`)
+      continue
+    }
+
+    const configNames = configNamesStr.split(",").map((c: string) => c.trim()).filter(Boolean)
+    const matchedConfigs = configs.filter(c => configNames.some((cn: string) => c.name.toLowerCase() === cn.toLowerCase()))
+    
+    try {
+      await prisma.classroomEquipment.create({
+        data: {
+          name,
+          areaId: area.id,
+          roomId: room.id,
+          categoryId: category.id,
+          quantity,
+          creatorName: session?.user?.name || "Unknown",
+          configs: {
+            connect: matchedConfigs.map(c => ({ id: c.id }))
+          }
+        }
+      })
+      successCount++
+    } catch (e: any) {
+      errors.push(`Dòng ${rowNum}: Lỗi hệ thống khi thêm thiết bị`)
+    }
+  }
+
+  if (successCount > 0) {
+    await writeLog({
+      userId: session.user.id,
+      action: "CREATE",
+      entity: "classroom_equipment",
+      entityId: null,
+      detail: `Import Excel: Thêm ${successCount} thiết bị phòng học`
+    })
+    revalidatePath("/dashboard/classroom-equipments")
+  }
+
+  return { results: { success: successCount, errors } }
+}
