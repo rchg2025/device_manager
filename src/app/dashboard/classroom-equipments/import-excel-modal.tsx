@@ -8,11 +8,13 @@ import { importClassroomEquipments } from "./actions"
 export default function ImportExcelModal({ 
   categories = [], 
   areas = [], 
-  rooms = [] 
+  rooms = [],
+  configs = []
 }: { 
   categories?: any[], 
   areas?: any[], 
-  rooms?: any[] 
+  rooms?: any[],
+  configs?: any[]
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -51,20 +53,21 @@ export default function ImportExcelModal({
     XLSX.utils.book_append_sheet(workbook, worksheet, "Template")
 
     // Add reference sheet for users to copy-paste exact names
-    const maxLength = Math.max(areas.length, rooms.length, categories.length)
+    const maxLength = Math.max(areas.length, rooms.length, categories.length, configs.length)
     const refData = []
     for (let i = 0; i < maxLength; i++) {
       refData.push({
         "Khu vực có sẵn": areas[i]?.name || "",
         "Phòng học có sẵn": rooms[i]?.name || "",
-        "Danh mục có sẵn": categories[i]?.name || ""
+        "Danh mục thiết bị": categories[i]?.name || "",
+        "Cấu hình có sẵn": configs[i]?.name || ""
       })
     }
     
     if (refData.length > 0) {
       const refWorksheet = XLSX.utils.json_to_sheet(refData)
       refWorksheet["!cols"] = [
-        { wch: 25 }, { wch: 25 }, { wch: 35 }
+        { wch: 25 }, { wch: 25 }, { wch: 35 }, { wch: 35 }
       ]
       XLSX.utils.book_append_sheet(workbook, refWorksheet, "Danh mục tham khảo")
     }

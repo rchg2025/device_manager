@@ -100,7 +100,7 @@ export default async function ClassroomEquipmentsPage({
           <p className="text-gray-500 mt-1">Danh sách tất cả thiết bị được lắp đặt tại các phòng học</p>
         </div>
         <div className="flex items-center gap-2">
-          <ImportExcelModal categories={categories} areas={areas} rooms={rooms} />
+          <ImportExcelModal categories={categories} areas={areas} rooms={rooms} configs={configs} />
           <ExportExcelButton data={items} />
         </div>
       </div>
