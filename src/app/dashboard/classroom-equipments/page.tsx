@@ -6,8 +6,8 @@ import CreateClassroomEqForm from "./create-form"
 import { Upload, Plus, MonitorPlay } from "lucide-react"
 import ExportExcelButton from "./export-excel-button"
 import ImportExcelModal from "./import-excel-modal"
-import Pagination from "../pagination"
 import FilterBar from "./filter-bar"
+import EquipmentTable from "./equipment-table"
 
 export default async function ClassroomEquipmentsPage({
   searchParams,
@@ -123,47 +123,16 @@ export default async function ClassroomEquipmentsPage({
         </div>
 
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="overflow-x-auto min-h-[350px]">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Thông tin thiết bị</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vị trí</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tình trạng</th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {items.map((item: any) => (
-                    <ClassroomEqRow 
-                      key={item.id} 
-                      item={item} 
-                      areas={areas}
-                      rooms={rooms}
-                      categories={categories}
-                      configs={configs}
-                    />
-                  ))}
-                  {items.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center justify-center text-gray-500">
-                          <MonitorPlay className="w-12 h-12 mb-3 text-gray-300" />
-                          <p className="text-lg font-medium text-gray-900">Chưa có thiết bị nào</p>
-                          <p className="text-sm">Vui lòng thêm thiết bị mới hoặc thay đổi bộ lọc tìm kiếm.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            
-            <div className="border-t border-gray-200">
-              <Pagination totalPages={totalPages} currentPage={page} />
-            </div>
-          </div>
+          <EquipmentTable 
+            items={items}
+            areas={areas}
+            rooms={rooms}
+            categories={categories}
+            configs={configs}
+            totalPages={totalPages}
+            page={page}
+            userRole={session?.user?.role}
+          />
         </div>
       </div>
     </div>

@@ -251,3 +251,37 @@ export async function importClassroomEquipments(data: any[]) {
 
   return { results: { success: successCount, errors } }
 }
+
+export async function deleteManyClassroomEquipments(ids: string[]) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") {
+    return { error: "Bạn không có quyền thực hiện thao tác này" }
+  }
+
+  try {
+    const maintenances = await prisma.maintenance.count({
+      where: { classroomEqId: { in: ids } }
+    })
+    if (maintenances > 0) {
+      return { error: "Không thể xóa các thiết bị đang có lịch sử bảo trì. Vui lòng xóa lịch sử bảo trì trước." }
+    }
+
+    await prisma.classroomEquipment.deleteMany({
+      where: { id: { in: ids } }
+    })
+    
+    await writeLog({
+      userId: session.user.id,
+      action: "DELETE",
+      entity: "classroom_equipment",
+      entityId: null,
+      detail: `Xóa nhiều thiết bị phòng học: ${ids.length} thiết bị`
+    })
+    
+    revalidatePath("/dashboard/classroom-equipments")
+    return { success: true }
+  } catch (error) {
+    console.error("Delete Many Classroom Equipments Error:", error)
+    return { error: "Đã xảy ra lỗi khi xóa thiết bị" }
+  }
+}

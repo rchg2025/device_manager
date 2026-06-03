@@ -270,7 +270,21 @@ export async function deleteClassroomEqCategory(id: string) {
     await prisma.classroomEqCategory.delete({ where: { id } })
     revalidatePath("/dashboard/categories")
     return { success: true }
-  } catch (error) { return { error: "Kh�ng th? x�a danh m?c dang c� thi?t b?" } }
+  } catch (error) { return { error: "Khng th? xa danh m?c dang c thi?t b?" } }
+}
+
+export async function deleteManyClassroomEqCategories(ids: string[]) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") {
+    return { error: "Bạn không có quyền thực hiện thao tác này" }
+  }
+  try {
+    await prisma.classroomEqCategory.deleteMany({ where: { id: { in: ids } } })
+    revalidatePath("/dashboard/categories")
+    return { success: true }
+  } catch (error) { 
+    return { error: "Không thể xóa danh mục đang có thiết bị" } 
+  }
 }
 
 export async function createDeviceConfig(formData: FormData) {

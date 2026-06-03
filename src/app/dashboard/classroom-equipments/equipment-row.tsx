@@ -19,7 +19,10 @@ export default function ClassroomEqRow({
   areas: any[],
   rooms: any[],
   categories: any[],
-  configs: any[]
+  configs: any[],
+  isAdmin?: boolean,
+  isSelected?: boolean,
+  onSelect?: (checked: boolean) => void
 }) {
   const [isEditing, setIsEditing] = useState(false)
 
@@ -34,6 +37,7 @@ export default function ClassroomEqRow({
   if (isEditing) {
     return (
       <tr>
+        {isAdmin && <td className="px-4 py-4"></td>}
         <td colSpan={4} className="px-6 py-4">
           <form action={async (formData) => {
             const res = await updateClassroomEquipment(formData)
@@ -138,6 +142,16 @@ export default function ClassroomEqRow({
     return (
       <>
         <tr className="hover:bg-gray-50 transition-colors">
+          {isAdmin && (
+            <td className="px-4 py-4 whitespace-nowrap">
+              <input 
+                type="checkbox" 
+                checked={isSelected || false}
+                onChange={(e) => onSelect?.(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </td>
+          )}
           <td className="px-6 py-4">
             <div className="flex items-center">
               <div className="flex-shrink-0 h-10 w-10 relative">

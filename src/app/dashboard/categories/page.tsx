@@ -7,6 +7,8 @@ import {
 import Link from "next/link"
 import CategoryRow from "./category-row"
 import Pagination from "../pagination"
+import CategoryTab from "./category-tab"
+import { auth } from "@/auth"
 
 import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
@@ -88,6 +90,7 @@ async function CategoriesDataWrapper({ resolvedSearchParams }: { resolvedSearchP
 }
 
 async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: any }) {
+  const session = await auth()
   const activeTab = resolvedSearchParams.tab || 'equipment'
   
   let page = parseInt((resolvedSearchParams.page as string))
@@ -160,22 +163,22 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
   return (
     <>
       {activeTab === 'equipment' && (
-        <CategoryTab title="Thiết bị" createAction={createCategory} data={items} managers={managers} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" />
+        <CategoryTab title="Thiết bị" createAction={createCategory} data={items} managers={managers} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="category" userRole={session?.user?.role} />
       )}
       {activeTab === 'unit' && (
-        <CategoryTab title="Đơn vị" createAction={createUnit} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="unit" />
+        <CategoryTab title="Đơn vị" createAction={createUnit} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="unit" userRole={session?.user?.role} />
       )}
       {activeTab === 'position' && (
-        <CategoryTab title="Chức vụ" createAction={createPosition} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="position" />
+        <CategoryTab title="Chức vụ" createAction={createPosition} data={items} totalPages={totalPages} page={page} countLabel="thành viên" countKey="users" type="position" userRole={session?.user?.role} />
       )}
       {activeTab === 'area' && (
-        <CategoryTab title="Khu vực" createAction={createArea} data={items} totalPages={totalPages} page={page} countLabel="phòng học" countKey="rooms" type="area" />
+        <CategoryTab title="Khu vực" createAction={createArea} data={items} totalPages={totalPages} page={page} countLabel="phòng học" countKey="rooms" type="area" userRole={session?.user?.role} />
       )}
       {activeTab === 'classroom-eq-cat' && (
-        <CategoryTab title="Thiết bị phòng học" createAction={createClassroomEqCategory} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="classroomEqCategory" />
+        <CategoryTab title="Thiết bị phòng học" createAction={createClassroomEqCategory} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="classroomEqCategory" userRole={session?.user?.role} />
       )}
       {activeTab === 'config' && (
-        <CategoryTab title="Cấu hình" createAction={createDeviceConfig} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="deviceConfig" />
+        <CategoryTab title="Cấu hình" createAction={createDeviceConfig} data={items} totalPages={totalPages} page={page} countLabel="thiết bị" countKey="equipments" type="deviceConfig" userRole={session?.user?.role} />
       )}
       {activeTab === 'room' && (
         <RoomTab data={items} allAreas={allAreas} managers={managers} totalPages={totalPages} page={page} />
@@ -184,60 +187,6 @@ async function CategoriesData({ resolvedSearchParams }: { resolvedSearchParams: 
   )
 }
 
-function CategoryTab({ title, createAction, data, managers, totalPages, page, countLabel, countKey, type }: any) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 h-fit">
-        <h4 className="text-lg font-semibold mb-4 border-b pb-2">Thêm {title} mới</h4>
-        <form action={createAction} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tên {title.toLowerCase()}</label>
-            <input type="text" name="name" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" placeholder={`Nhập tên ${title.toLowerCase()}...`} />
-          </div>
-          {type === 'category' && managers && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nhân viên quản lý (Tùy chọn)</label>
-              <select name="managerId" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border bg-white">
-                <option value="">-- Chọn người quản lý --</option>
-                {managers.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
-              </select>
-            </div>
-          )}
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors">Thêm mới</button>
-        </form>
-      </div>
-      <div className="col-span-1 md:col-span-2">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên {title.toLowerCase()}</th>
-                {type === 'category' && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người quản lý</th>
-                )}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng {countLabel}</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {data.map((item: any) => (
-                <CategoryRow key={item.id} item={item} countLabel={countLabel} countValue={item.totalCount !== undefined ? item.totalCount : (item._count?.[countKey] || 0)} type={type} managers={managers} />
-              ))}
-              {data.length === 0 && (
-                <tr>
-                  <td colSpan={type === 'category' ? 4 : 3} className="px-6 py-4 text-center text-sm text-gray-500">Chưa có dữ liệu</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-4">
-          <Pagination totalPages={totalPages} currentPage={page} />
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function RoomTab({ data, allAreas, managers, totalPages, page }: any) {
   return (

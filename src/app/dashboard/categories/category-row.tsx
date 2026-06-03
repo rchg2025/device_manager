@@ -24,7 +24,10 @@ export default function CategoryRow({
   countValue: number,
   subtitle?: string,
   extraData?: { areas?: any[], managers?: any[] },
-  managers?: any[]
+  managers?: any[],
+  isAdmin?: boolean,
+  isSelected?: boolean,
+  onSelect?: (checked: boolean) => void
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -71,6 +74,7 @@ export default function CategoryRow({
   if (isEditing) {
     return (
       <tr>
+        {isAdmin && <td className="px-4 py-4"></td>}
         <td colSpan={(type === 'room' || type === 'category') ? 4 : 3} className="px-6 py-4">
           <form action={handleUpdate} className="flex flex-col sm:flex-row items-center gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
             <input 
@@ -119,6 +123,16 @@ export default function CategoryRow({
 
   return (
     <tr>
+      {isAdmin && (
+        <td className="px-4 py-4 whitespace-nowrap">
+          <input 
+            type="checkbox" 
+            checked={isSelected || false}
+            onChange={(e) => onSelect?.(e.target.checked)}
+            className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          />
+        </td>
+      )}
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
       {type === 'category' && (
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
