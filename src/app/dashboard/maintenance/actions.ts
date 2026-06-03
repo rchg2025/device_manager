@@ -6,8 +6,8 @@ import { writeLog } from "@/lib/system-log"
 
 export async function createMaintenance(formData: FormData) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER") {
-    throw new Error("Unauthorized")
+  if (!session?.user?.role || (session.user.role !== "ADMIN" && session.user.role !== "MANAGER" && session.user.role !== "SUPERADMIN")) {
+    return { error: "Bạn không có quyền thực hiện thao tác này" }
   }
 
   const equipmentId = formData.get("equipmentId") as string | null
@@ -92,8 +92,8 @@ export async function createMaintenance(formData: FormData) {
 
 export async function updateMaintenanceStatus(id: string, status: string) {
   const session = await auth()
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER") {
-    throw new Error("Unauthorized")
+  if (!session?.user?.role || (session.user.role !== "ADMIN" && session.user.role !== "MANAGER" && session.user.role !== "SUPERADMIN")) {
+    return { error: "Bạn không có quyền thực hiện thao tác này" }
   }
 
   const existing = await prisma.maintenance.findUnique({ 
