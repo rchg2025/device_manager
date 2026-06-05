@@ -23,12 +23,14 @@ export async function GET(request: Request) {
         equipment: {
           select: {
             name: true,
+            totalQty: true,
             category: { select: { name: true, manager: { select: { name: true } } } }
           }
         },
         classroomEq: {
           select: {
             name: true,
+            quantity: true,
             room: { select: { name: true } },
             area: { select: { name: true } }
           }
@@ -43,6 +45,8 @@ export async function GET(request: Request) {
     // ── Sheet 1: Chi tiết ─────────────────────────────────────────
     const detailData = records.map((rec: any, i: number) => {
       const isClassroom = !!rec.classroomEq
+      const dbQty = isClassroom ? (rec.classroomEq?.quantity || 0) : (rec.equipment?.totalQty || 0)
+      const scannedQty = rec.quantity || 1
       return {
         "STT": i + 1,
         "Đợt kiểm kê": rec.session?.name || "Không thuộc đợt nào",
@@ -53,7 +57,9 @@ export async function GET(request: Request) {
           : rec.equipment?.category?.name || "",
         "NV Phụ trách DM": isClassroom ? "" : (rec.equipment?.category?.manager?.name || "Chưa có"),
         "Vị trí ghi nhận": rec.location || "",
-        "Số lượng": rec.quantity || 1,
+        "Số lượng tồn (CSDL)": dbQty,
+        "Số lượng thực tế (Quét)": scannedQty,
+        "Chênh lệch": scannedQty - dbQty,
         "Tình trạng": statusLabel(rec.status),
         "Ghi chú": rec.note || "",
         "Người quét": rec.scanner?.name || rec.scanner?.email || "",
@@ -62,45 +68,66 @@ export async function GET(request: Request) {
     })
 
     // ── Sheet 2: Thống kê theo Phòng ─────────────────────────────
-    const byRoom: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
+    const byRoom: Record<string, { total: number; present: number; damaged: number; missing: number; dbQty: number; seenIds: Set<string> }> = {}
     for (const rec of records) {
       const q = rec.quantity || 1
       const isClassroom = !!rec.classroomEq
+      const dbQ = isClassroom ? (rec.classroomEq?.quantity || 0) : (rec.equipment?.totalQty || 0)
+      const id = isClassroom ? rec.classroomEqId : rec.equipmentId
       const roomKey = isClassroom
         ? `${rec.classroomEq?.room?.name || "?"} (${rec.classroomEq?.area?.name || "?"})`
         : `Kho chung (${(rec as any).equipment?.category?.name || "?"})`
-      if (!byRoom[roomKey]) byRoom[roomKey] = { total: 0, present: 0, damaged: 0, missing: 0 }
+      
+      if (!byRoom[roomKey]) byRoom[roomKey] = { total: 0, present: 0, damaged: 0, missing: 0, dbQty: 0, seenIds: new Set() }
       byRoom[roomKey].total += q
       if (rec.status === "PRESENT") byRoom[roomKey].present += q
       else if (rec.status === "DAMAGED") byRoom[roomKey].damaged += q
       else byRoom[roomKey].missing += q
+      
+      if (id && !byRoom[roomKey].seenIds.has(id)) {
+        byRoom[roomKey].dbQty += dbQ
+        byRoom[roomKey].seenIds.add(id)
+      }
     }
     const byRoomData = Object.entries(byRoom).map(([room, stats], i) => ({
       "STT": i + 1,
       "Phòng / Khu vực": room,
-      "Tổng số lượng": stats.total,
+      "Số lượng tồn (CSDL)": stats.dbQty,
+      "Số lượng thực tế (Quét)": stats.total,
+      "Chênh lệch": stats.total - stats.dbQty,
       "Bình thường": stats.present,
       "Hư hỏng": stats.damaged,
       "Không tìm thấy": stats.missing
     }))
 
     // ── Sheet 3: Thống kê theo Thiết bị ──────────────────────────
-    const byDevice: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
+    const byDevice: Record<string, { total: number; present: number; damaged: number; missing: number; dbQty: number; seenIds: Set<string> }> = {}
     for (const rec of records) {
       const q = rec.quantity || 1
+      const isClassroom = !!(rec as any).classroomEq
+      const dbQ = isClassroom ? ((rec as any).classroomEq?.quantity || 0) : ((rec as any).equipment?.totalQty || 0)
       const name = (rec as any).equipment?.name || (rec as any).classroomEq?.name || "Không rõ"
-      if (!byDevice[name]) byDevice[name] = { total: 0, present: 0, damaged: 0, missing: 0 }
+      const id = isClassroom ? (rec as any).classroomEqId : (rec as any).equipmentId
+      
+      if (!byDevice[name]) byDevice[name] = { total: 0, present: 0, damaged: 0, missing: 0, dbQty: 0, seenIds: new Set() }
       byDevice[name].total += q
       if (rec.status === "PRESENT") byDevice[name].present += q
       else if (rec.status === "DAMAGED") byDevice[name].damaged += q
       else byDevice[name].missing += q
+      
+      if (id && !byDevice[name].seenIds.has(id)) {
+        byDevice[name].dbQty += dbQ
+        byDevice[name].seenIds.add(id)
+      }
     }
     const byDeviceData = Object.entries(byDevice)
       .sort((a, b) => b[1].total - a[1].total)
       .map(([device, stats], i) => ({
         "STT": i + 1,
         "Tên thiết bị": device,
-        "Tổng số lượng": stats.total,
+        "Số lượng tồn (CSDL)": stats.dbQty,
+        "Số lượng thực tế (Quét)": stats.total,
+        "Chênh lệch": stats.total - stats.dbQty,
         "Bình thường": stats.present,
         "Hư hỏng": stats.damaged,
         "Không tìm thấy": stats.missing
@@ -158,16 +185,16 @@ export async function GET(request: Request) {
     const ws1 = XLSX.utils.json_to_sheet(detailData)
     ws1["!cols"] = [
       { wch: 5 }, { wch: 25 }, { wch: 18 }, { wch: 30 }, { wch: 28 },
-      { wch: 22 }, { wch: 22 }, { wch: 10 }, { wch: 14 }, { wch: 24 }, { wch: 20 }, { wch: 20 }
+      { wch: 22 }, { wch: 22 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 24 }, { wch: 20 }, { wch: 20 }
     ]
     XLSX.utils.book_append_sheet(wb, ws1, "Chi tiết kiểm kê")
 
     const ws2 = XLSX.utils.json_to_sheet(byRoomData)
-    ws2["!cols"] = [{ wch: 5 }, { wch: 32 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
+    ws2["!cols"] = [{ wch: 5 }, { wch: 32 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
     XLSX.utils.book_append_sheet(wb, ws2, "Thống kê theo Phòng")
 
     const ws3 = XLSX.utils.json_to_sheet(byDeviceData)
-    ws3["!cols"] = [{ wch: 5 }, { wch: 30 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
+    ws3["!cols"] = [{ wch: 5 }, { wch: 30 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
     XLSX.utils.book_append_sheet(wb, ws3, "Thống kê theo Thiết bị")
 
     const ws4 = XLSX.utils.json_to_sheet(byScannerData)
