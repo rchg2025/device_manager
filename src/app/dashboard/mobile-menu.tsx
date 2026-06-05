@@ -32,25 +32,6 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
               <Link prefetch={false} onClick={closeMenu} href="/dashboard" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                 <LayoutDashboard className="w-5 h-5" /> Tổng quan
               </Link>
-              {/* Menu cho Quản trị viên/Quản lý */}
-              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
-                <>
-                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                    <Package className="w-5 h-5" /> Quản lý thiết bị
-                  </Link>
-                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                    <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
-                  </Link>
-                </>
-              )}
-              {role === "SUPERVISOR" && (
-                <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                  <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
-                </Link>
-              )}
-
-
-
               {role !== "SUPERVISOR" && (
                 <Link prefetch={false} onClick={closeMenu} href="/dashboard/borrow" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/borrow' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                   <Package className="w-5 h-5" /> Đăng ký mượn thiết bị
@@ -78,6 +59,23 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                     <ClipboardList className="w-5 h-5" /> Lịch sử mượn trả
                   </div>
                   <AutoRefreshBadge initialCount={unreadCount} />
+                </Link>
+              )}
+
+              {/* Menu cho Quản trị viên/Quản lý */}
+              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+                <>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <Package className="w-5 h-5" /> Quản lý thiết bị
+                  </Link>
+                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                    <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
+                  </Link>
+                </>
+              )}
+              {role === "SUPERVISOR" && (
+                <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                  <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
                 </Link>
               )}
               {role !== "MEMBER" && (
