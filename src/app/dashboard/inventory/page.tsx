@@ -106,7 +106,7 @@ export default async function InventoryPage({
           <p className="text-gray-500 mt-1 text-sm">Quét mã QR thiết bị để ghi nhận lịch sử kiểm kê</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {activeSession && records.length > 0 && role !== "MEMBER" && role !== "SUPERVISOR" && (
+          {activeSession && records.length > 0 && role !== "MEMBER" && (
             <ExportInventoryButton sessionId={activeSession.id} />
           )}
           {activeSession && <ScanModal activeSessionId={activeSession.id} />}
@@ -318,7 +318,7 @@ export default async function InventoryPage({
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-400" /> Lịch sử các đợt đã hoàn tất
             </h3>
-            {role !== "MEMBER" && role !== "SUPERVISOR" && (
+            {role !== "MEMBER" && (
               <ExportInventoryButton />
             )}
           </div>
@@ -331,7 +331,7 @@ export default async function InventoryPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Hoàn tất</span>
-                  {role !== "MEMBER" && role !== "SUPERVISOR" && (
+                  {role !== "MEMBER" && (
                     <ExportInventoryButton sessionId={s.id} />
                   )}
                   {(role === "ADMIN" || role === "SUPERADMIN") && (

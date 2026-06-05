@@ -1,23 +1,11 @@
-import { NextResponse } from "next/server"
-import { auth } from "@/auth"
-import { prisma } from "@/lib/prisma"
-import * as XLSX from "xlsx"
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const XLSX = require('xlsx');
 
-export async function GET(request: Request) {
+async function run() {
   try {
-    const session = await auth()
-    if (session?.user?.role !== "SUPERADMIN" && session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER" && session?.user?.role !== "SUPERVISOR") {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get("sessionId") || undefined
-
-    const where: any = sessionId ? { sessionId } : {}
-
     const records = await prisma.inventoryRecord.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         scanner: { select: { name: true, email: true } },
         equipment: {
@@ -37,13 +25,13 @@ export async function GET(request: Request) {
         },
         session: { select: { name: true } }
       }
-    })
+    });
 
-    const statusLabel = (s: string) =>
+    const statusLabel = (s) =>
       s === "PRESENT" ? "Bình thường" : s === "DAMAGED" ? "Hư hỏng" : "Không tìm thấy"
 
     // ── Sheet 1: Chi tiết ─────────────────────────────────────────
-    const detailData = records.map((rec: any, i: number) => {
+    const detailData = records.map((rec, i) => {
       const isClassroom = !!rec.classroomEq
       const dbQty = isClassroom ? (rec.classroomEq?.quantity || 0) : (rec.equipment?.totalQty || 0)
       const scannedQty = rec.quantity || 1
@@ -68,7 +56,7 @@ export async function GET(request: Request) {
     })
 
     // ── Sheet 2: Thống kê theo Phòng ─────────────────────────────
-    const byRoom: Record<string, { total: number; present: number; damaged: number; missing: number; dbQty: number; seenIds: Set<string> }> = {}
+    const byRoom = {}
     for (const rec of records) {
       const q = rec.quantity || 1
       const isClassroom = !!rec.classroomEq
@@ -76,7 +64,7 @@ export async function GET(request: Request) {
       const id = isClassroom ? rec.classroomEqId : rec.equipmentId
       const roomKey = isClassroom
         ? `${rec.classroomEq?.room?.name || "?"} (${rec.classroomEq?.area?.name || "?"})`
-        : `Kho chung (${(rec as any).equipment?.category?.name || "?"})`
+        : `Kho chung (${rec.equipment?.category?.name || "?"})`
       
       if (!byRoom[roomKey]) byRoom[roomKey] = { total: 0, present: 0, damaged: 0, missing: 0, dbQty: 0, seenIds: new Set() }
       byRoom[roomKey].total += q
@@ -101,13 +89,13 @@ export async function GET(request: Request) {
     }))
 
     // ── Sheet 3: Thống kê theo Thiết bị ──────────────────────────
-    const byDevice: Record<string, { total: number; present: number; damaged: number; missing: number; dbQty: number; seenIds: Set<string> }> = {}
+    const byDevice = {}
     for (const rec of records) {
       const q = rec.quantity || 1
-      const isClassroom = !!(rec as any).classroomEq
-      const dbQ = isClassroom ? ((rec as any).classroomEq?.quantity || 0) : ((rec as any).equipment?.totalQty || 0)
-      const name = (rec as any).equipment?.name || (rec as any).classroomEq?.name || "Không rõ"
-      const id = isClassroom ? (rec as any).classroomEqId : (rec as any).equipmentId
+      const isClassroom = !!rec.classroomEq
+      const dbQ = isClassroom ? (rec.classroomEq?.quantity || 0) : (rec.equipment?.totalQty || 0)
+      const name = rec.equipment?.name || rec.classroomEq?.name || "Không rõ"
+      const id = isClassroom ? rec.classroomEqId : rec.equipmentId
       
       if (!byDevice[name]) byDevice[name] = { total: 0, present: 0, damaged: 0, missing: 0, dbQty: 0, seenIds: new Set() }
       byDevice[name].total += q
@@ -134,10 +122,10 @@ export async function GET(request: Request) {
       }))
 
     // ── Sheet 4: Thống kê theo Nhân viên quét ────────────────────
-    const byScanner: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
+    const byScanner = {}
     for (const rec of records) {
       const q = rec.quantity || 1
-      const name = (rec as any).scanner?.name || (rec as any).scanner?.email || "Không rõ"
+      const name = rec.scanner?.name || rec.scanner?.email || "Không rõ"
       if (!byScanner[name]) byScanner[name] = { total: 0, present: 0, damaged: 0, missing: 0 }
       byScanner[name].total += q
       if (rec.status === "PRESENT") byScanner[name].present += q
@@ -156,12 +144,12 @@ export async function GET(request: Request) {
       }))
 
     // ── Sheet 5: Thống kê theo NV phụ trách danh mục ─────────────
-    const byManager: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
+    const byManager = {}
     for (const rec of records) {
       const q = rec.quantity || 1
-      const isClassroom = !!(rec as any).classroomEq
+      const isClassroom = !!rec.classroomEq
       if (isClassroom) continue
-      const mgr = (rec as any).equipment?.category?.manager?.name || "Chưa phân công"
+      const mgr = rec.equipment?.category?.manager?.name || "Chưa phân công"
       if (!byManager[mgr]) byManager[mgr] = { total: 0, present: 0, damaged: 0, missing: 0 }
       byManager[mgr].total += q
       if (rec.status === "PRESENT") byManager[mgr].present += q
@@ -208,17 +196,11 @@ export async function GET(request: Request) {
     }
 
     const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" })
-    const date = new Date().toISOString().slice(0, 10)
-
-    return new NextResponse(buf, {
-      status: 200,
-      headers: {
-        "Content-Disposition": `attachment; filename="KiemKe_${date}.xlsx"`,
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      }
-    })
-  } catch (error) {
-    console.error(error)
-    return new NextResponse("Internal Server Error", { status: 500 })
+    console.log('SUCCESS! Buffer length:', buf.length)
+  } catch (e) {
+    console.error('Prisma Error:', e);
+  } finally {
+    await prisma.$disconnect();
   }
 }
+run();
