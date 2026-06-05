@@ -62,7 +62,7 @@ export async function GET(request: Request) {
           select: {
             name: true,
             quantity: true,
-            room: { select: { name: true } },
+            room: { select: { name: true, manager: { select: { name: true } } } },
             area: { select: { name: true } }
           }
         },
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
         "Danh mục / Phòng": isClassroom
           ? `${rec.classroomEq?.room?.name || ""} - ${rec.classroomEq?.area?.name || ""}`
           : rec.equipment?.category?.name || "",
-        "NV Phụ trách DM": isClassroom ? "" : (rec.equipment?.category?.manager?.name || "Chưa có"),
+        "NV Phụ trách DM": isClassroom ? (rec.classroomEq?.room?.manager?.name || "Chưa có") : (rec.equipment?.category?.manager?.name || "Chưa có"),
         "Vị trí ghi nhận": rec.location || "",
         "Số lượng tồn (CSDL)": dbQty,
         "Số lượng thực tế (Quét)": scannedQty,
