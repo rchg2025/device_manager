@@ -172,7 +172,7 @@ export default async function DashboardLayout({
 
           {role !== "MEMBER" && (
             <>
-              <hr className="my-2 border-gray-200" />
+              <hr className="my-2 border-t-2 border-blue-200" />
               {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
                 <>
                   <Link prefetch={false} href="/dashboard/classroom-equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
