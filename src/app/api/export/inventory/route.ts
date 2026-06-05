@@ -6,7 +6,7 @@ import * as XLSX from "xlsx"
 export async function GET(request: Request) {
   try {
     const session = await auth()
-    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER") {
+    if (session?.user?.role !== "SUPERADMIN" && session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER") {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
