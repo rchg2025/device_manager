@@ -92,13 +92,15 @@ export default async function EquipmentsPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-1 h-fit">
-          <h3 className="text-lg font-semibold mb-4 border-b pb-2">Thêm thiết bị mới</h3>
-          <CreateEquipmentForm categories={categories} />
-        </div>
+      <div className={`grid grid-cols-1 ${role !== "SUPERVISOR" ? "md:grid-cols-4" : ""} gap-8`}>
+        {role !== "SUPERVISOR" && (
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 col-span-1 md:col-span-1 h-fit">
+            <h3 className="text-lg font-semibold mb-4 border-b pb-2">Thêm thiết bị mới</h3>
+            <CreateEquipmentForm categories={categories} />
+          </div>
+        )}
 
-        <div className="col-span-1 md:col-span-3">
+        <div className={`col-span-1 ${role !== "SUPERVISOR" ? "md:col-span-3" : ""}`}>
           <FilterBar categories={categories} />
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
@@ -116,7 +118,7 @@ export default async function EquipmentsPage({
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {equipments.map((eq: any) => (
-                  <EquipmentRow key={eq.id} eq={eq} categories={categories} />
+                  <EquipmentRow key={eq.id} eq={eq} categories={categories} role={role} />
                 ))}
                 {equipments.length === 0 && (
                   <tr>

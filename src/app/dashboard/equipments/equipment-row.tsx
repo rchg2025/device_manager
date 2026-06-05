@@ -7,7 +7,7 @@ import QrModal from "./qr-modal"
 import MaintenanceModal from "./maintenance-modal"
 import toast from "react-hot-toast"
 
-export default function EquipmentRow({ eq, categories }: { eq: any, categories: any[] }) {
+export default function EquipmentRow({ eq, categories, role }: { eq: any, categories: any[], role?: string }) {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -120,12 +120,16 @@ export default function EquipmentRow({ eq, categories }: { eq: any, categories: 
         <div className="flex items-center justify-end gap-3">
           <MaintenanceModal equipmentId={eq.id} equipmentName={eq.name} availableQty={eq.availableQty} />
           <QrModal barcode={eq.barcode || eq.id} equipmentName={eq.name} />
-          <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button onClick={handleDelete} disabled={eq.totalQty !== eq.availableQty} className={`text-red-600 hover:text-red-900 ${eq.totalQty !== eq.availableQty ? 'opacity-50 cursor-not-allowed' : ''}`} title="Xóa">
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {role !== "SUPERVISOR" && (
+            <>
+              <button onClick={() => setIsEditing(true)} className="text-indigo-600 hover:text-indigo-900" title="Chỉnh sửa">
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button onClick={handleDelete} disabled={eq.totalQty !== eq.availableQty} className={`text-red-600 hover:text-red-900 ${eq.totalQty !== eq.availableQty ? 'opacity-50 cursor-not-allowed' : ''}`} title="Xóa">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
       </td>
     </tr>
