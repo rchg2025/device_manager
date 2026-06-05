@@ -186,13 +186,19 @@ export async function GET(request: Request) {
         "Không tìm thấy": stats.missing
       }))
 
-    // ── Sheet 5: Thống kê theo NV phụ trách danh mục ─────────────
+    // ── Sheet 5: Thống kê theo NV phụ trách ─────────────
     const byManager: Record<string, { total: number; present: number; damaged: number; missing: number }> = {}
     for (const rec of records) {
       const q = rec.quantity || 1
       const isClassroom = !!(rec as any).classroomEq
-      if (isClassroom) continue
-      const mgr = (rec as any).equipment?.category?.manager?.name || "Chưa phân công"
+      
+      let mgr = "Chưa phân công";
+      if (isClassroom) {
+        mgr = (rec as any).classroomEq?.room?.manager?.name || "Chưa phân công";
+      } else {
+        mgr = (rec as any).equipment?.category?.manager?.name || "Chưa phân công";
+      }
+
       if (!byManager[mgr]) byManager[mgr] = { total: 0, present: 0, damaged: 0, missing: 0 }
       byManager[mgr].total += q
       if (rec.status === "PRESENT") byManager[mgr].present += q
@@ -203,7 +209,7 @@ export async function GET(request: Request) {
       .sort((a, b) => b[1].total - a[1].total)
       .map(([mgr, stats], i) => ({
         "STT": i + 1,
-        "Nhân viên phụ trách DM": mgr,
+        "Nhân viên phụ trách": mgr,
         "Tổng số lượng": stats.total,
         "Bình thường": stats.present,
         "Hư hỏng": stats.damaged,
