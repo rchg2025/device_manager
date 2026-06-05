@@ -4,19 +4,21 @@ import { Download } from "lucide-react"
 import * as XLSX from "xlsx"
 import toast from "react-hot-toast"
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { getAllClassroomEquipmentsForExport } from "./actions"
 
-export default function ExportExcelButton({ searchParams }: { searchParams: { query?: string, area?: string, room?: string, category?: string } }) {
+export default function ExportExcelButton() {
+  const searchParams = useSearchParams()
   const [isExporting, setIsExporting] = useState(false)
 
   const handleExport = async () => {
     try {
       setIsExporting(true)
       const data = await getAllClassroomEquipmentsForExport({
-        query: searchParams.query,
-        areaId: searchParams.area,
-        roomId: searchParams.room,
-        categoryId: searchParams.category
+        query: searchParams.get("query") || "",
+        areaId: searchParams.get("area") || "",
+        roomId: searchParams.get("room") || "",
+        categoryId: searchParams.get("category") || ""
       })
 
       if (!data || data.length === 0) {

@@ -80,8 +80,8 @@ export default async function ClassroomEquipmentsListPage({
           <p className="text-gray-500 mt-1">Tổng hợp và thống kê thiết bị theo từng phòng học</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <ExportQRCodeButton searchParams={{ room: roomQuery, manager: managerQuery, equipment: equipmentQuery }} />
-          <ExportExcelButton searchParams={{ room: roomQuery, manager: managerQuery, equipment: equipmentQuery }} />
+          <ExportQRCodeButton />
+          <ExportExcelButton />
         </div>
       </div>
 

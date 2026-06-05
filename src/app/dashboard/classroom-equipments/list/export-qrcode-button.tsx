@@ -1,12 +1,14 @@
 "use client"
 
 import { QrCode } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
-export default function ExportQRCodeButton({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
+export default function ExportQRCodeButton() {
+  const searchParams = useSearchParams()
   const query = new URLSearchParams()
-  if (searchParams.room) query.set("roomName", searchParams.room)
-  if (searchParams.manager) query.set("managerName", searchParams.manager)
-  if (searchParams.equipment) query.set("equipmentName", searchParams.equipment)
+  if (searchParams.get("room")) query.set("roomName", searchParams.get("room")!)
+  if (searchParams.get("manager")) query.set("managerName", searchParams.get("manager")!)
+  if (searchParams.get("equipment")) query.set("equipmentName", searchParams.get("equipment")!)
 
   return (
     <a 

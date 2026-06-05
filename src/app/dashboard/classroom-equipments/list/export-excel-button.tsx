@@ -4,18 +4,20 @@ import { Download } from "lucide-react"
 import * as XLSX from "xlsx"
 import { useState } from "react"
 import toast from "react-hot-toast"
+import { useSearchParams } from "next/navigation"
 import { getAllRoomsForExport } from "../actions"
 
-export default function ExportExcelButton({ searchParams }: { searchParams: { room?: string, manager?: string, equipment?: string } }) {
+export default function ExportExcelButton() {
+  const searchParams = useSearchParams()
   const [isExporting, setIsExporting] = useState(false)
 
   const handleExport = async () => {
     try {
       setIsExporting(true)
       const data = await getAllRoomsForExport({
-        roomQuery: searchParams.room,
-        managerQuery: searchParams.manager,
-        equipmentQuery: searchParams.equipment
+        roomQuery: searchParams.get("room") || "",
+        managerQuery: searchParams.get("manager") || "",
+        equipmentQuery: searchParams.get("equipment") || ""
       })
 
       if (!data || data.length === 0) {
