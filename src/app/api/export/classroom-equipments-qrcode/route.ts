@@ -28,10 +28,7 @@ export async function GET(request: Request) {
     }
     
     if (equipmentQuery) {
-      whereClause.OR = [
-        { name: { contains: equipmentQuery, mode: 'insensitive' } },
-        { barcode: { contains: equipmentQuery, mode: 'insensitive' } }
-      ]
+      whereClause.name = { contains: equipmentQuery, mode: 'insensitive' }
     }
 
     const equipments = await prisma.classroomEquipment.findMany({
@@ -63,15 +60,15 @@ export async function GET(request: Request) {
         stt: i + 1,
         name: eq.name,
         room: eq.room?.name || "Chưa phân bổ",
-        barcode: eq.barcode || "",
+        barcode: eq.id || "",
         qr: ''
       });
       
       row.alignment = { vertical: 'middle' };
 
-      if (eq.barcode) {
+      if (eq.id) {
         try {
-          const qrDataUrl = await QRCode.toDataURL(eq.barcode, { margin: 1, width: 120 });
+          const qrDataUrl = await QRCode.toDataURL(eq.id, { margin: 1, width: 120 });
           const base64Image = qrDataUrl.split(';base64,').pop();
           
           if (base64Image) {
@@ -88,7 +85,7 @@ export async function GET(request: Request) {
             row.height = 75;
           }
         } catch (e) {
-          console.error("Error generating QR for", eq.barcode, e);
+          console.error("Error generating QR for", eq.id, e);
         }
       }
     }
