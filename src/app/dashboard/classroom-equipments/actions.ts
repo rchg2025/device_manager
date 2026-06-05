@@ -285,3 +285,80 @@ export async function deleteManyClassroomEquipments(ids: string[]) {
     return { error: "Đã xảy ra lỗi khi xóa thiết bị" }
   }
 }
+
+export async function getAllClassroomEquipmentsForExport(filters: { query?: string, areaId?: string, roomId?: string, categoryId?: string }) {
+  const session = await auth()
+  if (!session) return []
+
+  const whereClause: any = {}
+  if (filters.query) {
+    whereClause.name = { contains: filters.query, mode: 'insensitive' }
+  }
+  if (filters.areaId) whereClause.areaId = filters.areaId
+  if (filters.roomId) whereClause.roomId = filters.roomId
+  if (filters.categoryId) whereClause.categoryId = filters.categoryId
+
+  if (session?.user?.role === "MANAGER") {
+    if (whereClause.roomId) {
+      whereClause.room = { id: whereClause.roomId, managerId: session.user.id }
+      delete whereClause.roomId
+    } else {
+      whereClause.room = { managerId: session.user.id }
+    }
+  }
+
+  const items = await prisma.classroomEquipment.findMany({
+    where: whereClause,
+    include: {
+      area: true,
+      room: true,
+      category: true,
+      configs: true
+    },
+    orderBy: { createdAt: 'desc' }
+  })
+
+  return items
+}
+
+export async function getAllRoomsForExport(filters: { roomQuery?: string, managerQuery?: string, equipmentQuery?: string }) {
+  const session = await auth()
+  const role = session?.user?.role
+  if (!session) return []
+
+  const whereClause: any = {}
+  
+  if (filters.roomQuery) {
+    whereClause.name = { contains: filters.roomQuery, mode: 'insensitive' }
+  }
+  
+  if (filters.managerQuery) {
+    whereClause.manager = { name: { contains: filters.managerQuery, mode: 'insensitive' } }
+  }
+  
+  if (filters.equipmentQuery) {
+    whereClause.classroomEquipments = { some: { name: { contains: filters.equipmentQuery, mode: 'insensitive' } } }
+  }
+
+  // Permissions restriction
+  if (role === "MANAGER") {
+    whereClause.managerId = session?.user?.id
+  }
+
+  const rooms = await prisma.room.findMany({
+    where: whereClause,
+    include: {
+      area: true,
+      manager: { select: { id: true, name: true } },
+      classroomEquipments: {
+        orderBy: { name: 'asc' }
+      }
+    },
+    orderBy: [
+      { area: { name: 'asc' } },
+      { name: 'asc' }
+    ]
+  })
+
+  return rooms
+}

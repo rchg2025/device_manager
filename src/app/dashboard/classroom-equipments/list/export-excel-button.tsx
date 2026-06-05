@@ -2,13 +2,31 @@
 
 import { Download } from "lucide-react"
 import * as XLSX from "xlsx"
+import { useState } from "react"
+import toast from "react-hot-toast"
+import { getAllRoomsForExport } from "../actions"
 
-export default function ExportExcelButton({ data }: { data: any[] }) {
-  const handleExport = () => {
-    // Transform data for Excel
-    const excelData: any[] = []
-    const merges: any[] = []
-    let currentRow = 1 // Row 0 is header
+export default function ExportExcelButton({ searchParams }: { searchParams: { room?: string, manager?: string, equipment?: string } }) {
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      const data = await getAllRoomsForExport({
+        roomQuery: searchParams.room,
+        managerQuery: searchParams.manager,
+        equipmentQuery: searchParams.equipment
+      })
+
+      if (!data || data.length === 0) {
+        toast.error("Không có dữ liệu để xuất!")
+        return
+      }
+
+      // Transform data for Excel
+      const excelData: any[] = []
+      const merges: any[] = []
+      let currentRow = 1 // Row 0 is header
     
     data.forEach(room => {
       const startRow = currentRow;
@@ -108,14 +126,22 @@ export default function ExportExcelButton({ data }: { data: any[] }) {
 
     // Generate buffer and save
     XLSX.writeFile(workbook, "Danh_Sach_Thiet_Bi_Theo_Phong.xlsx")
+    toast.success("Xuất file Excel thành công!")
+    } catch (error) {
+      console.error(error)
+      toast.error("Lỗi khi xuất file Excel")
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
     <button
       onClick={handleExport}
-      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium"
+      disabled={isExporting}
+      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium disabled:opacity-50"
     >
-      <Download className="w-4 h-4" /> Xuất Excel
+      <Download className="w-4 h-4" /> {isExporting ? "Đang xuất..." : "Xuất Excel"}
     </button>
   )
 }

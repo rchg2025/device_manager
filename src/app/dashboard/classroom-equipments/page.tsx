@@ -103,7 +103,7 @@ export default async function ClassroomEquipmentsPage({
         <div className="flex items-center gap-2 flex-wrap">
           <ImportExcelModal categories={categories} areas={areas} rooms={rooms} configs={configs} />
           <ExportQRCodeButton searchParams={{ query, area: areaId, room: roomId, category: categoryId }} />
-          <ExportExcelButton data={items} />
+          <ExportExcelButton searchParams={{ query, area: areaId, room: roomId, category: categoryId }} />
         </div>
       </div>
 
