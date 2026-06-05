@@ -171,7 +171,12 @@ export default async function ClassroomMaintenancePage({
                   <div className="text-sm text-gray-900 max-w-xs truncate" title={mt.description}>{mt.description}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {mt.date ? new Date(mt.date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : "-"}
+                  {mt.date ? (
+                    <>
+                      <div className="font-medium text-gray-900">{new Date(mt.date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</div>
+                      <div className="text-xs mt-1">{new Date(mt.date).toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' })}</div>
+                    </>
+                  ) : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">
                   {mt.cost ? new Intl.NumberFormat('vi-VN').format(mt.cost) : "-"}

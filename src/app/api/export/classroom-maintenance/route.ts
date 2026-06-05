@@ -75,12 +75,12 @@ export async function GET(request: Request) {
       "Vị trí": `${mt.classroomEq?.room?.name || "N/A"} - ${mt.classroomEq?.area?.name || "N/A"}`,
       "Quản lý": mt.classroomEq?.room?.manager?.name || "",
       "Mô tả / Lỗi": mt.description,
-      "Ngày ghi nhận": mt.date ? new Date(mt.date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : "",
+      "Ngày ghi nhận": mt.date ? `${new Date(mt.date).toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' })} - ${new Date(mt.date).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}` : "",
       "Chi phí (VNĐ)": mt.cost || 0,
       "Trạng thái": statusMap[mt.status] || mt.status,
       "Người xử lý": mt.handlerName || "",
       "Số lượng": mt.quantity,
-      "Ngày cập nhật": mt.updatedAt ? new Date(mt.updatedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : ""
+      "Ngày cập nhật": mt.updatedAt ? `${new Date(mt.updatedAt).toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' })} - ${new Date(mt.updatedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}` : ""
     }))
 
     const worksheet = XLSX.utils.json_to_sheet(excelData)
