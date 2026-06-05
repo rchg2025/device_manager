@@ -1,7 +1,38 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import * as XLSX from "xlsx"
+import * as XLSX from "xlsx-js-style"
+
+function styleDifferences(ws: XLSX.WorkSheet) {
+  const ref = ws["!ref"]
+  if (!ref) return
+  const range = XLSX.utils.decode_range(ref)
+  let diffColIdx = -1
+  
+  // Find "Chênh lệch" column
+  for (let C = range.s.c; C <= range.e.c; ++C) {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C })
+    const cell = ws[cellAddress]
+    if (cell && cell.v === "Chênh lệch") {
+      diffColIdx = C
+      break
+    }
+  }
+  
+  // Bold cells where value !== 0
+  if (diffColIdx !== -1) {
+    for (let R = 1; R <= range.e.r; ++R) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: diffColIdx })
+      const cell = ws[cellAddress]
+      if (cell && typeof cell.v === "number" && cell.v !== 0) {
+        if (!cell.s) cell.s = {}
+        if (!cell.s.font) cell.s.font = {}
+        cell.s.font.bold = true
+        cell.s.font.color = { rgb: "FF0000" }
+      }
+    }
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -97,7 +128,7 @@ export async function GET(request: Request) {
       "Chênh lệch": stats.total - stats.dbQty,
       "Bình thường": stats.present,
       "Hư hỏng": stats.damaged,
-      "Không tìm thấy": stats.missing
+      "Không tìm thấy": stats.dbQty - stats.total
     }))
 
     // ── Sheet 3: Thống kê theo Thiết bị ──────────────────────────
@@ -130,7 +161,7 @@ export async function GET(request: Request) {
         "Chênh lệch": stats.total - stats.dbQty,
         "Bình thường": stats.present,
         "Hư hỏng": stats.damaged,
-        "Không tìm thấy": stats.missing
+        "Không tìm thấy": stats.dbQty - stats.total
       }))
 
     // ── Sheet 4: Thống kê theo Nhân viên quét ────────────────────
@@ -187,19 +218,22 @@ export async function GET(request: Request) {
       { wch: 5 }, { wch: 25 }, { wch: 18 }, { wch: 30 }, { wch: 28 },
       { wch: 22 }, { wch: 22 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 24 }, { wch: 20 }, { wch: 20 }
     ]
+    styleDifferences(ws1)
     XLSX.utils.book_append_sheet(wb, ws1, "Chi tiết kiểm kê")
 
     const ws2 = XLSX.utils.json_to_sheet(byRoomData)
-    ws2["!cols"] = [{ wch: 5 }, { wch: 32 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
+    ws2["!cols"] = [{ wch: 5 }, { wch: 32 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }]
+    styleDifferences(ws2)
     XLSX.utils.book_append_sheet(wb, ws2, "Thống kê theo Phòng")
 
     const ws3 = XLSX.utils.json_to_sheet(byDeviceData)
-    ws3["!cols"] = [{ wch: 5 }, { wch: 30 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
+    ws3["!cols"] = [{ wch: 5 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }]
+    styleDifferences(ws3)
     XLSX.utils.book_append_sheet(wb, ws3, "Thống kê theo Thiết bị")
 
     const ws4 = XLSX.utils.json_to_sheet(byScannerData)
     ws4["!cols"] = [{ wch: 5 }, { wch: 24 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 16 }]
-    XLSX.utils.book_append_sheet(wb, ws4, "Thống kê theo NV quét")
+    XLSX.utils.book_append_sheet(wb, ws4, "Thống kê theo Nhân viên")
 
     if (byManagerData.length > 0) {
       const ws5 = XLSX.utils.json_to_sheet(byManagerData)
