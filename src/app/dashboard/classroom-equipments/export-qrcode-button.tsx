@@ -4,10 +4,11 @@ import { QrCode } from "lucide-react"
 
 export default function ExportQRCodeButton({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
   const query = new URLSearchParams()
-  if (searchParams.room) query.set("roomName", searchParams.room)
-  if (searchParams.manager) query.set("managerName", searchParams.manager)
-  if (searchParams.equipment) query.set("equipmentName", searchParams.equipment)
-
+  if (searchParams.query) query.set("query", searchParams.query)
+  if (searchParams.area) query.set("areaId", searchParams.area)
+  if (searchParams.room) query.set("roomId", searchParams.room)
+  if (searchParams.category) query.set("categoryId", searchParams.category)
+  
   return (
     <a 
       href={`/api/export/classroom-equipments-qrcode?${query.toString()}`}

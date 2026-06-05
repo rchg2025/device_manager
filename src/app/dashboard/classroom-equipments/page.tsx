@@ -5,6 +5,7 @@ import ClassroomEqRow from "./equipment-row"
 import CreateClassroomEqForm from "./create-form"
 import { Upload, Plus, MonitorPlay } from "lucide-react"
 import ExportExcelButton from "./export-excel-button"
+import ExportQRCodeButton from "./export-qrcode-button"
 import ImportExcelModal from "./import-excel-modal"
 import FilterBar from "./filter-bar"
 import EquipmentTable from "./equipment-table"
@@ -99,8 +100,9 @@ export default async function ClassroomEquipmentsPage({
           </h2>
           <p className="text-gray-500 mt-1">Danh sách tất cả thiết bị được lắp đặt tại các phòng học</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <ImportExcelModal categories={categories} areas={areas} rooms={rooms} configs={configs} />
+          <ExportQRCodeButton searchParams={{ query, area: areaId, room: roomId, category: categoryId }} />
           <ExportExcelButton data={items} />
         </div>
       </div>

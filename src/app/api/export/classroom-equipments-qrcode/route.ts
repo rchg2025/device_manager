@@ -12,24 +12,40 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const roomQuery = searchParams.get('room') || ""
-    const managerQuery = searchParams.get('manager') || ""
-    const equipmentQuery = searchParams.get('equipment') || ""
+    
+    // Params from /dashboard/classroom-equipments/list
+    const roomName = searchParams.get('roomName') || ""
+    const managerName = searchParams.get('managerName') || ""
+    const equipmentName = searchParams.get('equipmentName') || ""
+    
+    // Params from /dashboard/classroom-equipments
+    const query = searchParams.get('query') || ""
+    const areaId = searchParams.get('areaId') || ""
+    const roomId = searchParams.get('roomId') || ""
+    const categoryId = searchParams.get('categoryId') || ""
 
     const whereClause: any = {}
     
-    if (roomQuery) {
-      whereClause.room = { name: { contains: roomQuery, mode: 'insensitive' } }
+    if (roomName) {
+      whereClause.room = { name: { contains: roomName, mode: 'insensitive' } }
     }
     
-    if (managerQuery) {
+    if (managerName) {
       if (!whereClause.room) whereClause.room = {}
-      whereClause.room.manager = { name: { contains: managerQuery, mode: 'insensitive' } }
+      whereClause.room.manager = { name: { contains: managerName, mode: 'insensitive' } }
     }
     
-    if (equipmentQuery) {
-      whereClause.name = { contains: equipmentQuery, mode: 'insensitive' }
+    if (equipmentName) {
+      whereClause.name = { contains: equipmentName, mode: 'insensitive' }
     }
+
+    if (query) {
+      whereClause.name = { contains: query, mode: 'insensitive' }
+    }
+    
+    if (areaId) whereClause.areaId = areaId
+    if (roomId) whereClause.roomId = roomId
+    if (categoryId) whereClause.categoryId = categoryId
 
     const equipments = await prisma.classroomEquipment.findMany({
       where: whereClause,
