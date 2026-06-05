@@ -9,6 +9,7 @@ import CategoryRow from "./category-row"
 import Pagination from "../pagination"
 import CategoryTab from "./category-tab"
 import { auth } from "@/auth"
+import ExportExcelButton from "./export-excel-button"
 
 import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
@@ -27,13 +28,16 @@ export default async function CategoriesPage({
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold">Quản lý Danh mục chung</h2>
-        <form method="get" className="relative w-full sm:w-auto min-w-[250px]">
-          <input type="hidden" name="tab" value={activeTab} />
-          <input type="text" name="q" defaultValue={q} placeholder="Tìm kiếm danh mục..." className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 pl-3 pr-10 text-sm border" />
-          <button type="submit" className="absolute inset-y-0 right-0 px-3 flex items-center bg-gray-50 border-l border-gray-300 rounded-r-md text-gray-500 hover:bg-gray-100">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          </button>
-        </form>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <form method="get" className="relative w-full sm:w-auto min-w-[250px]">
+            <input type="hidden" name="tab" value={activeTab} />
+            <input type="text" name="q" defaultValue={q} placeholder="Tìm kiếm danh mục..." className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 pl-3 pr-10 text-sm border" />
+            <button type="submit" className="absolute inset-y-0 right-0 px-3 flex items-center bg-gray-50 border-l border-gray-300 rounded-r-md text-gray-500 hover:bg-gray-100">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </button>
+          </form>
+          <ExportExcelButton searchParams={resolvedSearchParams} />
+        </div>
       </div>
 
       <div className="border-b border-gray-200 mb-6 overflow-x-auto pb-1 custom-scrollbar">
