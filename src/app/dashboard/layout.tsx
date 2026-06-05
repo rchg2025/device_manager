@@ -124,9 +124,6 @@ export default async function DashboardLayout({
           {/* Menu cho Quản trị viên/Quản lý */}
           {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
             <>
-              <Link prefetch={false} href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
-                <Tags className="w-5 h-5 shrink-0" /> Quản lý danh mục
-              </Link>
               <Link prefetch={false} href="/dashboard/equipments" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Package className="w-5 h-5 shrink-0" /> Quản lý thiết bị
               </Link>
@@ -200,9 +197,14 @@ export default async function DashboardLayout({
                 <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
               {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
-                <Link prefetch={false} href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
-                  <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
-                </Link>
+                <>
+                  <Link prefetch={false} href="/dashboard/categories" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
+                    <Tags className="w-5 h-5 shrink-0" /> Quản lý danh mục
+                  </Link>
+                  <Link prefetch={false} href="/dashboard/members" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-4 border-t pt-4 whitespace-nowrap">
+                    <Users className="w-5 h-5 shrink-0" /> Quản lý thành viên
+                  </Link>
+                </>
               )}
               {(role === "ADMIN" || role === "SUPERADMIN") && (
                 <Link prefetch={false} href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 mt-1 whitespace-nowrap">

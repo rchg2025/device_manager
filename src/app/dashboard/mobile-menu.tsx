@@ -35,9 +35,6 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
               {/* Menu cho Quản trị viên/Quản lý */}
               {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
                 <>
-                  <Link prefetch={false} onClick={closeMenu} href="/dashboard/categories" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/categories' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                    <Tags className="w-5 h-5" /> Quản lý danh mục
-                  </Link>
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Package className="w-5 h-5" /> Quản lý thiết bị
                   </Link>
@@ -109,9 +106,14 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                     <ClipboardCheck className="w-5 h-5" /> Kiểm kê thiết bị
                   </Link>
                   {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
-                    <Link prefetch={false} onClick={closeMenu} href="/dashboard/members" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/members' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                      <Users className="w-5 h-5" /> Quản lý thành viên
-                    </Link>
+                    <>
+                      <Link prefetch={false} onClick={closeMenu} href="/dashboard/categories" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 ${pathname === '/dashboard/categories' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                        <Tags className="w-5 h-5" /> Quản lý danh mục
+                      </Link>
+                      <Link prefetch={false} onClick={closeMenu} href="/dashboard/members" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-2 border-t pt-4 ${pathname === '/dashboard/members' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
+                        <Users className="w-5 h-5" /> Quản lý thành viên
+                      </Link>
+                    </>
                   )}
                   {(role === "ADMIN" || role === "SUPERADMIN") && (
                     <Link prefetch={false} onClick={closeMenu} href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-3 rounded-md mt-1 ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
