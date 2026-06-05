@@ -191,7 +191,7 @@ export default async function DashboardLayout({
               <Link prefetch={false} href="/dashboard/classroom-maintenance" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <Wrench className="w-5 h-5 shrink-0" /> Lịch sử bảo trì TB phòng
               </Link>
-              <hr className="my-2 border-gray-200" />
+              <hr className="my-2 border-gray-300" />
               <Link prefetch={false} href="/dashboard/inventory" className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap">
                 <ClipboardCheck className="w-5 h-5 shrink-0" /> Kiểm kê thiết bị
               </Link>
@@ -217,7 +217,7 @@ export default async function DashboardLayout({
               )}
               {role === "SUPERADMIN" && (
                 <>
-                  <hr className="my-2 border-gray-200" />
+                  <hr className="my-2 border-gray-300" />
                   <Link prefetch={false} href="/dashboard/superadmin/accounts" className="flex items-center gap-3 px-3 py-2 text-purple-700 rounded-md hover:bg-purple-50 hover:text-purple-600 whitespace-nowrap font-semibold border border-purple-100 bg-purple-50/50 mt-1">
                     <Users className="w-5 h-5 shrink-0" /> Tài khoản cấp cao
                   </Link>
