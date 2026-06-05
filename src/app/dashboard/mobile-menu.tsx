@@ -80,7 +80,7 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
               )}
               {role !== "MEMBER" && (
                 <>
-                  <hr className="my-2 border-gray-300" />
+                  <hr className="my-2 border-t-2 border-blue-200" />
                   {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
                     <>
                       <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/classroom-equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
@@ -99,7 +99,7 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/classroom-maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/classroom-maintenance') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Wrench className="w-5 h-5" /> Lịch sử bảo trì TB phòng
                   </Link>
-                  <hr className="my-2 border-gray-300" />
+                  <hr className="my-2 border-t-2 border-blue-200" />
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/inventory" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname.startsWith('/dashboard/inventory') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <ClipboardCheck className="w-5 h-5" /> Kiểm kê thiết bị
                   </Link>
