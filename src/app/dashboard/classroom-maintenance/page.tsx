@@ -6,6 +6,8 @@ import { Wrench, CheckCircle, Clock, AlertTriangle } from "lucide-react"
 import MaintenanceActions from "../maintenance/maintenance-actions"
 import Link from "next/link"
 import Pagination from "../pagination"
+import FilterBar from "./filter-bar"
+import ExportExcelButton from "./export-excel-button"
 
 export default async function ClassroomMaintenancePage({
   searchParams
@@ -29,6 +31,29 @@ export default async function ClassroomMaintenancePage({
     whereClause = { ...baseWhereClause, status: { in: ['PENDING_LIQUIDATION', 'LIQUIDATED'] } }
   } else {
     whereClause = { ...baseWhereClause, status: { notIn: ['BROKEN', 'PENDING_LIQUIDATION', 'LIQUIDATED'] } }
+  }
+
+  const q = sp?.q;
+  if (q) {
+    whereClause.OR = [
+      { classroomEq: { name: { contains: q, mode: 'insensitive' } } },
+      { description: { contains: q, mode: 'insensitive' } },
+      { handlerName: { contains: q, mode: 'insensitive' } }
+    ]
+  }
+
+  const startDate = sp?.startDate;
+  const endDate = sp?.endDate;
+  if (startDate || endDate) {
+    whereClause.date = {}
+    if (startDate) {
+      whereClause.date.gte = new Date(startDate)
+    }
+    if (endDate) {
+      const end = new Date(endDate)
+      end.setHours(23, 59, 59, 999)
+      whereClause.date.lte = end
+    }
   }
 
   let page = parseInt(sp?.page as string)
@@ -63,7 +88,14 @@ export default async function ClassroomMaintenancePage({
           <h2 className="text-2xl font-bold text-gray-800">Lịch sử bảo trì Thiết bị phòng học</h2>
           <p className="text-gray-500 mt-1 text-sm">Theo dõi tình trạng và chi phí sửa chữa các thiết bị tại phòng học.</p>
         </div>
+        <div className="flex items-center gap-2">
+          {['ADMIN', 'MANAGER', 'SUPERADMIN'].includes(session?.user?.role as string) && (
+            <ExportExcelButton searchParams={await searchParams} />
+          )}
+        </div>
       </div>
+
+      <FilterBar />
 
       {/* Tabs */}
       <div className="flex space-x-1 border-b border-gray-200">
