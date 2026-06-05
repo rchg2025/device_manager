@@ -62,8 +62,8 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                 </Link>
               )}
 
-              {/* Menu cho Quản trị viên/Quản lý */}
-              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN") && (
+              {/* Menu cho Quản trị viên/Quản lý/Giám sát */}
+              {(role === "ADMIN" || role === "MANAGER" || role === "SUPERADMIN" || role === "SUPERVISOR") && (
                 <>
                   <Link prefetch={false} onClick={closeMenu} href="/dashboard/equipments" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/equipments' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
                     <Package className="w-5 h-5" /> Quản lý thiết bị
@@ -72,11 +72,6 @@ export default function MobileMenu({ role, unreadCount }: { role: string, unread
                     <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
                   </Link>
                 </>
-              )}
-              {role === "SUPERVISOR" && (
-                <Link prefetch={false} onClick={closeMenu} href="/dashboard/maintenance" className={`flex items-center gap-3 px-3 py-3 rounded-md ${pathname === '/dashboard/maintenance' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}`}>
-                  <Wrench className="w-5 h-5" /> Lịch sử Bảo trì TB
-                </Link>
               )}
               {role !== "MEMBER" && (
                 <>
