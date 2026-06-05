@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { MonitorPlay, Tag } from "lucide-react"
 import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
+import ExportQRCodeButton from "./export-qrcode-button"
 import Pagination from "../../pagination"
 
 export default async function ClassroomEquipmentsListPage({
@@ -78,7 +79,10 @@ export default async function ClassroomEquipmentsListPage({
           </h2>
           <p className="text-gray-500 mt-1">Tổng hợp và thống kê thiết bị theo từng phòng học</p>
         </div>
-        <ExportExcelButton data={rooms} />
+        <div className="flex items-center gap-2 flex-wrap">
+          <ExportQRCodeButton searchParams={{ room: roomQuery, manager: managerQuery, equipment: equipmentQuery }} />
+          <ExportExcelButton data={rooms} />
+        </div>
       </div>
 
       <FilterBar />

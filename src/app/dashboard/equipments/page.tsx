@@ -5,6 +5,7 @@ import EquipmentRow from "./equipment-row"
 import CreateEquipmentForm from "./create-form"
 import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
+import ExportQRCodeButton from "./export-qrcode-button"
 import Pagination from "../pagination"
 
 export default async function EquipmentsPage({
@@ -85,7 +86,10 @@ export default async function EquipmentsPage({
     <div>
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold">Quản lý Thiết bị</h2>
-        <ExportExcelButton searchParams={{ name: nameFilter, category: categoryFilter }} />
+        <div className="flex items-center gap-2 flex-wrap">
+          <ExportQRCodeButton searchParams={{ name: nameFilter, category: categoryFilter }} />
+          <ExportExcelButton searchParams={{ name: nameFilter, category: categoryFilter }} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
