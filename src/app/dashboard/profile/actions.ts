@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { revalidatePath } from "next/cache"
 import { testDriveConnection, uploadImageToDrive } from "@/lib/gdrive"
+import { Globe, Rocket } from "lucide-react"
 
 export async function updateProfile(formData: FormData) {
   const session = await auth()
@@ -144,6 +145,76 @@ export async function updateDriveSettings(formData: FormData) {
     return { success: true }
   } catch (error) {
     return { error: "Lỗi khi lưu cấu hình Google Drive" }
+  }
+}
+
+export async function updateSeoSettings(formData: FormData) {
+  const session = await auth()
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Không có quyền thực hiện thao tác này" }
+
+  const title = formData.get("title") as string
+  const description = formData.get("description") as string
+  const gscCode = formData.get("gscCode") as string
+  const logo = formData.get("logo") as File | null
+  const ogImage = formData.get("ogImage") as File | null
+
+  try {
+    const settingsToUpdate = [
+      { key: "SEO_TITLE", value: title },
+      { key: "SEO_DESCRIPTION", value: description },
+      { key: "SEO_GSC_CODE", value: gscCode },
+    ]
+
+    if (logo && logo.size > 0) {
+      try {
+        const logoUrl = await uploadImageToDrive(logo)
+        if (logoUrl) {
+          settingsToUpdate.push({ key: "SEO_LOGO_URL", value: logoUrl })
+        }
+      } catch (uploadError: any) {
+        return { error: uploadError.message || "Lỗi khi tải logo lên Google Drive" }
+      }
+    }
+
+    if (ogImage && ogImage.size > 0) {
+      try {
+        const ogImageUrl = await uploadImageToDrive(ogImage)
+        if (ogImageUrl) {
+          settingsToUpdate.push({ key: "SEO_OG_IMAGE_URL", value: ogImageUrl })
+        }
+      } catch (uploadError: any) {
+        return { error: uploadError.message || "Lỗi khi tải OG Image lên Google Drive" }
+      }
+    }
+
+    for (const setting of settingsToUpdate) {
+      const existing = await prisma.setting.findFirst({
+        where: { key: setting.key }
+      })
+      if (existing) {
+        await prisma.setting.updateMany({
+          where: { key: setting.key },
+          data: { value: setting.value }
+        })
+      } else {
+        await prisma.setting.create({
+          data: { key: setting.key, value: setting.value }
+        })
+      }
+    }
+
+    await writeLog({
+      userId: session.user.id,
+      action: "UPDATE",
+      entity: "system_config",
+      entityId: "seo",
+      detail: `Cập nhật cấu hình SEO & Logo`
+    })
+
+    revalidatePath("/dashboard/settings")
+    return { success: true }
+  } catch (error) {
+    return { error: "Lỗi khi lưu cấu hình SEO" }
   }
 }
 

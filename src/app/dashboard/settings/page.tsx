@@ -13,7 +13,8 @@ export default async function SettingsPage() {
     where: { 
       OR: [
         { key: { startsWith: "SMTP_" } },
-        { key: { startsWith: "DRIVE_" } }
+        { key: { startsWith: "DRIVE_" } },
+        { key: { startsWith: "SEO_" } }
       ]
     }
   })

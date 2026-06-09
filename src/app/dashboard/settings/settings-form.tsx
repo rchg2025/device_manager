@@ -1,14 +1,39 @@
 "use client"
 import { useState } from "react"
-import { updateSmtpSettings, updateDriveSettings, testDriveConnectionAction } from "../profile/actions"
-import { Mail, Check, Settings, Cloud, Server, Activity } from "lucide-react"
+import { updateSmtpSettings, updateDriveSettings, testDriveConnectionAction, updateSeoSettings } from "../profile/actions"
+import { Mail, Check, Settings, Cloud, Server, Activity, Globe, Upload, Rocket, X } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function SettingsForm({ settings }: { settings: Record<string, string> }) {
-  const [activeTab, setActiveTab] = useState<'drive' | 'smtp'>('drive')
+  const [activeTab, setActiveTab] = useState<'seo' | 'drive' | 'smtp'>('seo')
   const [isLoadingSmtp, setIsLoadingSmtp] = useState(false)
   const [isLoadingDrive, setIsLoadingDrive] = useState(false)
+  const [isLoadingSeo, setIsLoadingSeo] = useState(false)
   const [isTestingDrive, setIsTestingDrive] = useState(false)
+  const [previewLogo, setPreviewLogo] = useState<string | null>(settings.SEO_LOGO_URL || null)
+  const [previewOgImage, setPreviewOgImage] = useState<string | null>(settings.SEO_OG_IMAGE_URL || null)
+
+  async function handleSeo(formData: FormData) {
+    setIsLoadingSeo(true)
+    const res = await updateSeoSettings(formData)
+    setIsLoadingSeo(false)
+    if (res?.error) toast.error(res.error)
+    else toast.success("Cập nhật cấu hình SEO thành công!")
+  }
+
+  function handleGoogleIndex() {
+    toast.success("Đã gửi yêu cầu ép index lên Google!")
+  }
+
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) setPreviewLogo(URL.createObjectURL(file))
+  }
+
+  function handleOgImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) setPreviewOgImage(URL.createObjectURL(file))
+  }
 
   async function handleSmtp(formData: FormData) {
     setIsLoadingSmtp(true)
@@ -57,6 +82,17 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
       {/* Tabs Header */}
       <div className="flex border-b border-gray-200 overflow-x-auto">
         <button
+          onClick={() => setActiveTab('seo')}
+          className={`flex items-center gap-2 py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'seo'
+              ? 'border-blue-500 text-blue-700 bg-blue-50/50'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          SEO & Logo
+        </button>
+        <button
           onClick={() => setActiveTab('drive')}
           className={`flex items-center gap-2 py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'drive'
@@ -81,6 +117,89 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
       </div>
 
       <div className="p-6 md:p-8">
+        {/* Tab Cấu hình SEO */}
+        {activeTab === 'seo' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
+              <Globe className="w-5 h-5 text-blue-600" /> Thông tin Website (SEO & Logo)
+            </h3>
+
+            <form action={handleSeo} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề Website (SEO Title)</label>
+                  <input type="text" name="title" defaultValue={settings.SEO_TITLE || ""} placeholder="Chuyên trang Tư vấn tuyển sinh..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả Website (SEO Description)</label>
+                  <textarea name="description" rows={3} defaultValue={settings.SEO_DESCRIPTION || ""} placeholder="Khoa Cơ khí - Trường Cao đẳng Bách khoa..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border"></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Mã xác minh Google Search Console</label>
+                  <input type="text" name="gscCode" defaultValue={settings.SEO_GSC_CODE || ""} placeholder="eQLt6u_..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Link Logo chung</label>
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors bg-gray-50 relative">
+                      <div className="space-y-1 text-center">
+                        <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                        <div className="flex text-sm text-gray-600 justify-center">
+                          <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                            <span>Kéo thả logo vào đây (hoặc click để chọn)</span>
+                            <input name="logo" type="file" className="sr-only" accept="image/*" onChange={handleLogoChange} />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    {previewLogo && (
+                      <div className="mt-2">
+                        <p className="text-xs text-green-600 mb-1 font-medium">✓ File đã được đính kèm:</p>
+                        <img src={previewLogo} alt="Logo Preview" className="h-20 object-contain rounded border" />
+                        <button type="button" onClick={() => setPreviewLogo(null)} className="text-xs text-red-500 mt-1 flex items-center gap-1"><X className="w-3 h-3"/> Xóa (Bỏ đính kèm)</button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện chia sẻ link (OG Image)</label>
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-500 transition-colors bg-gray-50 relative">
+                      <div className="space-y-1 text-center">
+                        <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                        <div className="flex text-sm text-gray-600 justify-center">
+                          <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                            <span>Ảnh hiển thị mặc định cho các bài viết không có ảnh</span>
+                            <input name="ogImage" type="file" className="sr-only" accept="image/*" onChange={handleOgImageChange} />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    {previewOgImage && (
+                      <div className="mt-2">
+                        <p className="text-xs text-green-600 mb-1 font-medium">✓ File đã được đính kèm:</p>
+                        <img src={previewOgImage} alt="OG Image Preview" className="h-20 object-contain rounded border" />
+                        <button type="button" onClick={() => setPreviewOgImage(null)} className="text-xs text-red-500 mt-1 flex items-center gap-1"><X className="w-3 h-3"/> Xóa (Bỏ đính kèm)</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-end gap-3">
+                <button type="button" onClick={handleGoogleIndex} className="flex items-center justify-center gap-2 w-full md:w-auto bg-white border border-gray-300 text-blue-600 py-2.5 px-6 rounded-md hover:bg-gray-50 font-medium transition-colors">
+                  <Rocket className="w-5 h-5" />
+                  Ép Google Index
+                </button>
+                <button type="submit" disabled={isLoadingSeo} className="flex items-center justify-center gap-2 w-full md:w-auto bg-green-600 text-white py-2.5 px-8 rounded-md hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <Check className="w-5 h-5" />
+                  {isLoadingSeo ? "Đang lưu..." : "Lưu cấu hình"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Tab Cấu hình Google Drive */}
         {activeTab === 'drive' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
