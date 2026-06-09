@@ -152,9 +152,9 @@ export async function updateSeoSettings(formData: FormData) {
   const session = await auth()
   if (session?.user?.role !== "ADMIN" && session?.user?.role !== "SUPERADMIN") return { error: "Không có quyền thực hiện thao tác này" }
 
-  const title = formData.get("title") as string
-  const description = formData.get("description") as string
-  const gscCode = formData.get("gscCode") as string
+  const title = (formData.get("title") as string) || ""
+  const description = (formData.get("description") as string) || ""
+  const gscCode = (formData.get("gscCode") as string) || ""
   const logo = formData.get("logo") as File | null
   const ogImage = formData.get("ogImage") as File | null
 
@@ -165,7 +165,7 @@ export async function updateSeoSettings(formData: FormData) {
       { key: "SEO_GSC_CODE", value: gscCode },
     ]
 
-    if (logo && logo.size > 0) {
+    if (logo && typeof logo !== 'string' && logo.size > 0) {
       try {
         const logoUrl = await uploadImageToDrive(logo)
         if (logoUrl) {
@@ -176,7 +176,7 @@ export async function updateSeoSettings(formData: FormData) {
       }
     }
 
-    if (ogImage && ogImage.size > 0) {
+    if (ogImage && typeof ogImage !== 'string' && ogImage.size > 0) {
       try {
         const ogImageUrl = await uploadImageToDrive(ogImage)
         if (ogImageUrl) {
