@@ -5,6 +5,7 @@ import { sendNewRegistrationEmailToAdmins } from "@/lib/email"
 
 export async function getUnits() {
   return await basePrisma.unit.findMany({
+    where: { isActive: true },
     select: { id: true, name: true },
     orderBy: { name: 'asc' }
   })
