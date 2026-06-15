@@ -125,11 +125,15 @@ export default async function ClassroomMaintenancePage({
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thiết bị</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí & Quản lý</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả bảo trì / Lỗi</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {tab === 'liquidated' ? 'Lý do / Số VB Thanh lý' : 'Mô tả bảo trì / Lỗi'}
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi phí (VNĐ)</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người xử lý</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {tab === 'liquidated' ? 'Người thanh lý' : 'Người xử lý'}
+              </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
             </tr>
           </thead>
@@ -168,7 +172,18 @@ export default async function ClassroomMaintenancePage({
                 </td>
 
                 <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 max-w-xs truncate" title={mt.description}>{mt.description}</div>
+                  {(mt.status === 'LIQUIDATED' || mt.status === 'PENDING_LIQUIDATION') && mt.description.includes('[Thanh lý]') ? (
+                    <div className="text-sm">
+                      <div className="font-medium text-purple-700 mb-1 whitespace-normal max-w-xs">
+                        {mt.description.split('[Thanh lý] Số văn bản / Lý do:')[1]?.trim() || mt.description.split('[Thanh lý]')[1]?.trim() || 'Thanh lý'}
+                      </div>
+                      <div className="text-xs text-gray-500 max-w-xs truncate" title={mt.description.split('[Thanh lý]')[0].trim()}>
+                        Lỗi ban đầu: {mt.description.split('[Thanh lý]')[0].trim()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-900 max-w-xs truncate" title={mt.description}>{mt.description}</div>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {mt.date ? (
