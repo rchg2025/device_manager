@@ -5,8 +5,10 @@ import { Trash2 } from "lucide-react"
 import { deleteLogsByAge } from "./actions"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function DeleteSystemLogsForm() {
+  const { confirm } = useConfirm()
   const [age, setAge] = useState("15")
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
@@ -19,7 +21,7 @@ export default function DeleteSystemLogsForm() {
       confirmMsg = "CẢNH BÁO: Bạn có chắc chắn muốn xóa TẤT CẢ nhật ký? Thao tác này không thể hoàn tác!"
     }
 
-    if (!confirm(confirmMsg)) return
+    if (!await confirm(confirmMsg)) return
 
     setIsDeleting(true)
     try {

@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Trash2 } from "lucide-react"
 import toast from "react-hot-toast"
+import { useConfirm } from "@/components/ui/use-confirm"
 import { deleteManyClassroomEqCategories } from "./actions"
 import CategoryRow from "./category-row"
 import Pagination from "../pagination"
@@ -19,6 +20,7 @@ export default function CategoryTab({
   userRole
 }: any) {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const { confirm } = useConfirm()
   const [isDeleting, setIsDeleting] = useState(false)
 
   const isAdmin = (userRole === "ADMIN" || userRole === "SUPERADMIN") && type === 'classroomEqCategory'
@@ -40,7 +42,7 @@ export default function CategoryTab({
   }
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} mục đã chọn?`)) return
+    if (!await confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} mục đã chọn?`)) return
     setIsDeleting(true)
     
     let res;

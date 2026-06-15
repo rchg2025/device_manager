@@ -5,6 +5,7 @@ import { MonitorPlay, Trash2 } from "lucide-react"
 import { deleteManyClassroomEquipments } from "./actions"
 import toast from "react-hot-toast"
 import Pagination from "../pagination"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function EquipmentTable({ 
   items, 
@@ -16,6 +17,7 @@ export default function EquipmentTable({
   page, 
   userRole 
 }: any) {
+  const { confirm } = useConfirm()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -38,7 +40,7 @@ export default function EquipmentTable({
   }
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} thiết bị đã chọn?`)) return
+    if (!await confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} thiết bị đã chọn?`)) return
     setIsDeleting(true)
     const res = await deleteManyClassroomEquipments(selectedIds)
     setIsDeleting(false)

@@ -7,6 +7,7 @@ import MaintenanceModal from "./maintenance-modal"
 import QrModal from "./qr-modal"
 import toast from "react-hot-toast"
 import Select from "react-select"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function ClassroomEqRow({ 
   item, 
@@ -27,10 +28,11 @@ export default function ClassroomEqRow({
   isSelected?: boolean,
   onSelect?: (checked: boolean) => void
 }) {
+  const { confirm } = useConfirm()
   const [isEditing, setIsEditing] = useState(false)
 
   async function handleDelete() {
-    if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
+    if (await confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
       const res = await deleteClassroomEquipment(item.id)
       if (res?.error) toast.error(res.error)
       else toast.success("Đã xoá!")

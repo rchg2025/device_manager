@@ -10,6 +10,7 @@ import MobileMenu from "./mobile-menu"
 import DesktopSidebarWrapper from "./desktop-sidebar"
 import { cookies } from "next/headers"
 import TenantSwitcher from "./tenant-switcher"
+import { ConfirmProvider } from "@/components/ui/use-confirm"
 
 export default async function DashboardLayout({
   children,

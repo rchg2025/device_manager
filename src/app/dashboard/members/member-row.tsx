@@ -3,8 +3,10 @@ import { useState } from "react"
 import { updateMember, deleteMember, toggleMemberStatus } from "./actions"
 import { Trash2, Edit2, Check, X, Ban, Play } from "lucide-react"
 import toast from "react-hot-toast"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function MemberRow({ member, units, departments, positions, currentUserRole }: { member: any, units: any[], departments: any[], positions: any[], currentUserRole?: string }) {
+  const { confirm } = useConfirm()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -17,7 +19,7 @@ export default function MemberRow({ member, units, departments, positions, curre
   }
 
   async function handleDelete() {
-    if (confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
+    if (await confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
       const formData = new FormData()
       formData.append("userId", member.id)
       const res = await deleteMember(formData)
@@ -33,7 +35,7 @@ export default function MemberRow({ member, units, departments, positions, curre
   async function handleToggleStatus() {
     setIsLoading(true)
     const actionName = member.isActive ? "vô hiệu hóa" : "kích hoạt"
-    if (confirm(`Bạn có chắc chắn muốn ${actionName} thành viên này?`)) {
+    if (await confirm(`Bạn có chắc chắn muốn ${actionName} thành viên này?`)) {
       const res = await toggleMemberStatus(member.id, member.isActive)
       if (res?.error) {
         toast.error(res.error)

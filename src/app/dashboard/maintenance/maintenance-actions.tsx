@@ -3,8 +3,10 @@
 import { useState } from "react"
 import { updateMaintenanceStatus, deleteMaintenance } from "./actions"
 import { Trash2, Edit, X } from "lucide-react"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function MaintenanceActions({ maintenance, role }: { maintenance: any, role: string }) {
+  const { confirm } = useConfirm()
   const [isLoading, setIsLoading] = useState(false)
   const [showPrompt, setShowPrompt] = useState(false)
   const [reason, setReason] = useState("")
@@ -41,7 +43,7 @@ export default function MaintenanceActions({ maintenance, role }: { maintenance:
   }
 
   const handleDelete = async () => {
-    if (!window.confirm("Bạn có chắc chắn muốn xoá bản ghi bảo trì này?")) return
+    if (!await await confirm("Bạn có chắc chắn muốn xoá bản ghi bảo trì này?")) return
     setIsLoading(true)
     try {
       await deleteMaintenance(maintenance.id)

@@ -3,8 +3,10 @@
 import { useState } from "react"
 import { transferData } from "./actions"
 import { ArrowRightLeft, CheckCircle2, AlertCircle } from "lucide-react"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function TransferClient({ units }: { units: any[] }) {
+  const { confirm } = useConfirm()
   const [fromUnitId, setFromUnitId] = useState("")
   const [toUnitId, setToUnitId] = useState("")
   const [dataTypes, setDataTypes] = useState<string[]>([])
@@ -45,7 +47,7 @@ export default function TransferClient({ units }: { units: any[] }) {
     if (fromUnitId === toUnitId) return alert("Nguồn và đích trùng nhau")
     if (dataTypes.length === 0) return alert("Chọn ít nhất một loại dữ liệu")
 
-    if (!confirm("BẠN CÓ CHẮC CHẮN MƯỐN CHUYỂN DỮ LIỆU?\nHành động này sẽ cập nhật hàng loạt dữ liệu trong hệ thống!")) return
+    if (!await confirm("BẠN CÓ CHẮC CHẮN MƯỐN CHUYỂN DỮ LIỆU?\nHành động này sẽ cập nhật hàng loạt dữ liệu trong hệ thống!")) return
 
     setLoading(true)
     setResult(null)

@@ -2,6 +2,7 @@
 import { useState, useTransition } from "react"
 import { Trash2, Loader2 } from "lucide-react"
 import { deleteInventoryRecord, deleteInventorySession } from "./actions"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function DeleteInventoryButton({ 
   id, 
@@ -10,6 +11,7 @@ export default function DeleteInventoryButton({
   id: string
   type: "record" | "session"
 }) {
+  const { confirm } = useConfirm()
   const [isPending, startTransition] = useTransition()
 
   const handleDelete = () => {
@@ -17,7 +19,7 @@ export default function DeleteInventoryButton({
       ? "Bạn có chắc chắn muốn xóa bản ghi này?" 
       : "Bạn có chắc chắn muốn xóa đợt kiểm kê này? Mọi bản ghi quét mã trong đợt này sẽ bị xóa."
       
-    if (confirm(msg)) {
+    if (await confirm(msg)) {
       startTransition(async () => {
         if (type === "record") {
           await deleteInventoryRecord(id)

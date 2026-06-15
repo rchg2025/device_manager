@@ -6,8 +6,10 @@ import { updateEquipment, deleteEquipment } from "./actions"
 import QrModal from "./qr-modal"
 import MaintenanceModal from "./maintenance-modal"
 import toast from "react-hot-toast"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function EquipmentRow({ eq, categories, role }: { eq: any, categories: any[], role?: string }) {
+  const { confirm } = useConfirm()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -23,7 +25,7 @@ export default function EquipmentRow({ eq, categories, role }: { eq: any, catego
   }
 
   async function handleDelete() {
-    if (confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
+    if (await confirm("Bạn có chắc chắn muốn xóa thiết bị này?")) {
       setIsLoading(true)
       try {
         const res = await deleteEquipment(eq.id)

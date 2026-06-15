@@ -3,8 +3,10 @@
 import { useState } from "react"
 import { createUnit, updateUnit, deleteUnit, toggleUnitStatus } from "./actions"
 import { Building, Plus, Trash2, Edit2, Users, Package, ClipboardList, Power } from "lucide-react"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
+  const { confirm } = useConfirm()
   const [units, setUnits] = useState(initialUnits)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState("")
@@ -26,7 +28,7 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Bạn có chắc muốn xóa đơn vị này? Mọi dữ liệu bên trong có thể bị ảnh hưởng!")) return
+    if (!await confirm("Bạn có chắc muốn xóa đơn vị này? Mọi dữ liệu bên trong có thể bị ảnh hưởng!")) return
     setLoading(true)
     const res = await deleteUnit(id)
     setLoading(false)
@@ -51,7 +53,7 @@ export default function UnitsClient({ initialUnits }: { initialUnits: any[] }) {
   }
 
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
-    if (!confirm(`Bạn có chắc muốn ${currentStatus ? 'tạm ngưng' : 'kích hoạt lại'} đơn vị này?`)) return
+    if (!await confirm(`Bạn có chắc muốn ${currentStatus ? 'tạm ngưng' : 'kích hoạt lại'} đơn vị này?`)) return
     setLoading(true)
     const res = await toggleUnitStatus(id, currentStatus)
     setLoading(false)

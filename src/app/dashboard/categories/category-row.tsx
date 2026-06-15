@@ -6,6 +6,7 @@ import {
   updateArea, deleteArea, updateRoom, deleteRoom, updateClassroomEqCategory, deleteClassroomEqCategory, updateDeviceConfig, deleteDeviceConfig
 } from "./actions"
 import toast from "react-hot-toast"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 type ItemType = "category" | "unit" | "position" | "area" | "room" | "classroomEqCategory" | "deviceConfig"
 
@@ -34,6 +35,7 @@ export default function CategoryRow({
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { confirm } = useConfirm()
 
   async function handleUpdate(formData: FormData) {
     setIsLoading(true)
@@ -52,7 +54,7 @@ export default function CategoryRow({
   }
 
   async function handleDelete() {
-    if (confirm("Bạn có chắc chắn muốn xóa?")) {
+    if (await confirm("Bạn có chắc chắn muốn xóa?")) {
       let res;
       if (type === "category") res = await deleteCategory(item.id)
       if (type === "unit") res = await deleteUnit(item.id)
@@ -171,5 +173,6 @@ export default function CategoryRow({
         </div>
       </td>
     </tr>
+    </>
   )
 }

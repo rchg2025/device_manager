@@ -3,13 +3,15 @@ import { useTransition, useState } from "react"
 import { useRouter } from "next/navigation"
 import { deleteHistoryRecord } from "./actions"
 import toast from "react-hot-toast"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function DeleteHistoryButton({ requestId }: { requestId: string }) {
+  const { confirm } = useConfirm()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleDelete() {
-    if (confirm("Bạn có chắc chắn muốn xóa lịch sử mượn trả này? Hành động này không thể hoàn tác.")) {
+    if (await confirm("Bạn có chắc chắn muốn xóa lịch sử mượn trả này? Hành động này không thể hoàn tác.")) {
       setIsLoading(true)
       try {
         const res = await deleteHistoryRecord(requestId)

@@ -1,8 +1,10 @@
 "use client"
 import { useState } from "react"
 import { updateSuperadminAccount, deleteSuperadminAccount } from "./actions"
+import { useConfirm } from "@/components/ui/use-confirm"
 
 export default function AccountRow({ account, units }: { account: any, units: any[] }) {
+  const { confirm } = useConfirm()
   const [isEditing, setIsEditing] = useState(false)
   const [role, setRole] = useState(account.role)
   
@@ -76,7 +78,7 @@ export default function AccountRow({ account, units }: { account: any, units: an
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <button onClick={() => setIsEditing(true)} className="text-blue-600 hover:text-blue-900 mr-4">Sửa</button>
         <button onClick={async () => {
-          if (confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
+          if (await confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
             const res = await deleteSuperadminAccount(account.id)
             if (res?.error) alert(res.error)
           }
