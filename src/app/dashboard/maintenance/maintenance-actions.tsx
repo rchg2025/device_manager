@@ -8,9 +8,22 @@ export default function MaintenanceActions({ maintenance, role }: { maintenance:
   const [isLoading, setIsLoading] = useState(false)
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    let liquidationReason = undefined;
+
+    if (newStatus === "LIQUIDATED") {
+      const reason = window.prompt("Vui lòng nhập Số văn bản / Lý do thanh lý:");
+      if (reason === null) {
+        // User cancelled, do nothing
+        e.target.value = maintenance.status;
+        return;
+      }
+      liquidationReason = reason;
+    }
+
     setIsLoading(true)
     try {
-      await updateMaintenanceStatus(maintenance.id, e.target.value)
+      await updateMaintenanceStatus(maintenance.id, newStatus, liquidationReason)
     } finally {
       setIsLoading(false)
     }
@@ -26,9 +39,11 @@ export default function MaintenanceActions({ maintenance, role }: { maintenance:
     }
   }
 
+  const hideSelect = maintenance.status === 'COMPLETED' || (maintenance.status === 'LIQUIDATED' && role === 'MANAGER');
+
   return (
     <div className="flex items-center justify-end gap-2">
-      {maintenance.status !== 'COMPLETED' && (
+      {!hideSelect && (
         <select 
           value={maintenance.status}
           onChange={handleStatusChange}

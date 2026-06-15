@@ -7,6 +7,7 @@ import { Wrench, X, Check } from "lucide-react"
 export default function MaintenanceModal({ equipmentId, equipmentName, availableQty }: { equipmentId: string, equipmentName: string, availableQty: number }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [status, setStatus] = useState("PENDING")
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
@@ -75,7 +76,7 @@ export default function MaintenanceModal({ equipmentId, equipmentName, available
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái hiện tại</label>
-                <select name="status" className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500">
+                <select name="status" value={status} onChange={(e) => setStatus(e.target.value)} className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500">
                   <option value="PENDING">Chờ sửa chữa</option>
                   <option value="IN_PROGRESS">Đang sửa chữa</option>
                   <option value="COMPLETED">Đã hoàn thành</option>
@@ -84,6 +85,13 @@ export default function MaintenanceModal({ equipmentId, equipmentName, available
                   <option value="LIQUIDATED">Đã thanh lý</option>
                 </select>
               </div>
+
+              {status === "LIQUIDATED" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Số văn bản / Lý do thanh lý</label>
+                  <input type="text" name="liquidationReason" required placeholder="Nhập số văn bản hoặc lý do thanh lý..." className="w-full border-gray-300 rounded-md text-sm py-2 px-3 border focus:border-blue-500 focus:ring-blue-500" />
+                </div>
+              )}
 
               </div>
               <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 shrink-0">

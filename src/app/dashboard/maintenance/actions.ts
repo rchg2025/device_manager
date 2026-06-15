@@ -12,7 +12,8 @@ export async function createMaintenance(formData: FormData) {
 
   const equipmentId = formData.get("equipmentId") as string | null
   const classroomEqId = formData.get("classroomEqId") as string | null
-  const description = formData.get("description") as string
+  let description = formData.get("description") as string
+  const liquidationReason = formData.get("liquidationReason") as string
   const cost = parseFloat(formData.get("cost") as string || "0")
   const status = formData.get("status") as string
   const dateStr = formData.get("date") as string
@@ -47,6 +48,10 @@ export async function createMaintenance(formData: FormData) {
     }
   }
 
+  if (status === "LIQUIDATED" && liquidationReason) {
+    description = `${description}\n\n[Thanh lý] Số văn bản / Lý do: ${liquidationReason}`
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.maintenance.create({
       data: {
@@ -71,9 +76,13 @@ export async function createMaintenance(formData: FormData) {
     // Giảm số lượng sẵn sàng nếu không phải hoàn thành ngay lập tức
     if (status !== "COMPLETED") {
       if (equipmentId) {
+        let updateData: any = { availableQty: { decrement: quantity } }
+        if (status === "LIQUIDATED") {
+          updateData.totalQty = { decrement: quantity }
+        }
         await tx.equipment.update({
           where: { id: equipmentId },
-          data: { availableQty: { decrement: quantity } }
+          data: updateData
         })
       } else if (classroomEqId) {
         await tx.classroomEquipment.update({
@@ -90,7 +99,7 @@ export async function createMaintenance(formData: FormData) {
   return { success: true }
 }
 
-export async function updateMaintenanceStatus(id: string, status: string) {
+export async function updateMaintenanceStatus(id: string, status: string, liquidationReason?: string) {
   const session = await auth()
   if (!session?.user?.role || (session.user.role !== "ADMIN" && session.user.role !== "MANAGER" && session.user.role !== "SUPERADMIN")) {
     return { error: "Bạn không có quyền thực hiện thao tác này" }
@@ -110,10 +119,16 @@ export async function updateMaintenanceStatus(id: string, status: string) {
   }
 
   await prisma.$transaction(async (tx) => {
+    let newDescription = existing.description;
+    if (status === "LIQUIDATED" && liquidationReason && existing.status !== "LIQUIDATED") {
+      newDescription = `${newDescription}\n\n[Thanh lý] Số văn bản / Lý do: ${liquidationReason}`;
+    }
+
     await tx.maintenance.update({
       where: { id },
       data: { 
         status,
+        description: newDescription,
         handlerName: session?.user?.name || session?.user?.email || "Unknown" 
       }
     })
@@ -126,27 +141,46 @@ export async function updateMaintenanceStatus(id: string, status: string) {
     })
 
     if (existing.equipmentId) {
-      // Nếu từ trạng thái khác chuyển sang COMPLETED, hoàn trả lại số lượng
-      if (existing.status !== "COMPLETED" && status === "COMPLETED") {
-        await tx.equipment.update({
-          where: { id: existing.equipmentId },
-          data: { availableQty: { increment: existing.quantity } }
-        })
+      let dTotal = 0;
+      let dAvailable = 0;
+
+      // Undo existing status effects
+      if (existing.status === 'LIQUIDATED') {
+        dTotal += existing.quantity;
+        dAvailable += existing.quantity;
+      } else if (existing.status !== 'COMPLETED') {
+        dAvailable += existing.quantity;
       }
-      // Nếu từ COMPLETED chuyển về trạng thái khác (trừ khi xoá), phải giảm lại
-      else if (existing.status === "COMPLETED" && status !== "COMPLETED") {
+
+      // Apply new status effects
+      if (status === 'LIQUIDATED') {
+        dTotal -= existing.quantity;
+        dAvailable -= existing.quantity;
+      } else if (status !== 'COMPLETED') {
+        dAvailable -= existing.quantity;
+      }
+
+      if (dTotal !== 0 || dAvailable !== 0) {
+        let updateData: any = {};
+        if (dTotal > 0) updateData.totalQty = { increment: dTotal };
+        if (dTotal < 0) updateData.totalQty = { decrement: -dTotal };
+        if (dAvailable > 0) updateData.availableQty = { increment: dAvailable };
+        if (dAvailable < 0) updateData.availableQty = { decrement: -dAvailable };
+
         await tx.equipment.update({
           where: { id: existing.equipmentId },
-          data: { availableQty: { decrement: existing.quantity } }
-        })
+          data: updateData
+        });
       }
     } else if (existing.classroomEqId) {
+      // Đối với thiết bị phòng học, quantity đóng vai trò là số lượng hiện diện trong phòng
       if (existing.status !== "COMPLETED" && status === "COMPLETED") {
         await tx.classroomEquipment.update({
           where: { id: existing.classroomEqId },
           data: { quantity: { increment: existing.quantity } }
         })
-      } else if (existing.status === "COMPLETED" && status !== "COMPLETED") {
+      }
+      else if (existing.status === "COMPLETED" && status !== "COMPLETED") {
         await tx.classroomEquipment.update({
           where: { id: existing.classroomEqId },
           data: { quantity: { decrement: existing.quantity } }
@@ -156,6 +190,9 @@ export async function updateMaintenanceStatus(id: string, status: string) {
   })
 
   revalidatePath("/dashboard/maintenance")
+  revalidatePath("/dashboard/equipments")
+  revalidatePath("/dashboard/classroom-equipments")
+  return { success: true }
 }
 
 export async function deleteMaintenance(id: string) {
@@ -179,9 +216,13 @@ export async function deleteMaintenance(id: string) {
     // Nếu xoá bản ghi bảo trì đang không ở trạng thái COMPLETED, trả lại số lượng
     if (existing.status !== "COMPLETED") {
       if (existing.equipmentId) {
+        let updateData: any = { availableQty: { increment: existing.quantity } }
+        if (existing.status === "LIQUIDATED") {
+          updateData.totalQty = { increment: existing.quantity }
+        }
         await tx.equipment.update({
           where: { id: existing.equipmentId },
-          data: { availableQty: { increment: existing.quantity } }
+          data: updateData
         })
       } else if (existing.classroomEqId) {
         await tx.classroomEquipment.update({
