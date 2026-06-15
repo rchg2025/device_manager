@@ -333,11 +333,11 @@ export async function getAllRoomsForExport(filters: { roomQuery?: string, manage
   }
   
   if (filters.managerQuery) {
-    whereClause.manager = { name: { contains: filters.managerQuery, mode: 'insensitive' } }
+    whereClause.manager = { nameSearch: { contains: normalizeForSearch(filters.managerQuery), mode: 'insensitive' } }
   }
   
   if (filters.equipmentQuery) {
-    whereClause.classroomEquipments = { some: { name: { contains: filters.equipmentQuery, mode: 'insensitive' } } }
+    whereClause.classroomEquipments = { some: { nameSearch: { contains: normalizeForSearch(filters.equipmentQuery), mode: 'insensitive' } } }
   }
 
   // Permissions restriction

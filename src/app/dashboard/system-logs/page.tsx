@@ -5,6 +5,7 @@ import { deleteLogsByAge } from "./actions"
 import ExportSystemLogsButton from "./export-button"
 import DeleteSystemLogsForm from "./delete-system-logs-form"
 import Pagination from "../pagination"
+import { normalizeForSearch } from "@/lib/search-utils"
 import {
   ShieldAlert, Trash2, Package, ClipboardList, Users,
   Tags, AlertTriangle, CheckCircle2, XCircle, ArrowLeft, ArrowRight,
@@ -61,7 +62,7 @@ export default async function SystemLogsPage({
   if (actionFilter) where.action = actionFilter
   if (entityFilter) where.entity = entityFilter
   if (userIdFilter) where.userId = userIdFilter
-  if (q) where.detail = { contains: q, mode: 'insensitive' }
+  if (q) where.searchString = { contains: normalizeForSearch(q), mode: 'insensitive' }
 
   const [total, logs, members] = await Promise.all([
     prisma.systemLog.count({ where }),

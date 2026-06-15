@@ -36,9 +36,9 @@ export default async function ClassroomMaintenancePage({
   const q = sp?.q;
   if (q) {
     whereClause.OR = [
-      { classroomEq: { name: { contains: q, mode: 'insensitive' } } },
-      { description: { contains: q, mode: 'insensitive' } },
-      { handlerName: { contains: q, mode: 'insensitive' } }
+      { classroomEq: { nameSearch: { contains: normalizeForSearch(q), mode: 'insensitive' } } },
+      { searchString: { contains: normalizeForSearch(q), mode: 'insensitive' } },
+      { searchString: { contains: normalizeForSearch(q), mode: 'insensitive' } }
     ]
   }
 

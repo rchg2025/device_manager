@@ -8,6 +8,8 @@ import ExportExcelButton from "./export-excel-button"
 import ExportQRCodeButton from "./export-qrcode-button"
 import Pagination from "../pagination"
 
+import { normalizeForSearch } from "@/lib/search-utils"
+
 export default async function EquipmentsPage({
   searchParams
 }: {
@@ -19,8 +21,9 @@ export default async function EquipmentsPage({
 
   const whereClause: any = {}
   if (nameFilter) {
+    const qNormalized = normalizeForSearch(nameFilter)
     whereClause.OR = [
-      { name: { contains: nameFilter, mode: 'insensitive' } },
+      { nameSearch: { contains: qNormalized, mode: 'insensitive' } },
       { barcode: { contains: nameFilter, mode: 'insensitive' } }
     ]
   }

@@ -7,6 +7,7 @@ import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
 import DeleteHistoryButton from "./delete-history-button"
 import Pagination from "../pagination"
+import { normalizeForSearch } from "@/lib/search-utils"
 
 export default async function RequestsPage({
   searchParams
@@ -45,7 +46,7 @@ export default async function RequestsPage({
   if (nameFilter && role !== "MEMBER") {
     whereClause.user = {
       OR: [
-        { name: { contains: nameFilter, mode: 'insensitive' } },
+        { nameSearch: { contains: normalizeForSearch(nameFilter), mode: 'insensitive' } },
         { email: { contains: nameFilter, mode: 'insensitive' } }
       ]
     }
@@ -57,10 +58,10 @@ export default async function RequestsPage({
 
   if (equipmentFilter) {
     if (whereClause.equipment) {
-      whereClause.equipment.name = { contains: equipmentFilter, mode: 'insensitive' }
+      whereClause.equipment.nameSearch = { contains: normalizeForSearch(equipmentFilter), mode: 'insensitive' }
     } else {
       whereClause.equipment = {
-        name: { contains: equipmentFilter, mode: 'insensitive' }
+        nameSearch: { contains: normalizeForSearch(equipmentFilter), mode: 'insensitive' }
       }
     }
   }

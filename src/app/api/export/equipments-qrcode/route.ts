@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const whereClause: any = {}
     if (nameFilter) {
       whereClause.OR = [
-        { name: { contains: nameFilter, mode: 'insensitive' } },
+        { nameSearch: { contains: normalizeForSearch(nameFilter), mode: 'insensitive' } },
         { barcode: { contains: nameFilter, mode: 'insensitive' } }
       ]
     }

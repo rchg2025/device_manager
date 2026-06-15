@@ -6,6 +6,7 @@ import FilterBar from "./filter-bar"
 import ExportExcelButton from "./export-excel-button"
 import ExportQRCodeButton from "./export-qrcode-button"
 import Pagination from "../../pagination"
+import { normalizeForSearch } from "@/lib/search-utils"
 
 export default async function ClassroomEquipmentsListPage({
   searchParams,
@@ -32,15 +33,15 @@ export default async function ClassroomEquipmentsListPage({
   const whereClause: any = {}
   
   if (roomQuery) {
-    whereClause.name = { contains: roomQuery, mode: 'insensitive' }
+    whereClause.nameSearch = { contains: normalizeForSearch(roomQuery), mode: 'insensitive' }
   }
   
   if (managerQuery) {
-    whereClause.manager = { name: { contains: managerQuery, mode: 'insensitive' } }
+    whereClause.manager = { nameSearch: { contains: normalizeForSearch(managerQuery), mode: 'insensitive' } }
   }
   
   if (equipmentQuery) {
-    whereClause.classroomEquipments = { some: { name: { contains: equipmentQuery, mode: 'insensitive' } } }
+    whereClause.classroomEquipments = { some: { nameSearch: { contains: normalizeForSearch(equipmentQuery), mode: 'insensitive' } } }
   }
 
   // Permissions restriction

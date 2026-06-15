@@ -35,10 +35,10 @@ export default async function MaintenancePage({
   const q = sp?.q;
   if (q) {
     whereClause.OR = [
-      { equipment: { name: { contains: q, mode: 'insensitive' } } },
+      { equipment: { nameSearch: { contains: normalizeForSearch(q), mode: 'insensitive' } } },
       { equipment: { barcode: { contains: q, mode: 'insensitive' } } },
-      { description: { contains: q, mode: 'insensitive' } },
-      { handlerName: { contains: q, mode: 'insensitive' } }
+      { searchString: { contains: normalizeForSearch(q), mode: 'insensitive' } },
+      { searchString: { contains: normalizeForSearch(q), mode: 'insensitive' } }
     ]
   }
 

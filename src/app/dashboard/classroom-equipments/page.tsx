@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import Pagination from "../pagination"
+import { normalizeForSearch } from "@/lib/search-utils"
 import ClassroomEqRow from "./equipment-row"
 import CreateClassroomEqForm from "./create-form"
 import { Upload, Plus, MonitorPlay } from "lucide-react"
@@ -33,7 +35,7 @@ export default async function ClassroomEquipmentsPage({
 
   const whereClause: any = {}
   if (query) {
-    whereClause.name = { contains: query, mode: 'insensitive' }
+    whereClause.nameSearch = { contains: normalizeForSearch(query), mode: 'insensitive' }
   }
   if (areaId) whereClause.areaId = areaId
   if (roomId) whereClause.roomId = roomId

@@ -27,12 +27,12 @@ export async function GET(request: Request) {
     const whereClause: any = {}
     
     if (roomName) {
-      whereClause.room = { name: { contains: roomName, mode: 'insensitive' } }
+      whereClause.room = { nameSearch: { contains: normalizeForSearch(roomName), mode: 'insensitive' } }
     }
     
     if (managerName) {
       if (!whereClause.room) whereClause.room = {}
-      whereClause.room.manager = { name: { contains: managerName, mode: 'insensitive' } }
+      whereClause.room.manager = { nameSearch: { contains: normalizeForSearch(managerName), mode: 'insensitive' } }
     }
     
     if (equipmentName) {

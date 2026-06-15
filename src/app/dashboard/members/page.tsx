@@ -1,5 +1,7 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import Link from "next/link"
+import { normalizeForSearch } from "@/lib/search-utils"
 import { prisma } from "@/lib/prisma"
 import MemberRow from "./member-row"
 import { createMember } from "./actions"
@@ -35,8 +37,9 @@ export default async function MembersPage({
   }
 
   if (query) {
+    const qNormalized = normalizeForSearch(query)
     whereClause.OR = [
-      { name: { contains: query, mode: 'insensitive' } },
+      { nameSearch: { contains: qNormalized, mode: 'insensitive' } },
       { email: { contains: query, mode: 'insensitive' } }
     ]
   }

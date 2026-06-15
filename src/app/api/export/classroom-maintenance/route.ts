@@ -29,9 +29,9 @@ export async function GET(request: Request) {
 
     if (q) {
       whereClause.OR = [
-        { classroomEq: { name: { contains: q, mode: 'insensitive' } } },
-        { description: { contains: q, mode: 'insensitive' } },
-        { handlerName: { contains: q, mode: 'insensitive' } }
+        { classroomEq: { nameSearch: { contains: normalizeForSearch(q), mode: 'insensitive' } } },
+        { searchString: { contains: normalizeForSearch(q), mode: 'insensitive' } },
+        { searchString: { contains: normalizeForSearch(q), mode: 'insensitive' } }
       ]
     }
 

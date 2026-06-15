@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ShoppingCart, Plus, Minus, Trash2, Send } from "lucide-react"
 import { createMultipleBorrowRequests } from "./actions"
 import QrScannerModal from "./qr-scanner-modal"
+import { normalizeForSearch } from "@/lib/search-utils"
 import toast from "react-hot-toast"
 
 type CartItem = {
@@ -194,11 +195,13 @@ export default function BorrowCart({ equipments, role = "MEMBER", members = [] }
                 
                 {isDropdownOpen && (
                   <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {equipments.filter(eq => 
-                      eq.name.toLowerCase().includes(searchEq.toLowerCase()) || 
-                      eq.category.name.toLowerCase().includes(searchEq.toLowerCase()) ||
-                      (eq.barcode && eq.barcode.toLowerCase().includes(searchEq.toLowerCase()))
-                    ).map(eq => (
+                    {equipments.filter(eq => {
+                      const qNormalized = normalizeForSearch(searchEq);
+                      const eqNameNorm = normalizeForSearch(eq.name);
+                      const catNameNorm = normalizeForSearch(eq.category.name);
+                      const barcodeNorm = normalizeForSearch(eq.barcode || "");
+                      return eqNameNorm.includes(qNormalized) || catNameNorm.includes(qNormalized) || barcodeNorm.includes(qNormalized);
+                    }).map(eq => (
                       <li 
                         key={eq.id}
                         className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-blue-50 text-sm border-b last:border-0"
@@ -217,11 +220,13 @@ export default function BorrowCart({ equipments, role = "MEMBER", members = [] }
                         </div>
                       </li>
                     ))}
-                    {equipments.filter(eq => 
-                      eq.name.toLowerCase().includes(searchEq.toLowerCase()) || 
-                      eq.category.name.toLowerCase().includes(searchEq.toLowerCase()) ||
-                      (eq.barcode && eq.barcode.toLowerCase().includes(searchEq.toLowerCase()))
-                    ).length === 0 && (
+                    {equipments.filter(eq => {
+                      const qNormalized = normalizeForSearch(searchEq);
+                      const eqNameNorm = normalizeForSearch(eq.name);
+                      const catNameNorm = normalizeForSearch(eq.category.name);
+                      const barcodeNorm = normalizeForSearch(eq.barcode || "");
+                      return eqNameNorm.includes(qNormalized) || catNameNorm.includes(qNormalized) || barcodeNorm.includes(qNormalized);
+                    }).length === 0 && (
                       <li className="p-3 text-sm text-gray-500 text-center">Không tìm thấy thiết bị phù hợp</li>
                     )}
                   </ul>
