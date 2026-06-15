@@ -14,7 +14,7 @@ export default function DeleteInventoryButton({
   const { confirm } = useConfirm()
   const [isPending, startTransition] = useTransition()
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const msg = type === "record" 
       ? "Bạn có chắc chắn muốn xóa bản ghi này?" 
       : "Bạn có chắc chắn muốn xóa đợt kiểm kê này? Mọi bản ghi quét mã trong đợt này sẽ bị xóa."

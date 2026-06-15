@@ -173,6 +173,5 @@ export default function CategoryRow({
         </div>
       </td>
     </tr>
-    </>
   )
 }
