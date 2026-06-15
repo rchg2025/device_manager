@@ -106,6 +106,7 @@ export default async function DashboardLayout({
   }
 
   return (
+    <ConfirmProvider>
     <div className="flex h-screen bg-gray-100 relative">
       {/* Sidebar Wrapper */}
       <DesktopSidebarWrapper>
@@ -303,5 +304,6 @@ export default async function DashboardLayout({
         </div>
       </main>
     </div>
+    </ConfirmProvider>
   )
 }
